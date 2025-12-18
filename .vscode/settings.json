@@ -1,0 +1,9 @@
+{
+  "dart.flutterRunAdditionalArgs": [
+    "--web-port",
+    "3000"
+  ],
+  "dart.flutterWebPort": 3000
+}
+
+
