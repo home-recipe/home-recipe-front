@@ -1,12 +1,13 @@
+/// API 공통 응답
 class ApiResponse<T> {
-  final int code;
-  final String message;
+  final int code;                
+  final String message;          
   final ResponseDetail<T?> response;
 
   ApiResponse({
     required this.code,
     required this.message,
-    required this.response
+    required this.response,
   });
 
   factory ApiResponse.fromJson(
@@ -16,18 +17,26 @@ class ApiResponse<T> {
     final responseJson = json['response'] as Map<String, dynamic>;
 
     return ApiResponse<T>(
-      code: json['code'],
-      message: json['message'],
+      code: json['code'] as int,
+      message: json['message'] as String,
       response: ResponseDetail<T?>(
-        code: responseJson['code'],
-        data: responseJson['data'] != null 
-          ? fromJsonT(responseJson['data']) 
-          : null
+        code: responseJson['code'] as String,
+        data: responseJson['data'] != null
+            ? fromJsonT(responseJson['data'] as Map<String, dynamic>)
+            : null,
       ),
     );
   }
 }
 
+class ResponseDetail<T> {
+  final String code;   
+  final T? data;
 
+  ResponseDetail({
+    required this.code,
+    this.data,
+  });
+}
 
 

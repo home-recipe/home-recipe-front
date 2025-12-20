@@ -43,3 +43,23 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Dart/ Flutter 빌드 시 자동 생성되는 캐시 디렉토리로 패키지 해석 결과, 분석 캐시가 들어있음
+# 환경, OS, SDK 버전마다 내용이 달라 충돌될 수 있음 
+# Flutter / Dart
+.dart_tool/
+.pub-cache/
+build/
+
+# IDE
+.idea/
+.vscode/
+.metadata
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*

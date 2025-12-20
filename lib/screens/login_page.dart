@@ -71,15 +71,12 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       // HTTP 상태 코드가 200이거나 success가 true면 성공
-      // 로그인 성공 시 홈 화면으로 이동
-      if (response.statusCode == 200 || response.success) {
-        if (mounted) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const MainNavigation(initialIndex: 1)),
-            (route) => false,
-          );
-        }
+      // 로그인 성공 시 My 화면으로 이동
+      if (response.code == 200) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const MainNavigation(initialIndex: 2)),
+          (_) => false,
+        );
       }
     } catch (e) {
       if (!mounted) return;

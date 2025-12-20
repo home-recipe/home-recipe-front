@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
-import '../services/api_service.dart';
-import '../services/token_service.dart';
+import '../utils/logout_helper.dart';
 
 class RecipePage extends StatefulWidget {
   final String? recipeName;
@@ -24,129 +22,6 @@ class RecipePage extends StatefulWidget {
 class _RecipePageState extends State<RecipePage> {
   final GlobalKey _accountButtonKey = GlobalKey();
 
-  // ------------------------------
-  // 로그아웃 메뉴
-  // ------------------------------
-  void _showLogoutMenu(BuildContext context) {
-    final RenderBox? renderBox =
-    _accountButtonKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
-
-    final Size size = renderBox.size;
-    final Offset offset = renderBox.localToGlobal(Offset.zero);
-
-    showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        offset.dx + size.width - 130,
-        offset.dy + size.height + 4,
-        offset.dx + size.width,
-        offset.dy + size.height + 50,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      items: [
-        PopupMenuItem(
-          padding: EdgeInsets.zero,
-          height: 0,
-          child: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-              _handleLogout(context);
-            },
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: [
-                  Icon(Icons.logout, size: 14, color: Color(0xFF2C2C2C)),
-                  SizedBox(width: 10),
-                  Text(
-                    '로그아웃',
-                    style: TextStyle(
-                      fontFamily: 'GowunBatang',
-                      fontSize: 14,
-                      color: Color(0xFF2C2C2C),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _handleLogout(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Text(
-            '로그아웃',
-            style: TextStyle(
-              fontFamily: 'GowunBatang',
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: const Text(
-            '로그아웃 하시겠습니까?',
-            style: TextStyle(
-              fontFamily: 'GowunBatang',
-              fontSize: 15,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                '취소',
-                style: TextStyle(
-                  fontFamily: 'GowunBatang',
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                
-                // 로그아웃 API 호출
-                try {
-                  await ApiService.logout();
-                } catch (e) {
-                  // 에러가 발생해도 토큰은 삭제하고 로그인 페이지로 이동
-                  await TokenService.clearTokens();
-                }
-                
-                // 로그인 페이지로 이동 (모든 페이지 스택 제거)
-                if (context.mounted) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginPage()),
-                    (_) => false,
-                  );
-                }
-              },
-              child: const Text(
-                '로그아웃',
-                style: TextStyle(
-                  fontFamily: 'GowunBatang',
-                  color: Color(0xFFDEAE71),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   // ------------------------------
   // UI 시작
@@ -193,7 +68,7 @@ class _RecipePageState extends State<RecipePage> {
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
                           key: _accountButtonKey,
-                          onTap: () => _showLogoutMenu(context),
+                          onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(

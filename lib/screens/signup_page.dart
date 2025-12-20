@@ -134,12 +134,10 @@ class _SignUpPageState extends State<SignUpPage> {
         _isCheckingEmail = false;
         _isEmailChecked = true;
         
-        if (response.success) {
-          // 성공: 200 OK - 이메일 사용 가능
+        if (response.code == 200) {
           _isEmailVerified = true;
           _emailCheckMessage = '이메일 인증 완료';
         } else {
-          // 실패: 409 등 - 이메일 중복
           _isEmailVerified = false;
           _emailCheckMessage = response.message ?? '이미 가입된 이메일입니다.';
         }
@@ -196,9 +194,7 @@ class _SignUpPageState extends State<SignUpPage> {
         _isLoading = false;
       });
 
-      // HTTP 상태 코드가 201이거나 success가 true면 성공
-      if (response.statusCode == 201 || response.success) {
-        // 회원가입 성공 - 로그인 화면으로 리다이렉트
+      if (response.code == 201) {
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const LoginPage()),

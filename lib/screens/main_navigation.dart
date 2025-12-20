@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'recipe_page.dart';
 import 'my_page.dart';
+import 'recommendation_page.dart';
 
 class MainNavigation extends StatefulWidget {
   final int initialIndex;
   
   const MainNavigation({
     super.key,
-    this.initialIndex = 1, // 기본값: Cook (레시피)
+    this.initialIndex = 2,
   });
 
   @override
@@ -17,15 +18,16 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   late int _currentIndex;
   late final List<Widget> _pages;
+  final GlobalKey<MyPageState> _myPageKey = GlobalKey<MyPageState>();
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
     _pages = [
-      const RecipePage(), // Store (추천 레시피) - 인덱스 0
+      const RecommendationPage(), // Store (추천 레시피) - 인덱스 0
       const RecipePage(), // Cook (레시피 만들기) - 인덱스 1
-      const MyPage(), // My (재료 관리) - 인덱스 2
+      MyPage(key: _myPageKey), // My (재료 관리) - 인덱스 2
     ];
   }
 
@@ -33,6 +35,11 @@ class _MainNavigationState extends State<MainNavigation> {
     setState(() {
       _currentIndex = index;
     });
+    
+    // My 탭을 클릭하면 데이터 새로고침
+    if (index == 2 && _myPageKey.currentState != null) {
+      _myPageKey.currentState!.refreshData();
+    }
   }
 
   @override

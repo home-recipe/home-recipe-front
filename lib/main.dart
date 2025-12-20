@@ -22,9 +22,6 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginPage(),
-        '/home': (context) => const MainNavigation(initialIndex: 1),
-        '/my': (context) => const MyPage(),
-        '/recipe': (context) => const RecipePage(),
       },
       debugShowCheckedModeBanner: false,
     );
