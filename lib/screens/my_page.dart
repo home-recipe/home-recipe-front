@@ -92,6 +92,7 @@ class MyPageState extends State<MyPage> {
     final TextEditingController searchController = TextEditingController();
     List<IngredientResponse> searchResults = [];
     bool isSearching = false;
+    bool hasSearched = false; // 검색을 한 번이라도 했는지 여부
 
     await showDialog(
       context: context,
@@ -111,8 +112,12 @@ class MyPageState extends State<MyPage> {
                   color: Color(0xFF2C2C2C),
                 ),
               ),
-              content: SizedBox(
-                width: double.maxFinite,
+              content: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 400,
+                  maxHeight: 500,
+                  minWidth: 0,
+                ),
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -151,8 +156,15 @@ class MyPageState extends State<MyPage> {
                         ),
                         onSubmitted: (value) async {
                           if (value.trim().isEmpty) return;
+                          setState(() {
+                            isSearching = true;
+                          });
                           await _searchIngredients(context, value.trim(), setState, (results) {
-                            searchResults = results;
+                            setState(() {
+                              searchResults = results;
+                              isSearching = false;
+                              hasSearched = true;
+                            });
                           });
                         },
                       ),
@@ -171,8 +183,11 @@ class MyPageState extends State<MyPage> {
                                   searchController.text.trim(),
                                   setState,
                                   (results) {
-                                    searchResults = results;
-                                    isSearching = false;
+                                    setState(() {
+                                      searchResults = results;
+                                      isSearching = false;
+                                      hasSearched = true;
+                                    });
                                   },
                                 );
                               },
@@ -230,47 +245,152 @@ class MyPageState extends State<MyPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // 검색 결과 목록
-                      if (searchResults.isNotEmpty)
+                      // 검색 결과 영역
+                      if (hasSearched)
                         Container(
-                          constraints: const BoxConstraints(maxHeight: 300),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: searchResults.length,
-                            itemBuilder: (context, index) {
-                              final ingredient = searchResults[index];
-                              return MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    _showAddConfirmDialog(context, ingredient);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 12,
-                                    ),
-                                    margin: const EdgeInsets.only(bottom: 8),
+                          constraints: const BoxConstraints(maxHeight: 250),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (searchResults.isNotEmpty) ...[
+                                  // 검색 결과 헤더
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.check_circle_outline,
+                                        size: 18,
+                                        color: Color(0xFFDEAE71),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        '${searchResults.length}개의 재료를 찾았어요',
+                                        style: const TextStyle(
+                                          fontFamily: 'GowunBatang',
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF2C2C2C),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  // 검색 결과 목록
+                                  ...searchResults.map((ingredient) {
+                                    return Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: const Color(0xFFDEAE71).withValues(alpha: 0.3),
+                                          width: 1.5,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.05),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            _showAddConfirmDialog(context, ingredient);
+                                          },
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 14,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 40,
+                                                  height: 40,
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFDEAE71).withValues(alpha: 0.1),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.restaurant,
+                                                    size: 20,
+                                                    color: Color(0xFFDEAE71),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Text(
+                                                    ingredient.name,
+                                                    style: const TextStyle(
+                                                      fontFamily: 'GowunBatang',
+                                                      fontSize: 15,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: Color(0xFF2C2C2C),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const Icon(
+                                                  Icons.chevron_right,
+                                                  size: 20,
+                                                  color: Color(0xFFDEAE71),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ] else ...[
+                                  // 검색 결과 없음
+                                  Container(
+                                    padding: const EdgeInsets.all(24),
                                     decoration: BoxDecoration(
                                       color: Colors.grey.shade50,
-                                      borderRadius: BorderRadius.circular(8),
+                                      borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
                                         color: Colors.grey.shade200,
                                       ),
                                     ),
-                                    child: Text(
-                                      ingredient.name,
-                                      style: const TextStyle(
-                                        fontFamily: 'GowunBatang',
-                                        fontSize: 14,
-                                        color: Color(0xFF2C2C2C),
-                                      ),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.search_off,
+                                          size: 48,
+                                          color: Colors.grey.shade400,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        const Text(
+                                          '검색 결과가 없어요',
+                                          style: TextStyle(
+                                            fontFamily: 'GowunBatang',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF2C2C2C),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '재료를 직접 등록할 수 있어요!',
+                                          style: TextStyle(
+                                            fontFamily: 'GowunBatang',
+                                            fontSize: 13,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                              );
-                            },
+                                ],
+                              ],
+                            ),
                           ),
                         ),
                     ],
@@ -304,10 +424,6 @@ class MyPageState extends State<MyPage> {
     StateSetter setState,
     Function(List<IngredientResponse>) onResult,
   ) async {
-    setState(() {
-      // isSearching은 다이얼로그 내부 변수이므로 여기서는 직접 관리하지 않음
-    });
-
     try {
       final response = await ApiService.findIngredientsByName(name);
 
@@ -321,10 +437,38 @@ class MyPageState extends State<MyPage> {
         setState(() {
           onResult([]);
         });
+        // 다이얼로그 내부에서는 ScaffoldMessenger 대신 직접 메시지 표시
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                response.message,
+                style: const TextStyle(
+                  fontFamily: 'GowunBatang',
+                  fontSize: 14,
+                ),
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      setState(() {
+        onResult([]);
+      });
+      // 다이얼로그 내부에서는 ScaffoldMessenger 대신 직접 메시지 표시
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              response.message,
+              '재료 검색 중 오류가 발생했습니다: $e',
               style: const TextStyle(
                 fontFamily: 'GowunBatang',
                 fontSize: 14,
@@ -335,30 +479,10 @@ class MyPageState extends State<MyPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
-    } catch (e) {
-      if (!context.mounted) return;
-      setState(() {
-        onResult([]);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '재료 검색 중 오류가 발생했습니다: $e',
-            style: const TextStyle(
-              fontFamily: 'GowunBatang',
-              fontSize: 14,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
     }
   }
 
