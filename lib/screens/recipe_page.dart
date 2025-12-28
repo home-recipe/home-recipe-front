@@ -1,4 +1,7 @@
+import 'dart:math';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 import '../utils/logout_helper.dart';
 import '../services/api_service.dart';
 import '../models/recipes_response.dart';
@@ -24,6 +27,10 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   List<RecipeDetail> _recipes = [];
   late AnimationController _loadingController;
   late AnimationController _pulseController;
+  VideoPlayerController? _videoController;
+  bool _isVideoInitializing = false;
+  int _currentVideoIndex = 0;
+  bool _videoListenerAdded = false;
 
   @override
   void initState() {
@@ -42,7 +49,95 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   void dispose() {
     _loadingController.dispose();
     _pulseController.dispose();
+    _videoController?.removeListener(_videoListener);
+    _videoController?.removeListener(_onVideoEnd);
+    _videoController?.dispose();
     super.dispose();
+  }
+
+  // ------------------------------
+  // 비디오 초기화 함수
+  // ------------------------------
+  Future<void> _initializeVideo() async {
+    try {
+      setState(() {
+        _isVideoInitializing = true;
+      });
+
+      // 순차적으로 비디오 선택 (1.mp4 ~ 6.mp4)
+      final videoNumber = (_currentVideoIndex % 6) + 1;
+      
+      _videoController?.removeListener(_videoListener);
+      _videoController?.dispose();
+      _videoListenerAdded = false;
+      
+      if (kIsWeb) {
+        // 웹: 네트워크 URL 사용 (asset 경로를 웹 경로로 변환)
+        final videoUrl = '/assets/videos/$videoNumber.mp4';
+        _videoController = VideoPlayerController.network(videoUrl);
+      } else {
+        // 모바일: asset 비디오 사용
+        final videoPath = 'assets/videos/$videoNumber.mp4';
+        _videoController = VideoPlayerController.asset(videoPath);
+      }
+      
+      // 비디오 컨트롤러에 리스너 추가 (한 번만)
+      if (!_videoListenerAdded) {
+        _videoController!.addListener(_videoListener);
+        _videoListenerAdded = true;
+      }
+      
+      await _videoController!.initialize();
+      _videoController!.setLooping(false); // 반복하지 않음
+      
+      // 비디오가 끝나면 다음 비디오로 자동 전환
+      _videoController!.addListener(_onVideoEnd);
+      
+      _videoController!.play();
+      
+      if (mounted) {
+        setState(() {
+          _isVideoInitializing = false;
+        });
+      }
+    } catch (e) {
+      // 비디오 초기화 실패 시 기존 컨트롤러 정리
+      _videoController?.removeListener(_videoListener);
+      _videoController?.removeListener(_onVideoEnd);
+      _videoController?.dispose();
+      _videoController = null;
+      _videoListenerAdded = false;
+      if (mounted) {
+        setState(() {
+          _isVideoInitializing = false;
+        });
+      }
+      // 에러는 조용히 처리 (비디오 없이 진행)
+      print('비디오 초기화 실패: $e');
+    }
+  }
+
+  // 비디오 리스너 (초기화 완료 시 한 번만 호출)
+  void _videoListener() {
+    if (_videoController != null && 
+        _videoController!.value.isInitialized && 
+        mounted && 
+        _isVideoInitializing) {
+      setState(() {
+        _isVideoInitializing = false;
+      });
+    }
+  }
+
+  // 비디오 종료 시 다음 비디오로 전환
+  void _onVideoEnd() {
+    if (_videoController != null && 
+        _videoController!.value.position >= _videoController!.value.duration &&
+        _videoController!.value.duration > Duration.zero) {
+      // 다음 비디오로 전환
+      _currentVideoIndex++;
+      _initializeVideo();
+    }
   }
 
   // ------------------------------
@@ -53,7 +148,15 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
       _pageState = RecipePageState.loading;
     });
 
+    // 비디오 초기화 (비동기로 실행하되 기다리지 않음 - 병렬 처리)
+    _initializeVideo();
+
     final response = await ApiService.createRecipes();
+
+    // 비디오 정리
+    _videoController?.pause();
+    _videoController?.dispose();
+    _videoController = null;
 
     if (response.code == 201 && response.response.data != null) {
       setState(() {
@@ -229,40 +332,86 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   }
 
   // ------------------------------
-  // 로딩 화면: 재미있는 애니메이션
+  // 로딩 화면: 비디오 재생 (모바일) 또는 애니메이션 (웹)
   // ------------------------------
   Widget _buildLoadingScreen(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // 회전하는 요리 아이콘들
-          AnimatedBuilder(
-            animation: _loadingController,
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: _loadingController.value * 2 * 3.14159,
-                child: Container(
-                  width: 120,
-                  height: 120,
+          // 비디오가 초기화되면 비디오 재생, 아니면 회전 아이콘
+          Builder(
+            builder: (context) {
+              // 디버깅: 현재 상태 출력
+              final isWeb = kIsWeb;
+              final hasController = _videoController != null;
+              final isInitialized = _videoController?.value.isInitialized ?? false;
+              print('로딩 화면 렌더링: kIsWeb=$isWeb, hasController=$hasController, isInitialized=$isInitialized');
+              
+              if (_videoController != null && _videoController!.value.isInitialized) {
+                // 비디오 플레이어 (웹/모바일 모두) - 크게 표시
+                final screenWidth = MediaQuery.of(context).size.width;
+                final videoWidth = screenWidth * 0.7; // 화면 너비의 70%
+                final videoHeight = videoWidth * (_videoController!.value.aspectRatio > 0 
+                    ? 1 / _videoController!.value.aspectRatio 
+                    : 1);
+                
+                return Container(
+                  width: videoWidth,
+                  height: videoHeight,
+                  constraints: const BoxConstraints(
+                    maxWidth: 500,
+                    maxHeight: 500,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.restaurant,
-                    size: 64,
-                    color: Color(0xFFDEAE71),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: AspectRatio(
+                      aspectRatio: _videoController!.value.aspectRatio,
+                      child: VideoPlayer(_videoController!),
+                    ),
                   ),
-                ),
-              );
+                );
+              } else {
+                // 비디오 로딩 중 또는 초기화 실패 시 회전 아이콘
+                return AnimatedBuilder(
+                  animation: _loadingController,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: _loadingController.value * 2 * 3.14159,
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.restaurant,
+                          size: 64,
+                          color: Color(0xFFDEAE71),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
             },
           ),
           const SizedBox(height: 40),
