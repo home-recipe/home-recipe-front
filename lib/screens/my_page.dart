@@ -3,6 +3,7 @@ import '../services/api_service.dart';
 import '../models/ingredient_category.dart';
 import '../models/ingredient_response.dart';
 import '../utils/logout_helper.dart';
+import 'my_page/my_page_controller.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -12,79 +13,71 @@ class MyPage extends StatefulWidget {
 }
 
 class MyPageState extends State<MyPage> {
-
+  final MyPageController _controller = MyPageController();
   final GlobalKey _accountButtonKey = GlobalKey();
   
-  // 카테고리 목록 (서버 enum 값 그대로)
-  final List<String> _categories = IngredientCategory.values;
-  
-  int _currentCategoryIndex = 0; // 기본값: 채소 (0번 인덱스)
-  
-  // 냉장고 재료 목록
-  List<IngredientResponse> _ingredients = [];
-  bool _isLoading = false;
+  Future<void> _loadRefrigerator() async {
+    await _controller.loadRefrigerator();
+  }
+
+  List<IngredientResponse> get _currentCategoryIngredients => _controller.currentCategoryIngredients;
   
   @override
   void initState() {
     super.initState();
-    _loadRefrigerator();
-  }
-  
-  // 외부에서 호출할 수 있는 새로고침 메서드
-  void refreshData() {
-    _loadRefrigerator();
-  }
-  
-  // 냉장고 데이터 로드
-  Future<void> _loadRefrigerator() async {
-    setState(() {
-      _isLoading = true;
-    });
-    
-    try {
-      final response = await ApiService.getRefrigerator();
-      
-      if (!mounted) return;
-      
-      if (response.code == 200 && response.response.data != null) {
-        setState(() {
-          _ingredients = response.response.data!.myRefrigerator;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _ingredients = [];
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _ingredients = [];
-        _isLoading = false;
-      });
-      debugPrint('냉장고 조회 오류: $e');
-    }
-  }
-  
-  // 현재 선택된 카테고리의 재료만 필터링
-  List<IngredientResponse> get _currentCategoryIngredients {
-    final currentCategory = _categories[_currentCategoryIndex];
-    return _ingredients
-        .where((ingredient) => ingredient.category == currentCategory)
-        .toList();
-  }
-  
-  void _moveToPreviousCategory() {
-    setState(() {
-      _currentCategoryIndex = (_currentCategoryIndex - 1 + _categories.length) % _categories.length;
+    _controller.loadRefrigerator();
+    //컨트롤러의 상태가 바뀔때마다 화면을 다시 그리도록 설정 
+    _controller.addListener(() {
+      if (mounted) setState(() {});
     });
   }
+
+  @override
+  void dispose() {
+    _controller.dispose(); // 메모리 해제
+    super.dispose();
+  }
   
-  void _moveToNextCategory() {
-    setState(() {
-      _currentCategoryIndex = (_currentCategoryIndex + 1) % _categories.length;
-    });
+  // 외부에서 호출하던 refreshData도 간단해짐
+  void refreshData() => _controller.loadRefrigerator();
+
+// --- 추가된 헬퍼 메서드 ---
+//오른쪽위에 사람계정, 누르면 로그아웃 메뉴 나옴
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              key: _accountButtonKey,
+              onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.account_circle,
+                  size: 32,
+                  color: Color(0xFF2C2C2C),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // 재료 추가 다이얼로그
@@ -975,79 +968,34 @@ class MyPageState extends State<MyPage> {
   // 재료 삭제
   Future<void> _deleteIngredient(BuildContext context, IngredientResponse ingredient) async {
     try {
-      final response = await ApiService.deleteIngredient(ingredient.id);
+      bool success = await _controller.deleteIngredient(ingredient.id);
 
       if (!mounted) return;
 
-      if (response.code == 200) {
-        // 성공 시 재료 목록에서 제거
-        setState(() {
-          _ingredients.removeWhere((item) => item.id == ingredient.id);
-        });
-        
+      if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              '재료가 삭제되었습니다',
-              style: TextStyle(
-                fontFamily: 'GowunBatang',
-                fontSize: 14,
-              ),
-            ),
+          const SnackBar(
+            content: Text('재료가 삭제되었습니다', style: TextStyle(fontFamily: 'GowunBatang')),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
           ),
         );
       } else {
-        // 에러 메시지 표시
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              response.message,
-              style: const TextStyle(
-                fontFamily: 'GowunBatang',
-                fontSize: 14,
-              ),
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+          const SnackBar(content: Text('삭제에 실패했습니다'), backgroundColor: Colors.red),
         );
       }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '재료 삭제 중 오류가 발생했습니다: $e',
-            style: const TextStyle(
-              fontFamily: 'GowunBatang',
-              fontSize: 14,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
+      debugPrint('삭제 중 오류: $e');
     }
   }
 
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // 배경 이미지
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -1056,126 +1004,29 @@ class MyPageState extends State<MyPage> {
               ),
             ),
           ),
-          // 배경 이미지 위에 오버레이 추가 (가독성 향상)
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.white.withValues(alpha: 0.2),
-                  Colors.white.withValues(alpha: 0.4),
+                  Colors.white.withOpacity(0.2),
+                  Colors.white.withOpacity(0.4),
                 ],
               ),
             ),
           ),
-          // 메인 컨텐츠
           SafeArea(
             child: Column(
               children: [
-                // 상단 앱바 (계정 아이콘)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          key: _accountButtonKey,
-                          onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.account_circle,
-                              size: 32,
-                              color: Color(0xFF2C2C2C),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _buildHeader(), // 상단 계정 아이콘
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
                         const SizedBox(height: 20),
-                        // 카테고리 네비게이션 (그리드 바깥)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4, bottom: 12),
-                          child: Row(
-                            children: [
-                              // 카테고리 이름 (중앙 정렬을 위한 공간)
-                              SizedBox(
-                                width: 100, // 고정 너비로 화살표 위치 고정
-                                child: Text(
-                                  IngredientCategory.toDisplayName(_categories[_currentCategoryIndex]),
-                                  style: const TextStyle(
-                                    fontFamily: 'GowunBatang',
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF2C2C2C),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              // 이전 카테고리 버튼
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap: _moveToPreviousCategory,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.5),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.chevron_left,
-                                      size: 20,
-                                      color: Color(0xFF2C2C2C),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              // 다음 카테고리 버튼
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap: _moveToNextCategory,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.5),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.chevron_right,
-                                      size: 20,
-                                      color: Color(0xFF2C2C2C),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // 반투명 카드 컨테이너 (그리드 공간)
+                        _buildCategoryNavigation(),
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
@@ -1183,7 +1034,7 @@ class MyPageState extends State<MyPage> {
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
+                                color: Colors.black.withOpacity(0.1),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -1192,10 +1043,10 @@ class MyPageState extends State<MyPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // 재료 목록 표시 (모든 카테고리에서 동일한 높이로 고정)
                               SizedBox(
-                                height: 280, // 고정 높이 (채소보다 살짝 작게)
-                                child: _isLoading
+                                height: 280,
+                                // (수정) _isLoading -> _controller.isLoading
+                                child: _controller.isLoading
                                     ? const Center(
                                         child: CircularProgressIndicator(
                                           valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFDEAE71)),
@@ -1216,10 +1067,10 @@ class MyPageState extends State<MyPage> {
                                             shrinkWrap: false,
                                             physics: const AlwaysScrollableScrollPhysics(),
                                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 7, // 가로 7개
+                                              crossAxisCount: 7,
                                               crossAxisSpacing: 8,
                                               mainAxisSpacing: 12,
-                                              childAspectRatio: 2.5, // 가로가 더 긴 형태로 조정
+                                              childAspectRatio: 2.5,
                                             ),
                                             itemCount: _currentCategoryIngredients.length,
                                             itemBuilder: (context, index) {
@@ -1230,19 +1081,12 @@ class MyPageState extends State<MyPage> {
                                                   onTap: () => _showDeleteConfirmDialog(context, ingredient),
                                                   child: Container(
                                                     decoration: BoxDecoration(
-                                                      color: Colors.white.withValues(alpha: 0.9),
+                                                      color: Colors.white.withOpacity(0.9),
                                                       borderRadius: BorderRadius.circular(12),
                                                       border: Border.all(
-                                                        color: const Color(0xFFDEAE71).withValues(alpha: 0.4),
+                                                        color: const Color(0xFFDEAE71).withOpacity(0.4),
                                                         width: 1.5,
                                                       ),
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: Colors.black.withValues(alpha: 0.05),
-                                                          blurRadius: 4,
-                                                          offset: const Offset(0, 2),
-                                                        ),
-                                                      ],
                                                     ),
                                                     child: Center(
                                                       child: Padding(
@@ -1268,7 +1112,6 @@ class MyPageState extends State<MyPage> {
                                           ),
                               ),
                               const SizedBox(height: 20),
-                              // 재료 추가하기 버튼
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: ElevatedButton(
@@ -1276,29 +1119,17 @@ class MyPageState extends State<MyPage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFDEAE71),
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 12,
-                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    elevation: 2,
                                   ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.add, size: 20),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        '재료 추가하기',
-                                        style: TextStyle(
-                                          fontFamily: 'GowunBatang',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ],
+                                  child: const Text(
+                                    '재료 추가하기',
+                                    style: TextStyle(
+                                      fontFamily: 'GowunBatang',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1313,6 +1144,58 @@ class MyPageState extends State<MyPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+  //카테고리 네비게이션 부분을 별도 함수로 추출 
+  Widget _buildCategoryNavigation() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 12),
+      child : Row(
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              IngredientCategory.toDisplayName(_controller.currentCategory),
+              style: const TextStyle(
+                fontFamily: 'GowunBatang',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF2C2C2C),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          //이전 버튼
+          _buildArrowButton(
+            icon: Icons.chevron_left,
+            onTap: _controller.previousCategory,
+          ),
+          const SizedBox(width: 8),
+          //다음 버튼
+          _buildArrowButton(
+            icon: Icons.chevron_right,
+            onTap: _controller.nextCategory,
+          ),
+        ],
+      ),
+    );
+  }
+
+  //화살표 버튼 디자인도 별도 함수로 추출
+  Widget _buildArrowButton({required IconData icon, required VoidCallback onTap}) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.5),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 20, color: const Color(0xFF2C2C2C)),
+        ),
       ),
     );
   }

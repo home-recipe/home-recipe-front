@@ -31,6 +31,12 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   bool _isVideoInitializing = false;
   int _currentVideoIndex = 0;
   bool _videoListenerAdded = false;
+  int _currentRecipeIndex = 0;
+  final PageController _recipePageController = PageController();
+  
+  // 사용 가능한 비디오 파일 목록 (파일명만 지정, 확장자 제외)
+  // 숫자나 영어 파일명 모두 가능 (예: '1', 'cooking', 'recipe_video' 등)
+  static const List<String> _availableVideos = ['1', '3', '4', '5', '6'];
 
   @override
   void initState() {
@@ -52,6 +58,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
     _videoController?.removeListener(_videoListener);
     _videoController?.removeListener(_onVideoEnd);
     _videoController?.dispose();
+    _recipePageController.dispose();
     super.dispose();
   }
 
@@ -59,61 +66,100 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   // 비디오 초기화 함수
   // ------------------------------
   Future<void> _initializeVideo() async {
-    try {
+    if (_availableVideos.isEmpty) {
+      // 사용 가능한 비디오가 없으면 로딩만 표시
       setState(() {
-        _isVideoInitializing = true;
+        _isVideoInitializing = false;
       });
+      return;
+    }
 
-      // 순차적으로 비디오 선택 (1.mp4 ~ 6.mp4)
-      final videoNumber = (_currentVideoIndex % 6) + 1;
+    final random = Random();
+    // 최대 3번까지 재시도
+    int retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      // 매번 랜덤하게 비디오 선택
+      final videoFileName = _availableVideos[random.nextInt(_availableVideos.length)];
       
-      _videoController?.removeListener(_videoListener);
-      _videoController?.dispose();
-      _videoListenerAdded = false;
-      
-      if (kIsWeb) {
-        // 웹: 네트워크 URL 사용 (asset 경로를 웹 경로로 변환)
-        final videoUrl = '/assets/videos/$videoNumber.mp4';
-        _videoController = VideoPlayerController.network(videoUrl);
-      } else {
-        // 모바일: asset 비디오 사용
-        final videoPath = 'assets/videos/$videoNumber.mp4';
-        _videoController = VideoPlayerController.asset(videoPath);
-      }
-      
-      // 비디오 컨트롤러에 리스너 추가 (한 번만)
-      if (!_videoListenerAdded) {
+      try {
+        setState(() {
+          _isVideoInitializing = true;
+        });
+
+        // 기존 컨트롤러 완전히 정리
+        if (_videoController != null) {
+          try {
+            _videoController!.pause();
+            _videoController!.removeListener(_videoListener);
+            _videoController!.removeListener(_onVideoEnd);
+            await _videoController!.dispose();
+          } catch (e) {
+            print('비디오 컨트롤러 정리 중 오류: $e');
+          }
+          _videoController = null;
+        }
+        _videoListenerAdded = false;
+        
+        if (kIsWeb) {
+          // 웹: 네트워크 URL 사용 (asset 경로를 웹 경로로 변환)
+          final videoUrl = '/assets/videos/$videoFileName.mp4';
+          _videoController = VideoPlayerController.network(videoUrl);
+        } else {
+          // 모바일: asset 비디오 사용
+          final videoPath = 'assets/videos/$videoFileName.mp4';
+          _videoController = VideoPlayerController.asset(videoPath);
+        }
+        
+        await _videoController!.initialize();
+        _videoController!.setLooping(false); // 반복하지 않음
+        
+        // 리스너 추가 (초기화 후에만)
         _videoController!.addListener(_videoListener);
+        _videoController!.addListener(_onVideoEnd);
         _videoListenerAdded = true;
+        
+        _videoController!.play();
+        
+        if (mounted) {
+          setState(() {
+            _isVideoInitializing = false;
+          });
+        }
+        // 성공하면 루프 종료
+        return;
+      } catch (e) {
+        // 비디오 초기화 실패 시 기존 컨트롤러 정리
+        if (_videoController != null) {
+          try {
+            _videoController!.pause();
+            _videoController!.removeListener(_videoListener);
+            _videoController!.removeListener(_onVideoEnd);
+            await _videoController!.dispose();
+          } catch (e) {
+            print('비디오 컨트롤러 정리 중 오류: $e');
+          }
+          _videoController = null;
+        }
+        _videoListenerAdded = false;
+        
+        retryCount++;
+        if (retryCount < maxRetries) {
+          print('비디오 $videoFileName.mp4 초기화 실패, 다른 비디오로 재시도...');
+          // 다음 반복에서 다른 비디오 시도
+          continue;
+        } else {
+          // 모든 재시도 실패
+          if (mounted) {
+            setState(() {
+              _isVideoInitializing = false;
+            });
+          }
+          print('비디오 초기화 실패 (모든 재시도 실패): $e');
+          return;
+        }
       }
-      
-      await _videoController!.initialize();
-      _videoController!.setLooping(false); // 반복하지 않음
-      
-      // 비디오가 끝나면 다음 비디오로 자동 전환
-      _videoController!.addListener(_onVideoEnd);
-      
-      _videoController!.play();
-      
-      if (mounted) {
-        setState(() {
-          _isVideoInitializing = false;
-        });
-      }
-    } catch (e) {
-      // 비디오 초기화 실패 시 기존 컨트롤러 정리
-      _videoController?.removeListener(_videoListener);
-      _videoController?.removeListener(_onVideoEnd);
-      _videoController?.dispose();
-      _videoController = null;
-      _videoListenerAdded = false;
-      if (mounted) {
-        setState(() {
-          _isVideoInitializing = false;
-        });
-      }
-      // 에러는 조용히 처리 (비디오 없이 진행)
-      print('비디오 초기화 실패: $e');
     }
   }
 
@@ -132,10 +178,11 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   // 비디오 종료 시 다음 비디오로 전환
   void _onVideoEnd() {
     if (_videoController != null && 
+        _videoController!.value.isInitialized &&
         _videoController!.value.position >= _videoController!.value.duration &&
         _videoController!.value.duration > Duration.zero) {
-      // 다음 비디오로 전환
-      _currentVideoIndex++;
+      // 리스너 제거 후 랜덤 비디오로 전환
+      _videoController!.removeListener(_onVideoEnd);
       _initializeVideo();
     }
   }
@@ -164,7 +211,16 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
         _reason = response.response.data!.reason;
         _recipes = response.response.data!.recipes ?? [];
         _pageState = RecipePageState.loaded;
+        _currentRecipeIndex = 0;
       });
+      // PageController를 첫 페이지로 리셋 (다음 프레임에서 실행)
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _recipePageController.hasClients) {
+            _recipePageController.jumpToPage(0);
+          }
+        });
+      }
     } else {
       // 에러 처리
       if (mounted) {
@@ -351,19 +407,36 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
               if (_videoController != null && _videoController!.value.isInitialized) {
                 // 비디오 플레이어 (웹/모바일 모두) - 크게 표시
                 final screenWidth = MediaQuery.of(context).size.width;
-                final videoWidth = screenWidth * 0.7; // 화면 너비의 70%
-                final videoHeight = videoWidth * (_videoController!.value.aspectRatio > 0 
-                    ? 1 / _videoController!.value.aspectRatio 
-                    : 1);
+                final aspectRatio = _videoController!.value.aspectRatio;
+                final maxWidth = 500.0;
+                final maxHeight = 500.0;
+                
+                // 비디오의 실제 aspect ratio를 사용하되, 최대 크기 제한
+                double videoWidth = screenWidth * 0.7;
+                double videoHeight = videoWidth / aspectRatio;
+                
+                // 최대 크기 제한 적용
+                if (videoWidth > maxWidth) {
+                  videoWidth = maxWidth;
+                  videoHeight = videoWidth / aspectRatio;
+                }
+                if (videoHeight > maxHeight) {
+                  videoHeight = maxHeight;
+                  videoWidth = videoHeight * aspectRatio;
+                }
                 
                 return Container(
                   width: videoWidth,
                   height: videoHeight,
-                  constraints: const BoxConstraints(
-                    maxWidth: 500,
-                    maxHeight: 500,
-                  ),
                   decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFFF2EFEB).withValues(alpha: 0.9),
+                        const Color(0xFFE8E0D6).withValues(alpha: 0.9),
+                      ],
+                    ),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -375,9 +448,17 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: AspectRatio(
-                      aspectRatio: _videoController!.value.aspectRatio,
-                      child: VideoPlayer(_videoController!),
+                    child: SizedBox(
+                      width: videoWidth,
+                      height: videoHeight,
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: SizedBox(
+                          width: _videoController!.value.size.width,
+                          height: _videoController!.value.size.height,
+                          child: VideoPlayer(_videoController!),
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -622,17 +703,125 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                _recipes.isEmpty 
-                    ? '레시피 추천'
-                    : '${_recipes.length}개의 레시피',
-                style: const TextStyle(
-                  fontFamily: 'GowunBatang',
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C2C2C),
-                ),
+              // 왼쪽: 제목과 네비게이션 버튼
+              Row(
+                children: [
+                  Text(
+                    _recipes.isEmpty 
+                        ? '레시피 추천'
+                        : '${_recipes.length}개의 레시피',
+                    style: const TextStyle(
+                      fontFamily: 'GowunBatang',
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                  ),
+                  // 네비게이션 버튼 (레시피가 2개 이상일 때만 표시)
+                  if (_recipes.length > 1) ...[
+                    const SizedBox(width: 16),
+                    // 이전 버튼
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: _currentRecipeIndex > 0
+                            ? () {
+                                _recipePageController.previousPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            : null,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: _currentRecipeIndex > 0
+                                ? const Color(0xFFDEAE71)
+                                : Colors.grey.shade300,
+                            shape: BoxShape.circle,
+                            boxShadow: _currentRecipeIndex > 0
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.1),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Icon(
+                            Icons.chevron_left,
+                            color: _currentRecipeIndex > 0
+                                ? Colors.white
+                                : Colors.grey.shade600,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // 페이지 인디케이터
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(
+                        _recipes.length,
+                        (index) => Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _currentRecipeIndex == index
+                                ? const Color(0xFFDEAE71)
+                                : Colors.grey.shade300,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // 다음 버튼
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: _currentRecipeIndex < _recipes.length - 1
+                            ? () {
+                                _recipePageController.nextPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            : null,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: _currentRecipeIndex < _recipes.length - 1
+                                ? const Color(0xFFDEAE71)
+                                : Colors.grey.shade300,
+                            shape: BoxShape.circle,
+                            boxShadow: _currentRecipeIndex < _recipes.length - 1
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.1),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Icon(
+                            Icons.chevron_right,
+                            color: _currentRecipeIndex < _recipes.length - 1
+                                ? Colors.white
+                                : Colors.grey.shade600,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
+              // 오른쪽: 다시 만들기 버튼
               ElevatedButton.icon(
                 onPressed: () {
                   setState(() {
@@ -728,13 +917,26 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     ],
                   ),
                 )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: _recipes.length,
-                  itemBuilder: (context, index) {
-                    return _buildRecipeCard(_recipes[index], index);
-                  },
-                ),
+              : _recipes.length == 1
+                  ? SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildRecipeCard(_recipes[0], 0),
+                    )
+                  : PageView.builder(
+                      controller: _recipePageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentRecipeIndex = index;
+                        });
+                      },
+                      itemCount: _recipes.length,
+                      itemBuilder: (context, index) {
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: _buildRecipeCard(_recipes[index], index),
+                        );
+                      },
+                    ),
         ),
       ],
     );
