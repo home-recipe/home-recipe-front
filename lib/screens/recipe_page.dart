@@ -58,9 +58,9 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
     )..repeat(reverse: true);
   }
   
-  /// 프로필 이미지를 동적으로 로드하여 랜덤하게 선택
+  /// 프로필 이미지를 사용자별로 고정된 이미지로 로드
   Future<void> _loadRandomProfileImage() async {
-    final image = await ProfileImageHelper.getRandomProfileImage();
+    final image = await ProfileImageHelper.getUserProfileImage();
     if (mounted) {
       setState(() {
         _selectedProfileImage = image;
@@ -301,7 +301,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                           key: _accountButtonKey,
                           onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
                           child: Container(
-                            padding: const EdgeInsets.all(8),
+                            width: 48,
+                            height: 48,
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.8),
                               shape: BoxShape.circle,
@@ -317,20 +318,20 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                               child: _selectedProfileImage != null
                                   ? Image.asset(
                                       _selectedProfileImage!,
-                                      width: 32,
-                                      height: 32,
+                                      width: 48,
+                                      height: 48,
                                       fit: BoxFit.cover,
                                       errorBuilder: (context, error, stackTrace) {
                                         return const Icon(
                                           Icons.account_circle,
-                                          size: 32,
+                                          size: 48,
                                           color: Color(0xFF2C2C2C),
                                         );
                                       },
                                     )
                                   : const Icon(
                                       Icons.account_circle,
-                                      size: 32,
+                                      size: 48,
                                       color: Color(0xFF2C2C2C),
                                     ),
                             ),

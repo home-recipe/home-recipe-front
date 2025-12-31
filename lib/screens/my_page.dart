@@ -40,9 +40,9 @@ class MyPageState extends State<MyPage> {
     });
   }
   
-  /// 프로필 이미지를 동적으로 로드하여 랜덤하게 선택
+  /// 프로필 이미지를 사용자별로 고정된 이미지로 로드
   Future<void> _loadRandomProfileImage() async {
-    final image = await ProfileImageHelper.getRandomProfileImage();
+    final image = await ProfileImageHelper.getUserProfileImage();
     if (mounted) {
       setState(() {
         _selectedProfileImage = image;
@@ -73,7 +73,8 @@ class MyPageState extends State<MyPage> {
               key: _accountButtonKey,
               onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
               child: Container(
-                padding: const EdgeInsets.all(8),
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.8),
                   shape: BoxShape.circle,
@@ -89,20 +90,20 @@ class MyPageState extends State<MyPage> {
                   child: _selectedProfileImage != null
                       ? Image.asset(
                           _selectedProfileImage!,
-                          width: 32,
-                          height: 32,
+                          width: 48,
+                          height: 48,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return const Icon(
                               Icons.account_circle,
-                              size: 32,
+                              size: 48,
                               color: Color(0xFF2C2C2C),
                             );
                           },
                         )
                       : const Icon(
                           Icons.account_circle,
-                          size: 32,
+                          size: 48,
                           color: Color(0xFF2C2C2C),
                         ),
                 ),
@@ -244,33 +245,6 @@ class MyPageState extends State<MyPage> {
                                 ),
                               ),
                       ),
-                      const SizedBox(height: 12),
-                      // 직접 생성하기 버튼
-                      OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showCreateIngredientDialog(context);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFFDEAE71),
-                          side: const BorderSide(
-                            color: Color(0xFFDEAE71),
-                            width: 1.5,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          '직접 생성하기',
-                          style: TextStyle(
-                            fontFamily: 'GowunBatang',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
                       const SizedBox(height: 16),
                       // 검색 결과 영역
                       if (hasSearched)
@@ -404,7 +378,7 @@ class MyPageState extends State<MyPage> {
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          '재료를 직접 등록할 수 있어요!',
+                                          '다른 검색어로 시도해보세요',
                                           style: TextStyle(
                                             fontFamily: 'GowunBatang',
                                             fontSize: 13,
@@ -570,307 +544,6 @@ class MyPageState extends State<MyPage> {
         );
       },
     );
-  }
-
-  // 재료 직접 생성 다이얼로그
-  Future<void> _showCreateIngredientDialog(BuildContext context) async {
-    final TextEditingController nameController = TextEditingController();
-    String? selectedCategory;
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              title: const Text(
-                '재료 직접 생성',
-                style: TextStyle(
-                  fontFamily: 'GowunBatang',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF2C2C2C),
-                ),
-              ),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // 카테고리 선택
-                    const Text(
-                      '음식 카테고리',
-                      style: TextStyle(
-                        fontFamily: 'GowunBatang',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2C2C2C),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
-                      value: selectedCategory,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFDEAE71),
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      hint: const Text(
-                        '카테고리를 선택하세요',
-                        style: TextStyle(
-                          fontFamily: 'GowunBatang',
-                          fontSize: 14,
-                        ),
-                      ),
-                      items: IngredientCategory.values.map((category) {
-                        return DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(
-                            IngredientCategory.toDisplayName(category),
-                            style: const TextStyle(
-                              fontFamily: 'GowunBatang',
-                              fontSize: 14,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedCategory = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    // 재료명 입력
-                    const Text(
-                      '재료명',
-                      style: TextStyle(
-                        fontFamily: 'GowunBatang',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2C2C2C),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: nameController,
-                      style: const TextStyle(
-                        fontFamily: 'GowunBatang',
-                        fontSize: 14,
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          // 텍스트 변경 시 버튼 활성화 상태 업데이트
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: '재료 이름을 입력하세요',
-                        hintStyle: TextStyle(
-                          fontFamily: 'GowunBatang',
-                          color: Colors.grey.shade400,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFDEAE71),
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    '취소',
-                    style: TextStyle(
-                      fontFamily: 'GowunBatang',
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: TextButton(
-                    onPressed: selectedCategory == null || nameController.text.trim().isEmpty
-                        ? null
-                        : () async {
-                            final category = selectedCategory!;
-                            final name = nameController.text.trim();
-                            Navigator.pop(context);
-                            await _createAndAddIngredient(
-                              context,
-                              category,
-                              name,
-                            );
-                          },
-                    style: TextButton.styleFrom(
-                      foregroundColor: selectedCategory == null || nameController.text.trim().isEmpty
-                          ? Colors.grey
-                          : const Color(0xFFDEAE71),
-                    ),
-                    child: const Text(
-                      '생성',
-                      style: TextStyle(
-                        fontFamily: 'GowunBatang',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // 재료 생성 후 냉장고에 추가
-  Future<void> _createAndAddIngredient(
-    BuildContext context,
-    String category,
-    String name,
-  ) async {
-    try {
-      debugPrint('재료 생성 시작: category=$category, name=$name');
-      
-      // 1. 재료 생성
-      final createResponse = await ApiService.createIngredient(category, name);
-
-      debugPrint('재료 생성 응답: code=${createResponse.code}, message=${createResponse.message}');
-
-      if (!mounted) return;
-
-      if (createResponse.code != 201 || createResponse.response.data == null) {
-        debugPrint('재료 생성 실패: code=${createResponse.code}');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                createResponse.message,
-                style: const TextStyle(
-                  fontFamily: 'GowunBatang',
-                  fontSize: 14,
-                ),
-              ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          );
-        }
-        return;
-      }
-
-      final createdIngredient = createResponse.response.data!;
-      debugPrint('재료 생성 성공: id=${createdIngredient.id}');
-
-      // 2. 냉장고에 추가
-      final addResponse = await ApiService.addIngredientToRefrigerator(createdIngredient.id);
-
-      debugPrint('냉장고 추가 응답: code=${addResponse.code}, message=${addResponse.message}');
-
-      if (!mounted) return;
-
-      if (addResponse.code == 200) {
-        // 성공 시 냉장고 목록 새로고침
-        await _loadRefrigerator();
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(
-                '재료가 생성되고 냉장고에 추가되었습니다',
-                style: TextStyle(
-                  fontFamily: 'GowunBatang',
-                  fontSize: 14,
-                ),
-              ),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                addResponse.message,
-                style: const TextStyle(
-                  fontFamily: 'GowunBatang',
-                  fontSize: 14,
-                ),
-              ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          );
-        }
-      }
-    } catch (e, stackTrace) {
-      debugPrint('재료 생성 중 오류: $e');
-      debugPrint('스택 트레이스: $stackTrace');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '재료 생성 중 오류가 발생했습니다: $e',
-            style: const TextStyle(
-              fontFamily: 'GowunBatang',
-              fontSize: 14,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
   }
 
   // 냉장고에 재료 추가

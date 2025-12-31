@@ -404,7 +404,7 @@ class ApiService {
   static Future<ApiResponse<List<IngredientResponse>>> findIngredientsByName(String name) async {
     try {
       var response = await _client.get(
-        Uri.parse('$baseUrl/api/ingredients?name=$name'),
+        Uri.parse('$baseUrl/api/ingredients/ingredient?name=${Uri.encodeComponent(name)}'),
         headers: await _getHeaders(),
       );
 
@@ -435,7 +435,7 @@ class ApiService {
           apiResponse.response.code == 'AUTH_NOT_EXIST_TOKEN')) {
         // 재시도
         response = await _client.get(
-          Uri.parse('$baseUrl/api/ingredients?name=$name'),
+          Uri.parse('$baseUrl/api/ingredients/ingredient?name=${Uri.encodeComponent(name)}'),
           headers: await _getHeaders(),
         );
         json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
