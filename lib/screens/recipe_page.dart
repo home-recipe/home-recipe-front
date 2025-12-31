@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../utils/logout_helper.dart';
+import '../utils/profile_image_helper.dart';
 import '../services/api_service.dart';
 import '../models/recipes_response.dart';
 
@@ -37,10 +38,16 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   // 사용 가능한 비디오 파일 목록 (파일명만 지정, 확장자 제외)
   // 숫자나 영어 파일명 모두 가능 (예: '1', 'cooking', 'recipe_video' 등)
   static const List<String> _availableVideos = ['1', '3', '4', '5', '6'];
+  
+  // 프로필 사진 (한 번 선택 후 고정)
+  String? _selectedProfileImage;
 
   @override
   void initState() {
     super.initState();
+    // 앱 시작 시 랜덤하게 프로필 사진 선택 (비동기)
+    _loadRandomProfileImage();
+    
     _loadingController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -49,6 +56,16 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
+  }
+  
+  /// 프로필 이미지를 동적으로 로드하여 랜덤하게 선택
+  Future<void> _loadRandomProfileImage() async {
+    final image = await ProfileImageHelper.getRandomProfileImage();
+    if (mounted) {
+      setState(() {
+        _selectedProfileImage = image;
+      });
+    }
   }
 
   @override
@@ -296,10 +313,26 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                                 ),
                               ],
                             ),
-                            child: const Icon(
-                              Icons.account_circle,
-                              size: 32,
-                              color: Color(0xFF2C2C2C),
+                            child: ClipOval(
+                              child: _selectedProfileImage != null
+                                  ? Image.asset(
+                                      _selectedProfileImage!,
+                                      width: 32,
+                                      height: 32,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return const Icon(
+                                          Icons.account_circle,
+                                          size: 32,
+                                          color: Color(0xFF2C2C2C),
+                                        );
+                                      },
+                                    )
+                                  : const Icon(
+                                      Icons.account_circle,
+                                      size: 32,
+                                      color: Color(0xFF2C2C2C),
+                                    ),
                             ),
                           ),
                         ),

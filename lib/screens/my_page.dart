@@ -1,8 +1,10 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/ingredient_category.dart';
 import '../models/ingredient_response.dart';
 import '../utils/logout_helper.dart';
+import '../utils/profile_image_helper.dart';
 import 'my_page/my_page_controller.dart';
 
 class MyPage extends StatefulWidget {
@@ -16,6 +18,9 @@ class MyPageState extends State<MyPage> {
   final MyPageController _controller = MyPageController();
   final GlobalKey _accountButtonKey = GlobalKey();
   
+  // 프로필 사진 (한 번 선택 후 고정)
+  String? _selectedProfileImage;
+  
   Future<void> _loadRefrigerator() async {
     await _controller.loadRefrigerator();
   }
@@ -25,11 +30,24 @@ class MyPageState extends State<MyPage> {
   @override
   void initState() {
     super.initState();
+    // 앱 시작 시 랜덤하게 프로필 사진 선택 (비동기)
+    _loadRandomProfileImage();
+    
     _controller.loadRefrigerator();
     //컨트롤러의 상태가 바뀔때마다 화면을 다시 그리도록 설정 
     _controller.addListener(() {
       if (mounted) setState(() {});
     });
+  }
+  
+  /// 프로필 이미지를 동적으로 로드하여 랜덤하게 선택
+  Future<void> _loadRandomProfileImage() async {
+    final image = await ProfileImageHelper.getRandomProfileImage();
+    if (mounted) {
+      setState(() {
+        _selectedProfileImage = image;
+      });
+    }
   }
 
   @override
@@ -67,10 +85,26 @@ class MyPageState extends State<MyPage> {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.account_circle,
-                  size: 32,
-                  color: Color(0xFF2C2C2C),
+                child: ClipOval(
+                  child: _selectedProfileImage != null
+                      ? Image.asset(
+                          _selectedProfileImage!,
+                          width: 32,
+                          height: 32,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.account_circle,
+                              size: 32,
+                              color: Color(0xFF2C2C2C),
+                            );
+                          },
+                        )
+                      : const Icon(
+                          Icons.account_circle,
+                          size: 32,
+                          color: Color(0xFF2C2C2C),
+                        ),
                 ),
               ),
             ),

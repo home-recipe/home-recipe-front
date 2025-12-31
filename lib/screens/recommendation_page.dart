@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../utils/logout_helper.dart';
+import '../utils/profile_image_helper.dart';
 import '../services/api_service.dart';
 import '../models/recommendations_response.dart';
 
@@ -29,10 +30,20 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
   bool _isVideoInitializing = false;
   int _currentVideoIndex = 0;
   bool _videoListenerAdded = false;
+  
+  // 사용 가능한 비디오 파일 목록 (파일명만 지정, 확장자 제외)
+  // 숫자나 영어 파일명 모두 가능 (예: '1', 'cooking', 'recipe_video' 등)
+  static const List<String> _availableVideos = ['1', '3', '4', '5', '6'];
+  
+  // 프로필 사진 (한 번 선택 후 고정)
+  String? _selectedProfileImage;
 
   @override
   void initState() {
     super.initState();
+    // 앱 시작 시 랜덤하게 프로필 사진 선택 (비동기)
+    _loadRandomProfileImage();
+    
     _loadingController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -41,6 +52,16 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
+  }
+  
+  /// 프로필 이미지를 동적으로 로드하여 랜덤하게 선택
+  Future<void> _loadRandomProfileImage() async {
+    final image = await ProfileImageHelper.getRandomProfileImage();
+    if (mounted) {
+      setState(() {
+        _selectedProfileImage = image;
+      });
+    }
   }
 
   @override
@@ -57,62 +78,100 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
   // 비디오 초기화 함수
   // ------------------------------
   Future<void> _initializeVideo() async {
-    try {
+    if (_availableVideos.isEmpty) {
+      // 사용 가능한 비디오가 없으면 로딩만 표시
       setState(() {
-        _isVideoInitializing = true;
+        _isVideoInitializing = false;
       });
+      return;
+    }
 
-      // 순차적으로 비디오 선택 (1.mp4 ~ 6.mp4)
-      final videoNumber = (_currentVideoIndex % 6) + 1;
+    final random = Random();
+    // 최대 3번까지 재시도
+    int retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      // 매번 랜덤하게 비디오 선택
+      final videoFileName = _availableVideos[random.nextInt(_availableVideos.length)];
       
-      _videoController?.removeListener(_videoListener);
-      _videoController?.removeListener(_onVideoEnd);
-      _videoController?.dispose();
-      _videoListenerAdded = false;
-      
-      if (kIsWeb) {
-        // 웹: 네트워크 URL 사용 (asset 경로를 웹 경로로 변환)
-        final videoUrl = '/assets/videos/$videoNumber.mp4';
-        _videoController = VideoPlayerController.network(videoUrl);
-      } else {
-        // 모바일: asset 비디오 사용
-        final videoPath = 'assets/videos/$videoNumber.mp4';
-        _videoController = VideoPlayerController.asset(videoPath);
-      }
-      
-      // 비디오 컨트롤러에 리스너 추가 (한 번만)
-      if (!_videoListenerAdded) {
+      try {
+        setState(() {
+          _isVideoInitializing = true;
+        });
+
+        // 기존 컨트롤러 완전히 정리
+        if (_videoController != null) {
+          try {
+            _videoController!.pause();
+            _videoController!.removeListener(_videoListener);
+            _videoController!.removeListener(_onVideoEnd);
+            await _videoController!.dispose();
+          } catch (e) {
+            print('비디오 컨트롤러 정리 중 오류: $e');
+          }
+          _videoController = null;
+        }
+        _videoListenerAdded = false;
+        
+        if (kIsWeb) {
+          // 웹: 네트워크 URL 사용 (asset 경로를 웹 경로로 변환)
+          final videoUrl = '/assets/videos/$videoFileName.mp4';
+          _videoController = VideoPlayerController.network(videoUrl);
+        } else {
+          // 모바일: asset 비디오 사용
+          final videoPath = 'assets/videos/$videoFileName.mp4';
+          _videoController = VideoPlayerController.asset(videoPath);
+        }
+        
+        await _videoController!.initialize();
+        _videoController!.setLooping(false); // 반복하지 않음
+        
+        // 리스너 추가 (초기화 후에만)
         _videoController!.addListener(_videoListener);
+        _videoController!.addListener(_onVideoEnd);
         _videoListenerAdded = true;
+        
+        _videoController!.play();
+        
+        if (mounted) {
+          setState(() {
+            _isVideoInitializing = false;
+          });
+        }
+        // 성공하면 루프 종료
+        return;
+      } catch (e) {
+        // 비디오 초기화 실패 시 기존 컨트롤러 정리
+        if (_videoController != null) {
+          try {
+            _videoController!.pause();
+            _videoController!.removeListener(_videoListener);
+            _videoController!.removeListener(_onVideoEnd);
+            await _videoController!.dispose();
+          } catch (e) {
+            print('비디오 컨트롤러 정리 중 오류: $e');
+          }
+          _videoController = null;
+        }
+        _videoListenerAdded = false;
+        
+        retryCount++;
+        if (retryCount < maxRetries) {
+          print('비디오 $videoFileName.mp4 초기화 실패, 다른 비디오로 재시도...');
+          // 다음 반복에서 다른 비디오 시도
+          continue;
+        } else {
+          // 모든 재시도 실패
+          if (mounted) {
+            setState(() {
+              _isVideoInitializing = false;
+            });
+          }
+          print('비디오 초기화 실패 (모든 재시도 실패): $e');
+          return;
+        }
       }
-      
-      await _videoController!.initialize();
-      _videoController!.setLooping(false); // 반복하지 않음
-      
-      // 비디오가 끝나면 다음 비디오로 자동 전환
-      _videoController!.addListener(_onVideoEnd);
-      
-      _videoController!.play();
-      
-      if (mounted) {
-        setState(() {
-          _isVideoInitializing = false;
-        });
-      }
-    } catch (e) {
-      // 비디오 초기화 실패 시 기존 컨트롤러 정리
-      _videoController?.removeListener(_videoListener);
-      _videoController?.removeListener(_onVideoEnd);
-      _videoController?.dispose();
-      _videoController = null;
-      _videoListenerAdded = false;
-      if (mounted) {
-        setState(() {
-          _isVideoInitializing = false;
-        });
-      }
-      // 에러는 조용히 처리 (비디오 없이 진행)
-      print('비디오 초기화 실패: $e');
     }
   }
 
@@ -131,10 +190,11 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
   // 비디오 종료 시 다음 비디오로 전환
   void _onVideoEnd() {
     if (_videoController != null && 
+        _videoController!.value.isInitialized &&
         _videoController!.value.position >= _videoController!.value.duration &&
         _videoController!.value.duration > Duration.zero) {
-      // 다음 비디오로 전환
-      _currentVideoIndex++;
+      // 리스너 제거 후 랜덤 비디오로 전환
+      _videoController!.removeListener(_onVideoEnd);
       _initializeVideo();
     }
   }
@@ -153,9 +213,18 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
     final response = await ApiService.getRecommendations();
 
     // 비디오 정리
-    _videoController?.pause();
-    _videoController?.dispose();
-    _videoController = null;
+    if (_videoController != null) {
+      try {
+        _videoController!.pause();
+        _videoController!.removeListener(_videoListener);
+        _videoController!.removeListener(_onVideoEnd);
+        await _videoController!.dispose();
+      } catch (e) {
+        print('비디오 컨트롤러 정리 중 오류: $e');
+      }
+      _videoController = null;
+    }
+    _videoListenerAdded = false;
 
     if (response.code == 201 && response.response.data != null) {
       setState(() {
@@ -237,10 +306,26 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                                 ),
                               ],
                             ),
-                            child: const Icon(
-                              Icons.account_circle,
-                              size: 32,
-                              color: Color(0xFF2C2C2C),
+                            child: ClipOval(
+                              child: _selectedProfileImage != null
+                                  ? Image.asset(
+                                      _selectedProfileImage!,
+                                      width: 32,
+                                      height: 32,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return const Icon(
+                                          Icons.account_circle,
+                                          size: 32,
+                                          color: Color(0xFF2C2C2C),
+                                        );
+                                      },
+                                    )
+                                  : const Icon(
+                                      Icons.account_circle,
+                                      size: 32,
+                                      color: Color(0xFF2C2C2C),
+                                    ),
                             ),
                           ),
                         ),
@@ -342,19 +427,36 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
               if (_videoController != null && _videoController!.value.isInitialized) {
                 // 비디오 플레이어 (웹/모바일 모두) - 크게 표시
                 final screenWidth = MediaQuery.of(context).size.width;
-                final videoWidth = screenWidth * 0.7; // 화면 너비의 70%
-                final videoHeight = videoWidth * (_videoController!.value.aspectRatio > 0 
-                    ? 1 / _videoController!.value.aspectRatio 
-                    : 1);
+                final aspectRatio = _videoController!.value.aspectRatio;
+                final maxWidth = 500.0;
+                final maxHeight = 500.0;
+                
+                // 비디오의 실제 aspect ratio를 사용하되, 최대 크기 제한
+                double videoWidth = screenWidth * 0.7;
+                double videoHeight = videoWidth / aspectRatio;
+                
+                // 최대 크기 제한 적용
+                if (videoWidth > maxWidth) {
+                  videoWidth = maxWidth;
+                  videoHeight = videoWidth / aspectRatio;
+                }
+                if (videoHeight > maxHeight) {
+                  videoHeight = maxHeight;
+                  videoWidth = videoHeight * aspectRatio;
+                }
                 
                 return Container(
                   width: videoWidth,
                   height: videoHeight,
-                  constraints: const BoxConstraints(
-                    maxWidth: 500,
-                    maxHeight: 500,
-                  ),
                   decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFFF2EFEB).withValues(alpha: 0.9),
+                        const Color(0xFFE8E0D6).withValues(alpha: 0.9),
+                      ],
+                    ),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -366,9 +468,17 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: AspectRatio(
-                      aspectRatio: _videoController!.value.aspectRatio,
-                      child: VideoPlayer(_videoController!),
+                    child: SizedBox(
+                      width: videoWidth,
+                      height: videoHeight,
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: SizedBox(
+                          width: _videoController!.value.size.width,
+                          height: _videoController!.value.size.height,
+                          child: VideoPlayer(_videoController!),
+                        ),
+                      ),
                     ),
                   ),
                 );
