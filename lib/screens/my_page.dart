@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/ingredient_category.dart';
@@ -134,7 +135,8 @@ class MyPageState extends State<MyPage> {
               title: const Text(
                 '재료 추가',
                 style: TextStyle(
-                  fontFamily: 'GowunBatang',
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF2C2C2C),
@@ -155,14 +157,16 @@ class MyPageState extends State<MyPage> {
                       TextField(
                         controller: searchController,
                         style: const TextStyle(
-                          fontFamily: 'GowunBatang',
-                          fontSize: 14,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
                         ),
                         decoration: InputDecoration(
                           hintText: '재료 이름을 입력하세요',
                           hintStyle: TextStyle(
-                            fontFamily: 'GowunBatang',
-                            color: Colors.grey.shade400,
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
+                  color: Colors.grey.shade400,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -239,8 +243,9 @@ class MyPageState extends State<MyPage> {
                             : const Text(
                                 '조회',
                                 style: TextStyle(
-                                  fontFamily: 'GowunBatang',
-                                  fontSize: 14,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -268,8 +273,9 @@ class MyPageState extends State<MyPage> {
                                       Text(
                                         '${searchResults.length}개의 재료를 찾았어요',
                                         style: const TextStyle(
-                                          fontFamily: 'GowunBatang',
-                                          fontSize: 14,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
                                           fontWeight: FontWeight.w600,
                                           color: Color(0xFF2C2C2C),
                                         ),
@@ -329,8 +335,9 @@ class MyPageState extends State<MyPage> {
                                                   child: Text(
                                                     ingredient.name,
                                                     style: const TextStyle(
-                                                      fontFamily: 'GowunBatang',
-                                                      fontSize: 15,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 15,
                                                       fontWeight: FontWeight.w600,
                                                       color: Color(0xFF2C2C2C),
                                                     ),
@@ -370,8 +377,9 @@ class MyPageState extends State<MyPage> {
                                         const Text(
                                           '검색 결과가 없어요',
                                           style: TextStyle(
-                                            fontFamily: 'GowunBatang',
-                                            fontSize: 16,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 16,
                                             fontWeight: FontWeight.w600,
                                             color: Color(0xFF2C2C2C),
                                           ),
@@ -380,8 +388,9 @@ class MyPageState extends State<MyPage> {
                                         Text(
                                           '다른 검색어로 시도해보세요',
                                           style: TextStyle(
-                                            fontFamily: 'GowunBatang',
-                                            fontSize: 13,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 13,
                                             color: Colors.grey.shade600,
                                           ),
                                           textAlign: TextAlign.center,
@@ -404,8 +413,9 @@ class MyPageState extends State<MyPage> {
                   child: const Text(
                     '닫기',
                     style: TextStyle(
-                      fontFamily: 'GowunBatang',
-                      fontSize: 14,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
                       color: Colors.grey,
                     ),
                   ),
@@ -445,7 +455,8 @@ class MyPageState extends State<MyPage> {
               content: Text(
                 response.message,
                 style: const TextStyle(
-                  fontFamily: 'GowunBatang',
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                   fontSize: 14,
                 ),
               ),
@@ -471,8 +482,9 @@ class MyPageState extends State<MyPage> {
             content: Text(
               '재료 검색 중 오류가 발생했습니다: $e',
               style: const TextStyle(
-                fontFamily: 'GowunBatang',
-                fontSize: 14,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
               ),
             ),
             backgroundColor: Colors.red,
@@ -499,8 +511,9 @@ class MyPageState extends State<MyPage> {
           title: const Text(
             '재료 추가',
             style: TextStyle(
-              fontFamily: 'GowunBatang',
-              fontSize: 18,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 18,
               fontWeight: FontWeight.w700,
               color: Color(0xFF2C2C2C),
             ),
@@ -508,8 +521,9 @@ class MyPageState extends State<MyPage> {
           content: Text(
             '${ingredient.name} 냉장고에 추가하시겠어요?',
             style: const TextStyle(
-              fontFamily: 'GowunBatang',
-              fontSize: 16,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 16,
               color: Color(0xFF2C2C2C),
             ),
           ),
@@ -519,7 +533,8 @@ class MyPageState extends State<MyPage> {
               child: const Text(
                 '취소',
                 style: TextStyle(
-                  fontFamily: 'GowunBatang',
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                   fontSize: 14,
                   color: Colors.grey,
                 ),
@@ -533,7 +548,8 @@ class MyPageState extends State<MyPage> {
               child: const Text(
                 '확인',
                 style: TextStyle(
-                  fontFamily: 'GowunBatang',
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                   fontSize: 14,
                   color: Color(0xFFDEAE71),
                   fontWeight: FontWeight.w700,
@@ -562,8 +578,9 @@ class MyPageState extends State<MyPage> {
             content: const Text(
               '재료가 추가되었습니다',
               style: TextStyle(
-                fontFamily: 'GowunBatang',
-                fontSize: 14,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
               ),
             ),
             backgroundColor: Colors.green,
@@ -580,8 +597,9 @@ class MyPageState extends State<MyPage> {
             content: Text(
               response.message,
               style: const TextStyle(
-                fontFamily: 'GowunBatang',
-                fontSize: 14,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
               ),
             ),
             backgroundColor: Colors.red,
@@ -599,8 +617,9 @@ class MyPageState extends State<MyPage> {
           content: Text(
             '재료 추가 중 오류가 발생했습니다: $e',
             style: const TextStyle(
-              fontFamily: 'GowunBatang',
-              fontSize: 14,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
             ),
           ),
           backgroundColor: Colors.red,
@@ -625,8 +644,9 @@ class MyPageState extends State<MyPage> {
           title: const Text(
             '재료 삭제',
             style: TextStyle(
-              fontFamily: 'GowunBatang',
-              fontSize: 18,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 18,
               fontWeight: FontWeight.w700,
               color: Color(0xFF2C2C2C),
             ),
@@ -634,8 +654,9 @@ class MyPageState extends State<MyPage> {
           content: Text(
             '${ingredient.name} 삭제하시겠어요?',
             style: const TextStyle(
-              fontFamily: 'GowunBatang',
-              fontSize: 16,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 16,
               color: Color(0xFF2C2C2C),
             ),
           ),
@@ -645,7 +666,8 @@ class MyPageState extends State<MyPage> {
               child: const Text(
                 '취소',
                 style: TextStyle(
-                  fontFamily: 'GowunBatang',
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                   fontSize: 14,
                   color: Colors.grey,
                 ),
@@ -659,7 +681,8 @@ class MyPageState extends State<MyPage> {
               child: const Text(
                 '확인',
                 style: TextStyle(
-                  fontFamily: 'GowunBatang',
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                   fontSize: 14,
                   color: Color(0xFFDEAE71),
                   fontWeight: FontWeight.w700,
@@ -682,7 +705,7 @@ class MyPageState extends State<MyPage> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('재료가 삭제되었습니다', style: TextStyle(fontFamily: 'GowunBatang')),
+            content: Text('재료가 삭제되었습니다', style: TextStyle(fontFamily: 'Cafe24PROSlimFit', letterSpacing: 0.5)),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
@@ -729,27 +752,34 @@ class MyPageState extends State<MyPage> {
                 _buildHeader(), // 상단 계정 아이콘
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        _buildCategoryNavigation(),
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: const Color(0xCCF2EFEB),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: kIsWeb ? 40 : 20,
+                      vertical: 20,
+                    ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // 회색 박스의 전체 가로 길이 (padding 포함)
+                        final grayBoxWidth = constraints.maxWidth;
+                        return Column(
+                          children: [
+                            const SizedBox(height: 20),
+                            _buildCategoryNavigation(grayBoxWidth),
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: const Color(0xCCF2EFEB),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                               SizedBox(
                                 height: 280,
                                 // (수정) _isLoading -> _controller.isLoading
@@ -764,59 +794,59 @@ class MyPageState extends State<MyPage> {
                                             child: Text(
                                               '재료를 추가해주세요',
                                               style: TextStyle(
-                                                fontFamily: 'GowunBatang',
-                                                fontSize: 16,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 16,
                                                 color: Colors.grey.shade600,
                                               ),
                                             ),
                                           )
-                                        : GridView.builder(
-                                            shrinkWrap: false,
-                                            physics: const AlwaysScrollableScrollPhysics(),
-                                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 7,
-                                              crossAxisSpacing: 8,
-                                              mainAxisSpacing: 12,
-                                              childAspectRatio: 2.5,
-                                            ),
-                                            itemCount: _currentCategoryIngredients.length,
-                                            itemBuilder: (context, index) {
-                                              final ingredient = _currentCategoryIngredients[index];
+                                        : SizedBox(
+                                        height: 280,
+                                        child: SingleChildScrollView(
+                                          physics: const AlwaysScrollableScrollPhysics(),
+                                          child: Wrap(
+                                            spacing: 8,
+                                            runSpacing: 10,
+                                            children: _currentCategoryIngredients.map((ingredient) {
                                               return MouseRegion(
                                                 cursor: SystemMouseCursors.click,
                                                 child: GestureDetector(
                                                   onTap: () => _showDeleteConfirmDialog(context, ingredient),
                                                   child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                                     decoration: BoxDecoration(
                                                       color: Colors.white.withOpacity(0.9),
-                                                      borderRadius: BorderRadius.circular(12),
+                                                      borderRadius: BorderRadius.circular(20),
                                                       border: Border.all(
                                                         color: const Color(0xFFDEAE71).withOpacity(0.4),
                                                         width: 1.5,
                                                       ),
-                                                    ),
-                                                    child: Center(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                                                        child: Text(
-                                                          ingredient.name,
-                                                          style: const TextStyle(
-                                                            fontFamily: 'GowunBatang',
-                                                            fontSize: 14,
-                                                            fontWeight: FontWeight.w600,
-                                                            color: Color(0xFF2C2C2C),
-                                                          ),
-                                                          textAlign: TextAlign.center,
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow.ellipsis,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black.withOpacity(0.05),
+                                                          blurRadius: 4,
+                                                          offset: const Offset(0, 2),
                                                         ),
+                                                      ],
+                                                    ),
+                                                    child: Text(
+                                                      ingredient.name,
+                                                      style: const TextStyle(
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Color(0xFF2C2C2C),
                                                       ),
                                                     ),
                                                   ),
                                                 ),
                                               );
-                                            },
+                                            }).toList(),
                                           ),
+                                        ),
+                                      ),
                               ),
                               const SizedBox(height: 20),
                               Align(
@@ -833,8 +863,9 @@ class MyPageState extends State<MyPage> {
                                   child: const Text(
                                     '재료 추가하기',
                                     style: TextStyle(
-                                      fontFamily: 'GowunBatang',
-                                      fontSize: 14,
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -844,64 +875,304 @@ class MyPageState extends State<MyPage> {
                           ),
                         ),
                       ],
-                    ),
-                  ),
+                    );
+                  },
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    ],
+  ),
+);
+}
+  //카테고리 네비게이션 부분을 별도 함수로 추출 
+  Widget _buildCategoryNavigation(double availableWidth) {
+    final allCategories = IngredientCategory.values;
+    final isWeb = MediaQuery.of(context).size.width > 600;
+    
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 12, right: 4),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // 카테고리 버튼들의 예상 너비 계산 (모바일/웹 차별화)
+          final actualWidth = constraints.maxWidth;
+          final buttonPadding = isWeb ? 32.0 : 20.0; // 모바일 패딩 축소
+          final buttonSpacing = 8.0;
+          final moreButtonWidth = isWeb ? 80.0 : 65.0; // 더보기 버튼 예상 너비
+          final moreButtonSpacing = 8.0;
+          
+          // TextPainter를 사용하여 각 카테고리 버튼의 실제 너비 계산
+          final textStyle = TextStyle(
+            fontFamily: 'Cafe24PROSlimFit',
+            letterSpacing: 0.5,
+            fontSize: isWeb ? 16 : 13, // 모바일 글씨 크기 소폭 축소
+            fontWeight: FontWeight.w600,
+          );
+          
+          // 전체 카테고리 버튼 너비
+          final allButtonWidth = _measureTextWidth('전체', textStyle) + buttonPadding;
+          
+          // 각 카테고리 버튼의 너비 계산
+          final categoryWidths = <double>[];
+          for (final category in allCategories) {
+            final label = IngredientCategory.toDisplayName(category);
+            final width = _measureTextWidth(label, textStyle) + buttonPadding;
+            categoryWidths.add(width);
+          }
+          
+          // 사용 가능한 너비에서 더보기 버튼 공간 확보
+          double usedWidth = allButtonWidth + buttonSpacing;
+          final visibleIndices = <int>[];
+          
+          for (int i = 0; i < categoryWidths.length; i++) {
+            final neededWidth = categoryWidths[i] + buttonSpacing;
+            // 더보기 버튼이 필요한지 확인
+            final totalWithMoreButton = usedWidth + neededWidth + moreButtonSpacing + moreButtonWidth;
+            final totalWithoutMoreButton = usedWidth + neededWidth;
+            
+            // 실제 사용 가능한 너비(actualWidth)를 기준으로 계산하여 Overflow 방지
+            if (i == categoryWidths.length - 1 && totalWithoutMoreButton <= actualWidth) {
+              // 마지막 카테고리이고 더보기 버튼 없이 들어갈 수 있으면 추가
+              usedWidth += neededWidth;
+              visibleIndices.add(i);
+            } else if (totalWithMoreButton <= actualWidth) {
+              // 더보기 버튼을 포함해서 들어갈 수 있으면 추가
+              usedWidth += neededWidth;
+              visibleIndices.add(i);
+            } else {
+              // 더보기 버튼이 필요한 경우
+              break;
+            }
+          }
+          
+          final visibleCategories = visibleIndices.map((i) => allCategories[i]).toList();
+          final hiddenCategories = allCategories
+              .asMap()
+              .entries
+              .where((entry) => !visibleIndices.contains(entry.key))
+              .map((entry) => entry.value)
+              .toList();
+          
+          final hasMoreButton = hiddenCategories.isNotEmpty;
+          
+          return Row(
+            children: [
+              // 카테고리 버튼들
+              Expanded(
+                child: Row(
+                  children: [
+                    // 전체 카테고리 버튼
+                    _buildCategoryButton(
+                      '전체',
+                      _controller.currentCategoryIndex == -1,
+                      () => _controller.selectCategory(-1),
+                    ),
+                    const SizedBox(width: 8),
+                    // 각 카테고리 버튼
+                    ...visibleCategories.asMap().entries.map((entry) {
+                      final categoryIndex = allCategories.indexOf(entry.value);
+                      final category = entry.value;
+                      final isSelected = _controller.currentCategoryIndex == categoryIndex;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: _buildCategoryButton(
+                          IngredientCategory.toDisplayName(category),
+                          isSelected,
+                          () => _controller.selectCategory(categoryIndex),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+              // 더보기 버튼
+              if (hasMoreButton)
+                _buildMoreButton(context, hiddenCategories, allCategories),
+            ],
+          );
+        },
       ),
     );
   }
-  //카테고리 네비게이션 부분을 별도 함수로 추출 
-  Widget _buildCategoryNavigation() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 12),
-      child : Row(
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              IngredientCategory.toDisplayName(_controller.currentCategory),
-              style: const TextStyle(
-                fontFamily: 'GowunBatang',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF2C2C2C),
-              ),
+  
+  // 텍스트 너비 측정 헬퍼 함수
+  double _measureTextWidth(String text, TextStyle style) {
+    final textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    return textPainter.size.width;
+  }
+
+  // 카테고리 버튼 위젯
+  Widget _buildCategoryButton(String label, bool isSelected, VoidCallback onTap) {
+    final isWeb = MediaQuery.of(context).size.width > 600;
+    
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isWeb ? 16 : 12, 
+            vertical: isWeb ? 10 : 8
+          ),
+          decoration: BoxDecoration(
+            color: isSelected 
+                ? const Color(0xFFDEAE71) 
+                : Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected 
+                  ? const Color(0xFFDEAE71) 
+                  : const Color(0xFF2C2C2C).withOpacity(0.3),
+              width: 1.5,
             ),
           ),
-          const SizedBox(width: 12),
-          //이전 버튼
-          _buildArrowButton(
-            icon: Icons.chevron_left,
-            onTap: _controller.previousCategory,
+          child: Text(
+            label,
+            style: TextStyle(
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: isWeb ? 16 : 13,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+              color: isSelected 
+                  ? Colors.white 
+                  : const Color(0xFF2C2C2C),
+            ),
           ),
-          const SizedBox(width: 8),
-          //다음 버튼
-          _buildArrowButton(
-            icon: Icons.chevron_right,
-            onTap: _controller.nextCategory,
+        ),
+      ),
+    );
+  }
+
+  // 더보기 버튼
+  Widget _buildMoreButton(BuildContext context, List<String> hiddenCategories, List<String> allCategories) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () => _showMoreCategoriesDialog(context, hiddenCategories, allCategories),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: const Color(0xFF2C2C2C).withOpacity(0.3),
+                width: 1.5,
+              ),
+            ),
+            child: const Icon(
+              Icons.more_vert,
+              size: 20,
+              color: Color(0xFF2C2C2C),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 더보기 다이얼로그
+  void _showMoreCategoriesDialog(BuildContext context, List<String> hiddenCategories, List<String> allCategories) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          '카테고리 선택',
+          style: TextStyle(
+            fontFamily: 'Cafe24PROSlimFit',
+            letterSpacing: 0.5,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.5,
+          ),
+          child: SingleChildScrollView(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.start,
+              children: hiddenCategories.map((category) {
+                final categoryIndex = allCategories.indexOf(category);
+                final isSelected = _controller.currentCategoryIndex == categoryIndex;
+                return SizedBox(
+                  width: (MediaQuery.of(context).size.width - 120) / 3,
+                  child: _buildSmallCategoryButton(
+                    IngredientCategory.toDisplayName(category),
+                    isSelected,
+                    () {
+                      _controller.selectCategory(categoryIndex);
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              '닫기',
+              style: TextStyle(
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
+                  color: Color(0xFF2C2C2C),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  //화살표 버튼 디자인도 별도 함수로 추출
-  Widget _buildArrowButton({required IconData icon, required VoidCallback onTap}) {
+  // 작은 카테고리 버튼 (더보기 다이얼로그용)
+  Widget _buildSmallCategoryButton(String label, bool isSelected, VoidCallback onTap) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(4),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.5),
-            shape: BoxShape.circle,
+            color: isSelected 
+                ? const Color(0xFFDEAE71) 
+                : Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected 
+                  ? const Color(0xFFDEAE71) 
+                  : const Color(0xFF2C2C2C).withOpacity(0.3),
+              width: 1.5,
+            ),
           ),
-          child: Icon(icon, size: 20, color: const Color(0xFF2C2C2C)),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                color: isSelected 
+                    ? Colors.white 
+                    : const Color(0xFF2C2C2C),
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ),
       ),
     );

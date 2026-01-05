@@ -256,7 +256,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         child: const Text(
                           '냉장고 프로젝트',
                           style: TextStyle(
-                            fontFamily: 'GowunBatang',
+                            fontFamily: 'Cafe24PROSlimFit',
                             fontSize: 50,
                             letterSpacing: 2.0,
                             fontWeight: FontWeight.w700,
@@ -278,7 +278,8 @@ class _SignUpPageState extends State<SignUpPage> {
                       constraints: const BoxConstraints(maxWidth: 500),
                       child: DefaultTextStyle(
                         style: const TextStyle(
-                          fontFamily: 'GowunBatang',
+                          fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF2C2C2C),
@@ -363,7 +364,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                     backgroundColor: const Color(0xFFDEAE71),
                                     foregroundColor: Colors.white,
                                     textStyle: const TextStyle(
-                                      fontFamily: 'GowunBatang',
+                                      fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -683,7 +685,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     : const Text(
                         '중복확인',
                         style: TextStyle(
-                          fontFamily: 'GowunBatang',
+                          fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),

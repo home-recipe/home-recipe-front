@@ -62,6 +62,14 @@ flutter:
       fonts:
         - asset: assets/fonts/DoHyeon-Regular.ttf
 
+    - family: Cafe24Danjunghae
+      fonts:
+        - asset: assets/fonts/Cafe24Danjunghae-v2.0.ttf
+
+    - family: Cafe24PROSlimFit
+      fonts:
+        - asset: assets/fonts/Cafe24PROSlimFit.ttf
+
     - family: GowunBatang
       fonts:
         - asset: assets/fonts/GowunBatang-Regular.ttf

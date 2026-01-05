@@ -37,7 +37,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   
   // 사용 가능한 비디오 파일 목록 (파일명만 지정, 확장자 제외)
   // 숫자나 영어 파일명 모두 가능 (예: '1', 'cooking', 'recipe_video' 등)
-  static const List<String> _availableVideos = ['1', '3', '4', '5', '6'];
+  static const List<String> _availableVideos = ['1', '3', '4', '5', '6', '7', '8'];
   
   // 프로필 사진 (한 번 선택 후 고정)
   String? _selectedProfileImage;
@@ -410,7 +410,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
             child: const Text(
               '레시피 만들기',
               style: TextStyle(
-                fontFamily: 'GowunBatang',
+                fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
               ),
@@ -539,7 +540,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                 child: const Text(
                   '맛있는 레시피를 만들고 있어요...',
                   style: TextStyle(
-                    fontFamily: 'GowunBatang',
+                    fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF2C2C2C),
@@ -581,7 +583,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
             const Text(
               '결과를 불러올 수 없습니다',
               style: TextStyle(
-                fontFamily: 'GowunBatang',
+                fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                 fontSize: 18,
                 color: Color(0xFF2C2C2C),
               ),
@@ -607,7 +610,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
               child: const Text(
                 '다시 만들기',
                 style: TextStyle(
-                  fontFamily: 'GowunBatang',
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                   fontSize: 16,
                 ),
               ),
@@ -630,7 +634,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                 const Text(
                   '추천 결과',
                   style: TextStyle(
-                    fontFamily: 'GowunBatang',
+                    fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF2C2C2C),
@@ -649,7 +654,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   label: const Text(
                     '다시 만들기',
                     style: TextStyle(
-                      fontFamily: 'GowunBatang',
+                      fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                       fontSize: 14,
                     ),
                   ),
@@ -700,7 +706,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                         Text(
                           '배달 추천',
                           style: TextStyle(
-                            fontFamily: 'GowunBatang',
+                            fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF2C2C2C),
@@ -714,7 +721,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   Text(
                     _reason,
                     style: const TextStyle(
-                      fontFamily: 'GowunBatang',
+                      fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                       fontSize: 18,
                       color: Color(0xFF2C2C2C),
                       height: 1.6,
@@ -745,7 +753,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                         ? '레시피 추천'
                         : '${_recipes.length}개의 레시피',
                     style: const TextStyle(
-                      fontFamily: 'GowunBatang',
+                      fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2C2C2C),
@@ -869,7 +878,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                 label: const Text(
                   '다시 만들기',
                   style: TextStyle(
-                    fontFamily: 'GowunBatang',
+                    fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                     fontSize: 14,
                   ),
                 ),
@@ -916,7 +926,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     child: Text(
                       _reason,
                       style: const TextStyle(
-                        fontFamily: 'GowunBatang',
+                        fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                         fontSize: 16,
                         color: Color(0xFF2C2C2C),
                         height: 1.5,
@@ -943,7 +954,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                       const Text(
                         '레시피가 없습니다',
                         style: TextStyle(
-                          fontFamily: 'GowunBatang',
+                          fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                           fontSize: 18,
                           color: Color(0xFF2C2C2C),
                         ),
@@ -1019,7 +1031,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     child: Text(
                       '${index + 1}',
                       style: const TextStyle(
-                        fontFamily: 'GowunBatang',
+                        fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -1032,7 +1045,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   child: Text(
                     recipe.recipeName,
                     style: const TextStyle(
-                      fontFamily: 'GowunBatang',
+                      fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2C2C2C),
@@ -1060,7 +1074,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     Text(
                       '재료',
                       style: TextStyle(
-                        fontFamily: 'GowunBatang',
+                        fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF2C2C2C),
@@ -1086,7 +1101,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                       child: Text(
                         ingredient,
                         style: const TextStyle(
-                          fontFamily: 'GowunBatang',
+                          fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                           fontSize: 14,
                           color: Color(0xFF2C2C2C),
                         ),
@@ -1107,7 +1123,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     Text(
                       '조리 단계',
                       style: TextStyle(
-                        fontFamily: 'GowunBatang',
+                        fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF2C2C2C),
@@ -1133,7 +1150,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                             child: Text(
                               '${entry.key + 1}',
                               style: const TextStyle(
-                                fontFamily: 'GowunBatang',
+                                fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -1146,7 +1164,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                           child: Text(
                             entry.value,
                             style: const TextStyle(
-                              fontFamily: 'GowunBatang',
+                              fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                               fontSize: 16,
                               color: Color(0xFF2C2C2C),
                               height: 1.5,

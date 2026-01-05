@@ -14,12 +14,21 @@ class MyPageController extends ChangeNotifier {
   List<IngredientResponse> get ingredients => _ingredients;
   bool get isLoading => _isLoading;
   int get currentCategoryIndex => _currentCategoryIndex;
-  String get currentCategory => _categories[_currentCategoryIndex];
+  String get currentCategory {
+    if (_currentCategoryIndex == -1) {
+      return 'ALL'; // 전체
+    }
+    return _categories[_currentCategoryIndex];
+  }
 
   // 현재 카테고리에 맞는 재료 필터링 로직
   //전체 재료(_ingredients) 중에서 현재 선택된 카테고리에 해당하는 재료만 쏙쏙 골라내는 필터 역할
   //where 함수를 사용하여 조건에 맞는 데이터만 리스트로 다시 만듬
   List<IngredientResponse> get currentCategoryIngredients {
+    if (_currentCategoryIndex == -1) {
+      // 전체 선택 시 모든 재료 반환
+      return _ingredients;
+    }
     return _ingredients
         .where((item) => item.category == currentCategory)
         .toList();
@@ -69,6 +78,17 @@ class MyPageController extends ChangeNotifier {
 
   void previousCategory() {
     _currentCategoryIndex = (_currentCategoryIndex - 1 + _categories.length) % _categories.length;
+    notifyListeners();
+  }
+
+  // 4. 카테고리 직접 선택 로직
+  void selectCategory(int index) {
+    if (index == -1) {
+      // 전체 선택 (모든 재료 표시)
+      _currentCategoryIndex = -1;
+    } else if (index >= 0 && index < _categories.length) {
+      _currentCategoryIndex = index;
+    }
     notifyListeners();
   }
 }

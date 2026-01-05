@@ -127,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                     const Text(
                       '냉장고 프로젝트',
                       style: TextStyle(
-                        fontFamily: 'GowunBatang',
+                        fontFamily: 'Cafe24PROSlimFit',
                         fontSize: 50,
                         letterSpacing: 2.0,
                         fontWeight: FontWeight.w700,
@@ -147,7 +147,8 @@ class _LoginPageState extends State<LoginPage> {
                       constraints: const BoxConstraints(maxWidth: 400),
                       child: DefaultTextStyle(
                         style: const TextStyle(
-                          fontFamily: 'GowunBatang',
+                          fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF2C2C2C),
@@ -201,7 +202,8 @@ class _LoginPageState extends State<LoginPage> {
                                     onPressed: _handleSignUp,
                                     style: TextButton.styleFrom(
                                       textStyle: const TextStyle(
-                                        fontFamily: 'GowunBatang',
+                                        fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -215,7 +217,8 @@ class _LoginPageState extends State<LoginPage> {
                                       backgroundColor: const Color(0xFFDEAE71),
                                       foregroundColor: Colors.white,
                                       textStyle: const TextStyle(
-                                        fontFamily: 'GowunBatang',
+                                        fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
                                       ),
