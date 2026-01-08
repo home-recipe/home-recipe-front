@@ -11,6 +11,7 @@ import '../models/join_request.dart';
 import '../models/join_response.dart';
 import '../models/refrigerator_response.dart';
 import '../models/ingredient_response.dart';
+import '../models/open_api_ingredient_response.dart';
 import '../models/recipes_response.dart';
 import '../models/recommendations_response.dart';
 import 'token_service.dart';
@@ -401,10 +402,82 @@ class ApiService {
 
   /* ================= 재료 검색 ================= */
 
+  static Future<ApiResponse<List<OpenApiIngredientResponse>>> findIngredientsFromOpenApi(String name) async {
+    try {
+      var response = await _client.get(
+        Uri.parse('$baseUrl/api/ingredients?name=${Uri.encodeComponent(name)}'),
+        headers: await _getHeaders(),
+      );
+
+      debugPrint('Open API 응답 상태 코드: ${response.statusCode}');
+      debugPrint('Open API 응답 본문: ${utf8.decode(response.bodyBytes)}');
+
+      var json =
+          jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+
+      var responseJson = json['response'] as Map<String, dynamic>;
+      
+      List<OpenApiIngredientResponse> ingredients = [];
+      if (responseJson['data'] != null && responseJson['data'] is List) {
+        ingredients = (responseJson['data'] as List<dynamic>)
+            .map((item) => OpenApiIngredientResponse.fromJson(item as Map<String, dynamic>))
+            .toList();
+      }
+
+      debugPrint('파싱된 ingredients 개수: ${ingredients.length}');
+
+      var apiResponse = ApiResponse<List<OpenApiIngredientResponse>>(
+        code: json['code'] as int,
+        message: json['message'] as String,
+        response: ResponseDetail<List<OpenApiIngredientResponse>>(
+          code: responseJson['code'] as String,
+          data: ingredients,
+        ),
+      );
+
+      debugPrint('최종 apiResponse: code=${apiResponse.code}, response.code=${apiResponse.response.code}, data.length=${apiResponse.response.data?.length ?? 0}');
+
+      // 인증 에러 처리 (INGREDIENT_FIND_SUCCESS는 정상 응답이므로 재시도하지 않음)
+      if (apiResponse.response.code == 'AUTH_EXPIRED_TOKEN' || 
+          apiResponse.response.code == 'AUTH_NOT_EXIST_TOKEN') {
+        final shouldRetry = await _handleAuthError(apiResponse);
+        if (shouldRetry) {
+          // 재시도
+          response = await _client.get(
+            Uri.parse('$baseUrl/api/ingredients?name=${Uri.encodeComponent(name)}'),
+            headers: await _getHeaders(),
+          );
+          json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+          responseJson = json['response'] as Map<String, dynamic>;
+          ingredients = [];
+          if (responseJson['data'] != null && responseJson['data'] is List) {
+            ingredients = (responseJson['data'] as List<dynamic>)
+                .map((item) => OpenApiIngredientResponse.fromJson(item as Map<String, dynamic>))
+                .toList();
+          }
+          apiResponse = ApiResponse<List<OpenApiIngredientResponse>>(
+            code: json['code'] as int,
+            message: json['message'] as String,
+            response: ResponseDetail<List<OpenApiIngredientResponse>>(
+              code: responseJson['code'] as String,
+              data: ingredients,
+            ),
+          );
+        }
+      }
+
+      return apiResponse;
+    } catch (e, stackTrace) {
+      debugPrint('findIngredientsFromOpenApi 에러: $e');
+      debugPrint('스택 트레이스: $stackTrace');
+      return _networkError<List<OpenApiIngredientResponse>>('네트워크 오류가 발생했습니다.');
+    }
+  }
+
   static Future<ApiResponse<List<IngredientResponse>>> findIngredientsByName(String name) async {
     try {
       var response = await _client.get(
-        Uri.parse('$baseUrl/api/ingredients/ingredient?name=${Uri.encodeComponent(name)}'),
+        Uri.parse('$baseUrl/api/ingredients?name=${Uri.encodeComponent(name)}'),
         headers: await _getHeaders(),
       );
 
@@ -435,7 +508,7 @@ class ApiService {
           apiResponse.response.code == 'AUTH_NOT_EXIST_TOKEN')) {
         // 재시도
         response = await _client.get(
-          Uri.parse('$baseUrl/api/ingredients/ingredient?name=${Uri.encodeComponent(name)}'),
+          Uri.parse('$baseUrl/api/ingredients?name=${Uri.encodeComponent(name)}'),
           headers: await _getHeaders(),
         );
         json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;

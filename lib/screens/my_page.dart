@@ -1,9 +1,10 @@
 import 'dart:math';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/ingredient_category.dart';
 import '../models/ingredient_response.dart';
+import '../models/open_api_ingredient_response.dart';
 import '../utils/logout_helper.dart';
 import '../utils/profile_image_helper.dart';
 import 'my_page/my_page_controller.dart';
@@ -436,24 +437,93 @@ class MyPageState extends State<MyPage> {
     Function(List<IngredientResponse>) onResult,
   ) async {
     try {
-      final response = await ApiService.findIngredientsByName(name);
+      // 먼저 /api/refrigerator로 GET 요청
+      final refrigeratorResponse = await ApiService.getRefrigerator();
 
       if (!context.mounted) return;
 
-      if (response.code == 200 && response.response.data != null) {
-        setState(() {
-          onResult(response.response.data!);
-        });
-      } else {
+      // /api/refrigerator 응답이 있고 데이터가 있으면 그 중에서 검색어와 일치하는 것을 필터링
+      if (refrigeratorResponse.code == 200 && 
+          refrigeratorResponse.response.data != null &&
+          refrigeratorResponse.response.data!.myRefrigerator.isNotEmpty) {
+        // 냉장고에 있는 재료 중에서 검색어와 일치하는 것을 필터링
+        final filteredResults = refrigeratorResponse.response.data!.myRefrigerator
+            .where((ingredient) => ingredient.name.toLowerCase().contains(name.toLowerCase()))
+            .toList();
+
+        if (filteredResults.isNotEmpty) {
+          // 필터링된 결과가 있으면 그것을 보여줌
+          setState(() {
+            onResult(filteredResults);
+          });
+          return;
+        }
+      }
+
+      // /api/refrigerator 응답이 없거나 필터링된 결과가 없으면 Open API로 검색
+      try {
+        final openApiResponse = await ApiService.findIngredientsFromOpenApi(name);
+
+        if (!context.mounted) return;
+
+        debugPrint('Open API 응답: code=${openApiResponse.code}, message=${openApiResponse.message}');
+        debugPrint('Open API 응답 data: ${openApiResponse.response.data}');
+        debugPrint('Open API 응답 code: ${openApiResponse.response.code}');
+
+        if (openApiResponse.code == 200 && openApiResponse.response.data != null && openApiResponse.response.data!.isNotEmpty) {
+          // OpenApiIngredientResponse를 IngredientResponse로 변환
+          // Open API 응답은 id와 category가 없으므로 임시로 처리
+          final convertedResults = openApiResponse.response.data!.map((item) {
+            return IngredientResponse(
+              id: 0, // Open API 응답에는 id가 없음
+              category: 'ETC', // 기본 카테고리
+              name: item.name,
+              source: item.source,
+            );
+          }).toList();
+
+          setState(() {
+            onResult(convertedResults);
+          });
+        } else {
+          setState(() {
+            onResult([]);
+          });
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  openApiResponse.code == -1 
+                      ? '네트워크 오류가 발생했습니다' 
+                      : (openApiResponse.response.data == null || openApiResponse.response.data!.isEmpty
+                          ? '검색 결과가 없어요'
+                          : openApiResponse.message),
+                  style: const TextStyle(
+                    fontFamily: 'Cafe24PROSlimFit',
+                    letterSpacing: 0.5,
+                    fontSize: 14,
+                  ),
+                ),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (!context.mounted) return;
         setState(() {
           onResult([]);
         });
-        // 다이얼로그 내부에서는 ScaffoldMessenger 대신 직접 메시지 표시
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                response.message,
+                '재료 검색 중 오류가 발생했습니다: $e',
                 style: const TextStyle(
                   fontFamily: 'Cafe24PROSlimFit',
                   letterSpacing: 0.5,
@@ -475,7 +545,6 @@ class MyPageState extends State<MyPage> {
       setState(() {
         onResult([]);
       });
-      // 다이얼로그 내부에서는 ScaffoldMessenger 대신 직접 메시지 표시
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -562,8 +631,270 @@ class MyPageState extends State<MyPage> {
     );
   }
 
+  // 카테고리 선택 팝업 (OPEN_API 재료용)
+  Future<void> _showCategorySelectionDialog(BuildContext context, IngredientResponse ingredient) async {
+    String? selectedCategory;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: const Text(
+                '🍳 축하드립니다! 냉장고 프로젝트에 재료를 공여하셨습니다!',
+                style: TextStyle(
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF2C2C2C),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '이제 이 재료의 카테고리를 지정해 주세요.\n당신이 선택한 카테고리는 이 재료를 선택한 모든 사람의 냉장고에 반영됩니다.',
+                      style: TextStyle(
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
+                        color: Color(0xFF2C2C2C),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ...IngredientCategory.values.map((category) {
+                      final isSelected = selectedCategory == category;
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                selectedCategory = category;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? const Color(0xFFDEAE71).withValues(alpha: 0.1)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? const Color(0xFFDEAE71)
+                                      : Colors.grey.shade300,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isSelected
+                                        ? Icons.check_circle
+                                        : Icons.circle_outlined,
+                                    color: isSelected
+                                        ? const Color(0xFFDEAE71)
+                                        : Colors.grey,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    IngredientCategory.toDisplayName(category),
+                                    style: TextStyle(
+                                      fontFamily: 'Cafe24PROSlimFit',
+                                      letterSpacing: 0.5,
+                                      fontSize: 16,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w700
+                                          : FontWeight.normal,
+                                      color: const Color(0xFF2C2C2C),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    '취소',
+                    style: TextStyle(
+                      fontFamily: 'Cafe24PROSlimFit',
+                      letterSpacing: 0.5,
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: selectedCategory == null
+                      ? null
+                      : () {
+                          Navigator.pop(context);
+                          _addIngredientToRefrigeratorWithCategory(
+                            context,
+                            ingredient,
+                            selectedCategory!,
+                          );
+                        },
+                  child: const Text(
+                    '확인',
+                    style: TextStyle(
+                      fontFamily: 'Cafe24PROSlimFit',
+                      letterSpacing: 0.5,
+                      fontSize: 14,
+                      color: Color(0xFFDEAE71),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // 카테고리와 함께 재료 추가 (OPEN_API 재료용)
+  Future<void> _addIngredientToRefrigeratorWithCategory(
+    BuildContext context,
+    IngredientResponse ingredient,
+    String category,
+  ) async {
+    try {
+      // Open API 재료는 먼저 재료를 생성해야 함
+      final createResponse = await ApiService.createIngredient(category, ingredient.name);
+
+      if (!mounted) return;
+
+      // 201 응답이 오면 재료 공여 성공
+      if (createResponse.code == 201 && createResponse.response.data != null) {
+        // 재료 생성 성공 후 냉장고에 추가
+        final addResponse = await ApiService.addIngredientToRefrigerator(
+          createResponse.response.data!.id,
+        );
+
+        if (!mounted) return;
+
+        if (addResponse.code == 200) {
+          // 성공 시 냉장고 목록 새로고침하여 화면에 반영
+          await _loadRefrigerator();
+
+          // 해당 카테고리로 이동하여 사용자가 바로 볼 수 있게 함
+          final categoryIndex = IngredientCategory.values.indexOf(category);
+          if (categoryIndex != -1) {
+            _controller.selectCategory(categoryIndex);
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                '재료 공여가 성공했습니다!',
+                style: TextStyle(
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
+                  fontSize: 14,
+                ),
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                addResponse.message,
+                style: const TextStyle(
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
+                  fontSize: 14,
+                ),
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              createResponse.message,
+              style: const TextStyle(
+                fontFamily: 'Cafe24PROSlimFit',
+                letterSpacing: 0.5,
+                fontSize: 14,
+              ),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '재료 추가 중 오류가 발생했습니다: $e',
+            style: const TextStyle(
+              fontFamily: 'Cafe24PROSlimFit',
+              letterSpacing: 0.5,
+              fontSize: 14,
+            ),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    }
+  }
+
   // 냉장고에 재료 추가
   Future<void> _addIngredientToRefrigerator(BuildContext context, IngredientResponse ingredient) async {
+    // 재료의 source를 확인
+    if (ingredient.source == Source.OPEN_API) {
+      // OPEN_API면 카테고리 선택 팝업 표시
+      await _showCategorySelectionDialog(context, ingredient);
+      return;
+    }
+
+    // DATABASE면 그대로 진행
     try {
       final response = await ApiService.addIngredientToRefrigerator(ingredient.id);
 
@@ -572,6 +903,12 @@ class MyPageState extends State<MyPage> {
       if (response.code == 200) {
         // 성공 시 냉장고 목록 새로고침
         await _loadRefrigerator();
+        
+        // 해당 카테고리로 이동하여 사용자가 바로 볼 수 있게 함
+        final categoryIndex = IngredientCategory.values.indexOf(ingredient.category);
+        if (categoryIndex != -1) {
+          _controller.selectCategory(categoryIndex);
+        }
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
