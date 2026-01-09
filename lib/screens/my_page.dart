@@ -123,6 +123,21 @@ class MyPageState extends State<MyPage> {
     List<IngredientResponse> searchResults = [];
     bool isSearching = false;
     bool hasSearched = false; // 검색을 한 번이라도 했는지 여부
+    Set<int> selectedIngredientIds = {}; // 선택된 재료 ID들
+    Set<int> existingIngredientIds = {}; // 이미 냉장고에 있는 재료 ID들
+
+    // 현재 냉장고에 있는 재료 ID 목록 가져오기
+    try {
+      final refrigeratorResponse = await ApiService.getRefrigerator();
+      if (refrigeratorResponse.code == 200 && 
+          refrigeratorResponse.response.data != null) {
+        existingIngredientIds = refrigeratorResponse.response.data!.myRefrigerator
+            .map((ingredient) => ingredient.id)
+            .toSet();
+      }
+    } catch (e) {
+      debugPrint('냉장고 조회 오류: $e');
+    }
 
     await showDialog(
       context: context,
@@ -191,6 +206,7 @@ class MyPageState extends State<MyPage> {
                           if (value.trim().isEmpty) return;
                           setState(() {
                             isSearching = true;
+                            selectedIngredientIds.clear(); // 새 검색 시 선택 상태 초기화
                           });
                           await _searchIngredients(context, value.trim(), setState, (results) {
                             setState(() {
@@ -210,6 +226,7 @@ class MyPageState extends State<MyPage> {
                                 if (searchController.text.trim().isEmpty) return;
                                 setState(() {
                                   isSearching = true;
+                                  selectedIngredientIds.clear(); // 새 검색 시 선택 상태 초기화
                                 });
                                 await _searchIngredients(
                                   context,
@@ -286,14 +303,26 @@ class MyPageState extends State<MyPage> {
                                   const SizedBox(height: 12),
                                   // 검색 결과 목록
                                   ...searchResults.map((ingredient) {
+                                    final isSelected = selectedIngredientIds.contains(ingredient.id);
+                                    final isDatabase = ingredient.source == Source.DATABASE;
+                                    final isExisting = existingIngredientIds.contains(ingredient.id);
+                                    
                                     return Container(
                                       margin: const EdgeInsets.only(bottom: 10),
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: isExisting
+                                            ? Colors.grey.shade50
+                                            : (isSelected 
+                                                ? const Color(0xFFDEAE71).withValues(alpha: 0.1)
+                                                : Colors.white),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
-                                          color: const Color(0xFFDEAE71).withValues(alpha: 0.3),
-                                          width: 1.5,
+                                          color: isExisting
+                                              ? Colors.grey.shade300
+                                              : (isSelected
+                                                  ? const Color(0xFFDEAE71)
+                                                  : const Color(0xFFDEAE71).withValues(alpha: 0.3)),
+                                          width: isSelected ? 2 : 1.5,
                                         ),
                                         boxShadow: [
                                           BoxShadow(
@@ -306,10 +335,24 @@ class MyPageState extends State<MyPage> {
                                       child: Material(
                                         color: Colors.transparent,
                                         child: InkWell(
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                            _showAddConfirmDialog(context, ingredient);
-                                          },
+                                          onTap: isExisting
+                                              ? null // 이미 있는 재료는 클릭 불가
+                                              : () {
+                                                  if (isDatabase) {
+                                                    // DATABASE 재료는 선택/해제만
+                                                    setState(() {
+                                                      if (isSelected) {
+                                                        selectedIngredientIds.remove(ingredient.id);
+                                                      } else {
+                                                        selectedIngredientIds.add(ingredient.id);
+                                                      }
+                                                    });
+                                                  } else {
+                                                    // OPEN_API 재료는 기존처럼 바로 추가 확인 다이얼로그
+                                                    Navigator.pop(context);
+                                                    _showAddConfirmDialog(context, ingredient);
+                                                  }
+                                                },
                                           borderRadius: BorderRadius.circular(12),
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
@@ -318,37 +361,111 @@ class MyPageState extends State<MyPage> {
                                             ),
                                             child: Row(
                                               children: [
-                                                Container(
-                                                  width: 40,
-                                                  height: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: const Color(0xFFDEAE71).withValues(alpha: 0.1),
-                                                    shape: BoxShape.circle,
+                                                // DATABASE 재료는 체크박스, OPEN_API 재료는 아이콘
+                                                if (isDatabase) ...[
+                                                  Container(
+                                                    width: 24,
+                                                    height: 24,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: isExisting
+                                                            ? Colors.grey.shade300
+                                                            : (isSelected
+                                                                ? const Color(0xFFDEAE71)
+                                                                : Colors.grey.shade400),
+                                                        width: 2,
+                                                      ),
+                                                      color: isExisting
+                                                          ? Colors.grey.shade200
+                                                          : (isSelected
+                                                              ? const Color(0xFFDEAE71)
+                                                              : Colors.transparent),
+                                                    ),
+                                                    child: isSelected && !isExisting
+                                                        ? const Icon(
+                                                            Icons.check,
+                                                            size: 16,
+                                                            color: Colors.white,
+                                                          )
+                                                        : (isExisting
+                                                            ? const Icon(
+                                                                Icons.block,
+                                                                size: 16,
+                                                                color: Colors.grey,
+                                                              )
+                                                            : null),
                                                   ),
-                                                  child: const Icon(
-                                                    Icons.restaurant,
+                                                ] else ...[
+                                                  Container(
+                                                    width: 40,
+                                                    height: 40,
+                                                    decoration: BoxDecoration(
+                                                      color: isExisting
+                                                          ? Colors.grey.shade200
+                                                          : const Color(0xFFDEAE71).withValues(alpha: 0.1),
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(
+                                                      isExisting ? Icons.block : Icons.restaurant,
+                                                      size: 20,
+                                                      color: isExisting
+                                                          ? Colors.grey
+                                                          : const Color(0xFFDEAE71),
+                                                    ),
+                                                  ),
+                                                ],
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        ingredient.name,
+                                                        style: TextStyle(
+                          fontFamily: 'Cafe24PROSlimFit',
+                          letterSpacing: 0.5,
+                          fontSize: 15,
+                                                            fontWeight: FontWeight.w600,
+                                                            color: isExisting
+                                                                ? Colors.grey.shade600
+                                                                : const Color(0xFF2C2C2C),
+                                                        ),
+                                                      ),
+                                                      if (isExisting) ...[
+                                                        const SizedBox(height: 4),
+                                                        Container(
+                                                          padding: const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 2,
+                                                          ),
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.grey.shade200,
+                                                            borderRadius: BorderRadius.circular(8),
+                                                          ),
+                                                          child: const Text(
+                                                            '이미 저장된 재료',
+                                                            style: TextStyle(
+                          fontFamily: 'Cafe24PROSlimFit',
+                          letterSpacing: 0.5,
+                          fontSize: 11,
+                                                              color: Colors.grey,
+                                                              fontWeight: FontWeight.w500,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ],
+                                                  ),
+                                                ),
+                                                if (isDatabase)
+                                                  const SizedBox(width: 8)
+                                                else if (!isExisting)
+                                                  const Icon(
+                                                    Icons.chevron_right,
                                                     size: 20,
                                                     color: Color(0xFFDEAE71),
                                                   ),
-                                                ),
-                                                const SizedBox(width: 12),
-                                                Expanded(
-                                                  child: Text(
-                                                    ingredient.name,
-                                                    style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
-                        letterSpacing: 0.5,
-                        fontSize: 15,
-                                                      fontWeight: FontWeight.w600,
-                                                      color: Color(0xFF2C2C2C),
-                                                    ),
-                                                  ),
-                                                ),
-                                                const Icon(
-                                                  Icons.chevron_right,
-                                                  size: 20,
-                                                  color: Color(0xFFDEAE71),
-                                                ),
                                               ],
                                             ),
                                           ),
@@ -409,6 +526,113 @@ class MyPageState extends State<MyPage> {
                 ),
               ),
               actions: [
+                // 저장 버튼 (선택된 재료가 있을 때만 활성화)
+                if (selectedIngredientIds.isNotEmpty)
+                  ElevatedButton(
+                    onPressed: () async {
+                      // 선택된 재료들 중 DATABASE source이고 이미 존재하지 않는 것만 필터링
+                      final selectedIngredients = searchResults
+                          .where((ingredient) => 
+                              selectedIngredientIds.contains(ingredient.id) &&
+                              ingredient.source == Source.DATABASE &&
+                              !existingIngredientIds.contains(ingredient.id)) // 이미 있는 재료 제외
+                          .toList();
+                      
+                      if (selectedIngredients.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              '저장할 재료를 선택해주세요',
+                              style: TextStyle(
+                                fontFamily: 'Cafe24PROSlimFit',
+                                letterSpacing: 0.5,
+                                fontSize: 14,
+                              ),
+                            ),
+                            backgroundColor: Colors.orange,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      
+                      // 선택된 재료들을 한 번에 추가
+                      int successCount = 0;
+                      int failCount = 0;
+                      
+                      for (final ingredient in selectedIngredients) {
+                        try {
+                          final response = await ApiService.addIngredientToRefrigerator(ingredient.id);
+                          if (response.code == 200) {
+                            successCount++;
+                            // 성공한 재료는 existingIngredientIds에 추가하여 중복 방지
+                            existingIngredientIds.add(ingredient.id);
+                          } else {
+                            failCount++;
+                          }
+                        } catch (e) {
+                          failCount++;
+                        }
+                      }
+                      
+                      // 냉장고 목록 새로고침
+                      await _loadRefrigerator();
+                      
+                      // 첫 번째 성공한 재료의 카테고리로 이동
+                      if (successCount > 0 && selectedIngredients.isNotEmpty) {
+                        final firstIngredient = selectedIngredients.first;
+                        final categoryIndex = IngredientCategory.values.indexOf(firstIngredient.category);
+                        if (categoryIndex != -1) {
+                          _controller.selectCategory(categoryIndex);
+                        }
+                      }
+                      
+                      if (!context.mounted) return;
+                      
+                      // 결과 메시지 표시
+                      Navigator.pop(context);
+                      
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            failCount > 0
+                                ? '$successCount개 재료가 추가되었습니다. ($failCount개 실패)'
+                                : '$successCount개 재료가 추가되었습니다!',
+                            style: const TextStyle(
+                              fontFamily: 'Cafe24PROSlimFit',
+                              letterSpacing: 0.5,
+                              fontSize: 14,
+                            ),
+                          ),
+                          backgroundColor: failCount > 0 ? Colors.orange : Colors.green,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFDEAE71),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      '저장 (${selectedIngredientIds.length})',
+                      style: const TextStyle(
+                        fontFamily: 'Cafe24PROSlimFit',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: const Text(
