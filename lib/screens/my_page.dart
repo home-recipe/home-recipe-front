@@ -661,30 +661,22 @@ class MyPageState extends State<MyPage> {
     Function(List<IngredientResponse>) onResult,
   ) async {
     try {
-      // 먼저 /api/refrigerator로 GET 요청
-      final refrigeratorResponse = await ApiService.getRefrigerator();
+      // 먼저 DB에서 조회: /api/ingredients GET 요청에 name 파라미터
+      final dbResponse = await ApiService.findIngredientsByName(name);
 
       if (!context.mounted) return;
 
-      // /api/refrigerator 응답이 있고 데이터가 있으면 그 중에서 검색어와 일치하는 것을 필터링
-      if (refrigeratorResponse.code == 200 && 
-          refrigeratorResponse.response.data != null &&
-          refrigeratorResponse.response.data!.myRefrigerator.isNotEmpty) {
-        // 냉장고에 있는 재료 중에서 검색어와 일치하는 것을 필터링
-        final filteredResults = refrigeratorResponse.response.data!.myRefrigerator
-            .where((ingredient) => ingredient.name.toLowerCase().contains(name.toLowerCase()))
-            .toList();
-
-        if (filteredResults.isNotEmpty) {
-          // 필터링된 결과가 있으면 그것을 보여줌
-          setState(() {
-            onResult(filteredResults);
-          });
-          return;
-        }
+      // DB 응답이 있고 데이터가 있으면 그것을 보여줌
+      if (dbResponse.code == 200 && 
+          dbResponse.response.data != null &&
+          dbResponse.response.data!.isNotEmpty) {
+        setState(() {
+          onResult(dbResponse.response.data!);
+        });
+        return;
       }
 
-      // /api/refrigerator 응답이 없거나 필터링된 결과가 없으면 Open API로 검색
+      // DB 응답이 없거나 결과가 없으면 Open API로 검색: /api/ingredients/external GET 요청에 name 파라미터
       try {
         final openApiResponse = await ApiService.findIngredientsFromOpenApi(name);
 

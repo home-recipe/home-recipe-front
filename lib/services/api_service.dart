@@ -405,7 +405,7 @@ class ApiService {
   static Future<ApiResponse<List<OpenApiIngredientResponse>>> findIngredientsFromOpenApi(String name) async {
     try {
       var response = await _client.get(
-        Uri.parse('$baseUrl/api/ingredients?name=${Uri.encodeComponent(name)}'),
+        Uri.parse('$baseUrl/api/ingredients/external?name=${Uri.encodeComponent(name)}'),
         headers: await _getHeaders(),
       );
 
@@ -444,7 +444,7 @@ class ApiService {
         if (shouldRetry) {
           // 재시도
           response = await _client.get(
-            Uri.parse('$baseUrl/api/ingredients?name=${Uri.encodeComponent(name)}'),
+            Uri.parse('$baseUrl/api/ingredients/external?name=${Uri.encodeComponent(name)}'),
             headers: await _getHeaders(),
           );
           json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
