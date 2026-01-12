@@ -11,22 +11,22 @@ enum Source {
 }
 
 class IngredientResponse {
-  final int id; // Long 타입
-  final String category; // 서버에서 받은 그대로 (VEGETABLE, FRUIT 등)
+  final int? id; // Long 타입, nullable
+  final String? category; // 서버에서 받은 그대로 (VEGETABLE, FRUIT 등), nullable
   final String name;
   final Source source;
 
   IngredientResponse({
-    required this.id,
-    required this.category,
+    this.id,
+    this.category,
     required this.name,
     required this.source,
   });
 
   factory IngredientResponse.fromJson(Map<String, dynamic> json) {
     return IngredientResponse(
-      id: json['id'] as int,
-      category: json['category'] as String,
+      id: json['id'] as int?,
+      category: json['category'] as String?,
       name: json['name'] as String,
       source: Source.fromString(json['source'] as String? ?? 'DATABASE'),
     );

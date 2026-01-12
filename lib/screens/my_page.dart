@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/ingredient_category.dart';
 import '../models/ingredient_response.dart';
-import '../models/open_api_ingredient_response.dart';
 import '../utils/logout_helper.dart';
 import '../utils/profile_image_helper.dart';
 import 'my_page/my_page_controller.dart';
@@ -132,7 +131,8 @@ class MyPageState extends State<MyPage> {
       if (refrigeratorResponse.code == 200 && 
           refrigeratorResponse.response.data != null) {
         existingIngredientIds = refrigeratorResponse.response.data!.myRefrigerator
-            .map((ingredient) => ingredient.id)
+            .where((ingredient) => ingredient.id != null)
+            .map((ingredient) => ingredient.id!)
             .toSet();
       }
     } catch (e) {
@@ -303,9 +303,9 @@ class MyPageState extends State<MyPage> {
                                   const SizedBox(height: 12),
                                   // 검색 결과 목록
                                   ...searchResults.map((ingredient) {
-                                    final isSelected = selectedIngredientIds.contains(ingredient.id);
+                                    final isSelected = ingredient.id != null && selectedIngredientIds.contains(ingredient.id);
                                     final isDatabase = ingredient.source == Source.DATABASE;
-                                    final isExisting = existingIngredientIds.contains(ingredient.id);
+                                    final isExisting = ingredient.id != null && existingIngredientIds.contains(ingredient.id);
                                     
                                     return Container(
                                       margin: const EdgeInsets.only(bottom: 10),
@@ -338,13 +338,13 @@ class MyPageState extends State<MyPage> {
                                           onTap: isExisting
                                               ? null // 이미 있는 재료는 클릭 불가
                                               : () {
-                                                  if (isDatabase) {
+                                                  if (isDatabase && ingredient.id != null) {
                                                     // DATABASE 재료는 선택/해제만
                                                     setState(() {
                                                       if (isSelected) {
                                                         selectedIngredientIds.remove(ingredient.id);
                                                       } else {
-                                                        selectedIngredientIds.add(ingredient.id);
+                                                        selectedIngredientIds.add(ingredient.id!);
                                                       }
                                                     });
                                                   } else {
@@ -533,6 +533,7 @@ class MyPageState extends State<MyPage> {
                       // 선택된 재료들 중 DATABASE source이고 이미 존재하지 않는 것만 필터링
                       final selectedIngredients = searchResults
                           .where((ingredient) => 
+                              ingredient.id != null &&
                               selectedIngredientIds.contains(ingredient.id) &&
                               ingredient.source == Source.DATABASE &&
                               !existingIngredientIds.contains(ingredient.id)) // 이미 있는 재료 제외
@@ -559,17 +560,27 @@ class MyPageState extends State<MyPage> {
                         return;
                       }
                       
+                      // 확인 다이얼로그 표시
+                      final confirmed = await _showSaveMultipleIngredientsDialog(context, selectedIngredients);
+                      if (!confirmed) {
+                        return; // 취소하면 저장하지 않음
+                      }
+                      
                       // 선택된 재료들을 한 번에 추가
                       int successCount = 0;
                       int failCount = 0;
                       
                       for (final ingredient in selectedIngredients) {
+                        if (ingredient.id == null) {
+                          failCount++;
+                          continue;
+                        }
                         try {
-                          final response = await ApiService.addIngredientToRefrigerator(ingredient.id);
+                          final response = await ApiService.addIngredientToRefrigerator(ingredient.id!);
                           if (response.code == 200) {
                             successCount++;
                             // 성공한 재료는 existingIngredientIds에 추가하여 중복 방지
-                            existingIngredientIds.add(ingredient.id);
+                            existingIngredientIds.add(ingredient.id!);
                           } else {
                             failCount++;
                           }
@@ -584,9 +595,11 @@ class MyPageState extends State<MyPage> {
                       // 첫 번째 성공한 재료의 카테고리로 이동
                       if (successCount > 0 && selectedIngredients.isNotEmpty) {
                         final firstIngredient = selectedIngredients.first;
-                        final categoryIndex = IngredientCategory.values.indexOf(firstIngredient.category);
-                        if (categoryIndex != -1) {
-                          _controller.selectCategory(categoryIndex);
+                        if (firstIngredient.category != null) {
+                          final categoryIndex = IngredientCategory.values.indexOf(firstIngredient.category!);
+                          if (categoryIndex != -1) {
+                            _controller.selectCategory(categoryIndex);
+                          }
                         }
                       }
                       
@@ -661,77 +674,18 @@ class MyPageState extends State<MyPage> {
     Function(List<IngredientResponse>) onResult,
   ) async {
     try {
-      // 먼저 DB에서 조회: /api/ingredients GET 요청에 name 파라미터
-      final dbResponse = await ApiService.findIngredientsByName(name);
+      // /api/ingredients GET 요청에 name 파라미터로 통일된 요청
+      final response = await ApiService.findIngredientsByName(name);
 
       if (!context.mounted) return;
 
-      // DB 응답이 있고 데이터가 있으면 그것을 보여줌
-      if (dbResponse.code == 200 && 
-          dbResponse.response.data != null &&
-          dbResponse.response.data!.isNotEmpty) {
+      if (response.code == 200 && 
+          response.response.data != null &&
+          response.response.data!.isNotEmpty) {
         setState(() {
-          onResult(dbResponse.response.data!);
+          onResult(response.response.data!);
         });
-        return;
-      }
-
-      // DB 응답이 없거나 결과가 없으면 Open API로 검색: /api/ingredients/external GET 요청에 name 파라미터
-      try {
-        final openApiResponse = await ApiService.findIngredientsFromOpenApi(name);
-
-        if (!context.mounted) return;
-
-        debugPrint('Open API 응답: code=${openApiResponse.code}, message=${openApiResponse.message}');
-        debugPrint('Open API 응답 data: ${openApiResponse.response.data}');
-        debugPrint('Open API 응답 code: ${openApiResponse.response.code}');
-
-        if (openApiResponse.code == 200 && openApiResponse.response.data != null && openApiResponse.response.data!.isNotEmpty) {
-          // OpenApiIngredientResponse를 IngredientResponse로 변환
-          // Open API 응답은 id와 category가 없으므로 임시로 처리
-          final convertedResults = openApiResponse.response.data!.map((item) {
-            return IngredientResponse(
-              id: 0, // Open API 응답에는 id가 없음
-              category: 'ETC', // 기본 카테고리
-              name: item.name,
-              source: item.source,
-            );
-          }).toList();
-
-          setState(() {
-            onResult(convertedResults);
-          });
-        } else {
-          setState(() {
-            onResult([]);
-          });
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  openApiResponse.code == -1 
-                      ? '네트워크 오류가 발생했습니다' 
-                      : (openApiResponse.response.data == null || openApiResponse.response.data!.isEmpty
-                          ? '검색 결과가 없어요'
-                          : openApiResponse.message),
-                  style: const TextStyle(
-                    fontFamily: 'Cafe24PROSlimFit',
-                    letterSpacing: 0.5,
-                    fontSize: 14,
-                  ),
-                ),
-                backgroundColor: Colors.red,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        if (!context.mounted) return;
+      } else {
         setState(() {
           onResult([]);
         });
@@ -739,7 +693,11 @@ class MyPageState extends State<MyPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                '재료 검색 중 오류가 발생했습니다: $e',
+                response.code == -1 
+                    ? '네트워크 오류가 발생했습니다' 
+                    : (response.response.data == null || response.response.data!.isEmpty
+                        ? '검색 결과가 없어요'
+                        : response.message),
                 style: const TextStyle(
                   fontFamily: 'Cafe24PROSlimFit',
                   letterSpacing: 0.5,
@@ -767,9 +725,9 @@ class MyPageState extends State<MyPage> {
             content: Text(
               '재료 검색 중 오류가 발생했습니다: $e',
               style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
-                        letterSpacing: 0.5,
-                        fontSize: 14,
+                fontFamily: 'Cafe24PROSlimFit',
+                letterSpacing: 0.5,
+                fontSize: 14,
               ),
             ),
             backgroundColor: Colors.red,
@@ -782,6 +740,71 @@ class MyPageState extends State<MyPage> {
         );
       }
     }
+  }
+
+  // 여러 재료 저장 확인 다이얼로그
+  Future<bool> _showSaveMultipleIngredientsDialog(
+    BuildContext context,
+    List<IngredientResponse> ingredients,
+  ) async {
+    final ingredientNames = ingredients.map((e) => e.name).join(', ');
+    
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            '재료 저장',
+            style: TextStyle(
+              fontFamily: 'Cafe24PROSlimFit',
+              letterSpacing: 0.5,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF2C2C2C),
+            ),
+          ),
+          content: Text(
+            '[$ingredientNames] 재료를 저장하시겠어요?',
+            style: const TextStyle(
+              fontFamily: 'Cafe24PROSlimFit',
+              letterSpacing: 0.5,
+              fontSize: 16,
+              color: Color(0xFF2C2C2C),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text(
+                '취소',
+                style: TextStyle(
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text(
+                '확인',
+                style: TextStyle(
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
+                  fontSize: 14,
+                  color: Color(0xFFDEAE71),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    ) ?? false;
   }
 
   // 재료 추가 확인 다이얼로그
@@ -1006,10 +1029,10 @@ class MyPageState extends State<MyPage> {
       if (!mounted) return;
 
       // 201 응답이 오면 재료 공여 성공
-      if (createResponse.code == 201 && createResponse.response.data != null) {
+      if (createResponse.code == 201 && createResponse.response.data != null && createResponse.response.data!.id != null) {
         // 재료 생성 성공 후 냉장고에 추가
         final addResponse = await ApiService.addIngredientToRefrigerator(
-          createResponse.response.data!.id,
+          createResponse.response.data!.id!,
         );
 
         if (!mounted) return;
@@ -1111,8 +1134,32 @@ class MyPageState extends State<MyPage> {
     }
 
     // DATABASE면 그대로 진행
+      if (ingredient.id == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                '재료 ID가 없습니다',
+                style: TextStyle(
+                  fontFamily: 'Cafe24PROSlimFit',
+                  letterSpacing: 0.5,
+                  fontSize: 14,
+                ),
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+        return;
+      }
+    
     try {
-      final response = await ApiService.addIngredientToRefrigerator(ingredient.id);
+      final response = await ApiService.addIngredientToRefrigerator(ingredient.id!);
 
       if (!mounted) return;
 
@@ -1121,9 +1168,11 @@ class MyPageState extends State<MyPage> {
         await _loadRefrigerator();
         
         // 해당 카테고리로 이동하여 사용자가 바로 볼 수 있게 함
-        final categoryIndex = IngredientCategory.values.indexOf(ingredient.category);
-        if (categoryIndex != -1) {
-          _controller.selectCategory(categoryIndex);
+        if (ingredient.category != null) {
+          final categoryIndex = IngredientCategory.values.indexOf(ingredient.category!);
+          if (categoryIndex != -1) {
+            _controller.selectCategory(categoryIndex);
+          }
         }
         
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1250,8 +1299,25 @@ class MyPageState extends State<MyPage> {
 
   // 재료 삭제
   Future<void> _deleteIngredient(BuildContext context, IngredientResponse ingredient) async {
+    if (ingredient.id == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('재료 ID가 없습니다', style: TextStyle(fontFamily: 'Cafe24PROSlimFit', letterSpacing: 0.5)),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+    
     try {
-      bool success = await _controller.deleteIngredient(ingredient.id);
+      bool success = await _controller.deleteIngredient(ingredient.id!);
 
       if (!mounted) return;
 
