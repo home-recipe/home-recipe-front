@@ -2,11 +2,13 @@ import 'dart:math';
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../services/token_service.dart';
 import '../models/ingredient_category.dart';
 import '../models/ingredient_response.dart';
 import '../utils/logout_helper.dart';
 import '../utils/profile_image_helper.dart';
 import 'my_page/my_page_controller.dart';
+import 'admin_page.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -21,6 +23,10 @@ class MyPageState extends State<MyPage> {
   
   // 프로필 사진 (한 번 선택 후 고정)
   String? _selectedProfileImage;
+  
+  // 사용자 role
+  String? _userRole;
+  bool _isCheckingRole = false;
   
   Future<void> _loadRefrigerator() async {
     await _controller.loadRefrigerator();
@@ -39,7 +45,47 @@ class MyPageState extends State<MyPage> {
     _controller.addListener(() {
       if (mounted) setState(() {});
     });
+    
+    // 사용자 role 확인
+    _checkUserRole();
   }
+  
+  Future<void> _checkUserRole() async {
+    setState(() {
+      _isCheckingRole = true;
+    });
+    
+    // 저장된 role 확인
+    final role = await TokenService.getUserRole();
+    
+    if (role != null) {
+      setState(() {
+        _userRole = role;
+        _isCheckingRole = false;
+      });
+    } else {
+      // role이 없으면 API로 사용자 정보 조회
+      try {
+        final response = await ApiService.getCurrentUser();
+        if (response.code == 200 && response.response.data != null) {
+          setState(() {
+            _userRole = response.response.data!.role;
+            _isCheckingRole = false;
+          });
+        } else {
+          setState(() {
+            _isCheckingRole = false;
+          });
+        }
+      } catch (e) {
+        setState(() {
+          _isCheckingRole = false;
+        });
+      }
+    }
+  }
+  
+  bool get _isAdmin => _userRole == 'ADMIN';
   
   /// 프로필 이미지를 사용자별로 고정된 이미지로 로드
   Future<void> _loadRandomProfileImage() async {
@@ -66,50 +112,110 @@ class MyPageState extends State<MyPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              key: _accountButtonKey,
-              onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+          // 왼쪽은 빈 공간
+          const SizedBox.shrink(),
+          // 오른쪽에 페이지 관리 버튼과 프로필 아이콘 배치
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ADMIN인 경우에만 페이지 관리 버튼 표시
+              if (_isAdmin && !_isCheckingRole)
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const AdminPage()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDEAE71),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.settings,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              '페이지 관리',
+                              style: TextStyle(
+                                fontFamily: 'Cafe24PROSlimFit',
+                                letterSpacing: 0.5,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ],
+                  ),
                 ),
-                child: ClipOval(
-                  child: _selectedProfileImage != null
-                      ? Image.asset(
-                          _selectedProfileImage!,
-                          width: 48,
-                          height: 48,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
+              // 프로필 아이콘
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  key: _accountButtonKey,
+                  onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.8),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: _selectedProfileImage != null
+                          ? Image.asset(
+                              _selectedProfileImage!,
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(
+                                  Icons.account_circle,
+                                  size: 48,
+                                  color: Color(0xFF2C2C2C),
+                                );
+                              },
+                            )
+                          : const Icon(
                               Icons.account_circle,
                               size: 48,
                               color: Color(0xFF2C2C2C),
-                            );
-                          },
-                        )
-                      : const Icon(
-                          Icons.account_circle,
-                          size: 48,
-                          color: Color(0xFF2C2C2C),
-                        ),
+                            ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import 'storage_web.dart' if (dart.library.io) 'storage_stub.dart';
 class TokenService {
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
+  static const String _userRoleKey = 'user_role';
 
   // AccessToken 저장
   static Future<void> saveAccessToken(String token) async {
@@ -80,10 +81,41 @@ class TokenService {
     }
   }
 
+  // User Role 저장
+  static Future<void> saveUserRole(String role) async {
+    if (kIsWeb) {
+      await StorageWeb.setItem(_userRoleKey, role);
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_userRoleKey, role);
+    }
+  }
+
+  // User Role 불러오기
+  static Future<String?> getUserRole() async {
+    if (kIsWeb) {
+      return await StorageWeb.getItem(_userRoleKey);
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_userRoleKey);
+    }
+  }
+
+  // User Role 삭제
+  static Future<void> deleteUserRole() async {
+    if (kIsWeb) {
+      await StorageWeb.removeItem(_userRoleKey);
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_userRoleKey);
+    }
+  }
+
   // 로그아웃 (모든 토큰 삭제)
   static Future<void> clearTokens() async {
     await deleteAccessToken();
     await deleteRefreshToken();
+    await deleteUserRole();
   }
 }
 

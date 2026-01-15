@@ -14,6 +14,9 @@ import '../models/ingredient_response.dart';
 import '../models/open_api_ingredient_response.dart';
 import '../models/recipes_response.dart';
 import '../models/recommendations_response.dart';
+import '../models/user_response.dart';
+import '../models/admin_user_response.dart';
+import '../models/role.dart';
 import 'token_service.dart';
 import '../screens/login_page.dart';
 
@@ -100,11 +103,14 @@ class ApiService {
         return apiResponse;
       }
 
-      // 새로운 accessToken 저장
+      // 새로운 accessToken과 role 저장
       if (response.statusCode == 200 &&
           apiResponse.response.data != null) {
         await TokenService.saveAccessToken(
           apiResponse.response.data!.accessToken,
+        );
+        await TokenService.saveUserRole(
+          apiResponse.response.data!.role.toJson(),
         );
       }
 
@@ -199,7 +205,7 @@ class ApiService {
         (data) => LoginResponse.fromJson(data),
       );
 
-      // accessToken과 refreshToken 저장
+      // accessToken, refreshToken, role 저장
       if (response.statusCode == 200 &&
           apiResponse.response.data != null) {
         await TokenService.saveAccessToken(
@@ -207,6 +213,9 @@ class ApiService {
         );
         await TokenService.saveRefreshToken(
           apiResponse.response.data!.refreshToken,
+        );
+        await TokenService.saveUserRole(
+          apiResponse.response.data!.role.toJson(),
         );
       }
 
@@ -279,6 +288,35 @@ class ApiService {
       );
     } catch (e) {
       return _networkError<JoinResponse>('네트워크 오류가 발생했습니다.');
+    }
+  }
+
+  /* ================= 사용자 정보 조회 ================= */
+
+  static Future<ApiResponse<UserResponse>> getCurrentUser() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/user/me'),
+        headers: await _getHeaders(),
+      );
+
+      final json =
+          jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+
+      final apiResponse = ApiResponse<UserResponse>.fromJson(
+        json,
+        (data) => UserResponse.fromJson(data),
+      );
+
+      // 사용자 정보 조회 성공 시 role 저장
+      if (response.statusCode == 200 &&
+          apiResponse.response.data != null) {
+        await TokenService.saveUserRole(apiResponse.response.data!.role);
+      }
+
+      return apiResponse;
+    } catch (e) {
+      return _networkError<UserResponse>('네트워크 오류가 발생했습니다.');
     }
   }
 
@@ -668,6 +706,124 @@ class ApiService {
       return apiResponse;
     } catch (e) {
       return _networkError<RecipesResponse>('네트워크 오류가 발생했습니다.');
+    }
+  }
+
+  /* ================= 관리자 - 모든 사용자 조회 ================= */
+
+  static Future<ApiResponse<List<AdminUserResponse>>> getAllUsers() async {
+    try {
+      var response = await _client.get(
+        Uri.parse('$baseUrl/api/admin/users'),
+        headers: await _getHeaders(),
+      );
+
+      var json =
+          jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+
+      var responseJson = json['response'] as Map<String, dynamic>;
+      
+      List<AdminUserResponse> users = [];
+      if (responseJson['data'] != null && responseJson['data'] is List) {
+        users = (responseJson['data'] as List<dynamic>)
+            .map((item) => AdminUserResponse.fromJson(item as Map<String, dynamic>))
+            .toList();
+      }
+
+      var apiResponse = ApiResponse<List<AdminUserResponse>>(
+        code: json['code'] as int,
+        message: json['message'] as String,
+        response: ResponseDetail<List<AdminUserResponse>>(
+          code: responseJson['code'] as String,
+          data: users,
+        ),
+      );
+
+      // 인증 에러 처리
+      final shouldRetry = await _handleAuthError(apiResponse);
+      if (shouldRetry && (apiResponse.response.code == 'AUTH_EXPIRED_TOKEN' || 
+          apiResponse.response.code == 'AUTH_NOT_EXIST_TOKEN')) {
+        // 재시도
+        response = await _client.get(
+          Uri.parse('$baseUrl/api/admin/users'),
+          headers: await _getHeaders(),
+        );
+        json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        responseJson = json['response'] as Map<String, dynamic>;
+        users = [];
+        if (responseJson['data'] != null && responseJson['data'] is List) {
+          users = (responseJson['data'] as List<dynamic>)
+              .map((item) => AdminUserResponse.fromJson(item as Map<String, dynamic>))
+              .toList();
+        }
+        apiResponse = ApiResponse<List<AdminUserResponse>>(
+          code: json['code'] as int,
+          message: json['message'] as String,
+          response: ResponseDetail<List<AdminUserResponse>>(
+            code: responseJson['code'] as String,
+            data: users,
+          ),
+        );
+      }
+
+      return apiResponse;
+    } catch (e) {
+      return _networkError<List<AdminUserResponse>>('네트워크 오류가 발생했습니다.');
+    }
+  }
+
+  /* ================= 관리자 - 사용자 권한 변경 ================= */
+
+  static Future<ApiResponse<void>> updateUserRole(int userId, Role role) async {
+    try {
+      var response = await _client.put(
+        Uri.parse('$baseUrl/api/admin/user/$userId/role'),
+        headers: await _getHeaders(),
+        body: jsonEncode({
+          'role': role.toJson(),
+        }),
+        encoding: utf8,
+      );
+
+      var json =
+          jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+
+      var apiResponse = ApiResponse<void>(
+        code: json['code'] as int,
+        message: json['message'] as String,
+        response: ResponseDetail<void>(
+          code: json['response']['code'] as String,
+          data: null,
+        ),
+      );
+
+      // 인증 에러 처리
+      final shouldRetry = await _handleAuthError(apiResponse);
+      if (shouldRetry && (apiResponse.response.code == 'AUTH_EXPIRED_TOKEN' || 
+          apiResponse.response.code == 'AUTH_NOT_EXIST_TOKEN')) {
+        // 재시도
+        response = await _client.put(
+          Uri.parse('$baseUrl/api/admin/user/$userId/role'),
+          headers: await _getHeaders(),
+          body: jsonEncode({
+            'role': role.toJson(),
+          }),
+          encoding: utf8,
+        );
+        json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        apiResponse = ApiResponse<void>(
+          code: json['code'] as int,
+          message: json['message'] as String,
+          response: ResponseDetail<void>(
+            code: json['response']['code'] as String,
+            data: null,
+          ),
+        );
+      }
+
+      return apiResponse;
+    } catch (e) {
+      return _networkError<void>('네트워크 오류가 발생했습니다.');
     }
   }
 

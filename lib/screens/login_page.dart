@@ -70,8 +70,8 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = false;
       });
 
-      // HTTP 상태 코드가 200이거나 success가 true면 성공
-      // 로그인 성공 시 My 화면으로 이동
+      // HTTP 상태 코드가 200이면 성공
+      // role은 이미 ApiService.login()에서 LoginResponse로부터 저장됨
       if (response.code == 200) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const MainNavigation(initialIndex: 2)),
