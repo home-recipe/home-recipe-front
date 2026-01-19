@@ -19,6 +19,7 @@ class _MainNavigationState extends State<MainNavigation> {
   late int _currentIndex;
   late final List<Widget> _pages;
   final GlobalKey<MyPageState> _myPageKey = GlobalKey<MyPageState>();
+  int? _hoveredIndex;
 
   @override
   void initState() {
@@ -49,37 +50,75 @@ class _MainNavigationState extends State<MainNavigation> {
         index: _currentIndex,
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onTabTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFFDEAE71),
-        unselectedItemColor: Colors.grey,
-        selectedLabelStyle: const TextStyle(
-          fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
         ),
-        unselectedLabelStyle: const TextStyle(
-          fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-          fontSize: 12,
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: _onTabTapped,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFFE07A5F),
+          unselectedItemColor: Colors.grey.shade600,
+          selectedLabelStyle: const TextStyle(
+            fontFamily: 'NanumGothicCoding-Regular',
+            letterSpacing: 0.5,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontFamily: 'NanumGothicCoding-Regular',
+            letterSpacing: 0.5,
+            fontSize: 12,
+          ),
+          elevation: 0,
+          items: [
+            BottomNavigationBarItem(
+              icon: _buildNavIcon(Icons.store, 0),
+              label: '추천',
+            ),
+            BottomNavigationBarItem(
+              icon: _buildNavIcon(Icons.restaurant, 1),
+              label: '레시피',
+            ),
+            BottomNavigationBarItem(
+              icon: _buildNavIcon(Icons.kitchen, 2),
+              label: 'My',
+            ),
+          ],
         ),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.store),
-            label: '추천',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant),
-            label: '레시피',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.kitchen),
-            label: 'My',
-          ),
-        ],
+      ),
+    );
+  }
+
+  // 네비게이션 아이콘 위젯 (마우스 호버 효과 포함)
+  Widget _buildNavIcon(IconData icon, int index) {
+    final isSelected = _currentIndex == index;
+    final isHovered = _hoveredIndex == index;
+    
+    Color iconColor;
+    if (isSelected) {
+      iconColor = const Color(0xFFE07A5F);
+    } else if (isHovered) {
+      iconColor = const Color(0xFF81B29A);
+    } else {
+      iconColor = Colors.grey.shade600;
+    }
+    
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hoveredIndex = index),
+      onExit: (_) => setState(() => _hoveredIndex = null),
+      child: Icon(
+        icon,
+        color: iconColor,
       ),
     );
   }

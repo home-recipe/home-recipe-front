@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
@@ -114,8 +114,8 @@ class MyPageState extends State<MyPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // 왼쪽은 빈 공간
-          const SizedBox.shrink(),
+          // 왼쪽: 로고
+          _buildRecookLogo(),
           // 오른쪽에 페이지 관리 버튼과 프로필 아이콘 배치
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -136,11 +136,11 @@ class MyPageState extends State<MyPage> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFDEAE71),
-                          borderRadius: BorderRadius.circular(20),
+                          color: const Color(0xFFE07A5F),
+                          borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: const Color(0xFFE07A5F).withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -299,8 +299,8 @@ class MyPageState extends State<MyPage> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
-                              color: Color(0xFFDEAE71),
-                              width: 2,
+                              color: Color(0xFF81B29A),
+                              width: 2.5,
                             ),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
@@ -348,12 +348,13 @@ class MyPageState extends State<MyPage> {
                                 );
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFDEAE71),
+                          backgroundColor: const Color(0xFFE07A5F),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(14),
                           ),
+                          elevation: 2,
                         ),
                         child: isSearching
                             ? const SizedBox(
@@ -391,7 +392,7 @@ class MyPageState extends State<MyPage> {
                                       const Icon(
                                         Icons.check_circle_outline,
                                         size: 18,
-                                        color: Color(0xFFDEAE71),
+                                        color: Color(0xFF81B29A),
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
@@ -419,15 +420,15 @@ class MyPageState extends State<MyPage> {
                                         color: isExisting
                                             ? Colors.grey.shade50
                                             : (isSelected 
-                                                ? const Color(0xFFDEAE71).withValues(alpha: 0.1)
-                                                : Colors.white),
+                                                ? const Color(0xFF81B29A).withValues(alpha: 0.1)
+                                            : Colors.white),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
                                           color: isExisting
                                               ? Colors.grey.shade300
                                               : (isSelected
-                                                  ? const Color(0xFFDEAE71)
-                                                  : const Color(0xFFDEAE71).withValues(alpha: 0.3)),
+                                                  ? const Color(0xFF81B29A)
+                                                  : const Color(0xFF81B29A).withValues(alpha: 0.3)),
                                           width: isSelected ? 2 : 1.5,
                                         ),
                                         boxShadow: [
@@ -478,14 +479,14 @@ class MyPageState extends State<MyPage> {
                                                         color: isExisting
                                                             ? Colors.grey.shade300
                                                             : (isSelected
-                                                                ? const Color(0xFFDEAE71)
+                                                                ? const Color(0xFF81B29A)
                                                                 : Colors.grey.shade400),
                                                         width: 2,
                                                       ),
                                                       color: isExisting
                                                           ? Colors.grey.shade200
                                                           : (isSelected
-                                                              ? const Color(0xFFDEAE71)
+                                                              ? const Color(0xFF81B29A)
                                                               : Colors.transparent),
                                                     ),
                                                     child: isSelected && !isExisting
@@ -509,7 +510,7 @@ class MyPageState extends State<MyPage> {
                                                     decoration: BoxDecoration(
                                                       color: isExisting
                                                           ? Colors.grey.shade200
-                                                          : const Color(0xFFDEAE71).withValues(alpha: 0.1),
+                                                          : const Color(0xFF81B29A).withValues(alpha: 0.1),
                                                       shape: BoxShape.circle,
                                                     ),
                                                     child: Icon(
@@ -517,7 +518,7 @@ class MyPageState extends State<MyPage> {
                                                       size: 20,
                                                       color: isExisting
                                                           ? Colors.grey
-                                                          : const Color(0xFFDEAE71),
+                                                          : const Color(0xFF81B29A),
                                                     ),
                                                   ),
                                                 ],
@@ -570,7 +571,7 @@ class MyPageState extends State<MyPage> {
                                                   const Icon(
                                                     Icons.chevron_right,
                                                     size: 20,
-                                                    color: Color(0xFFDEAE71),
+                                                    color: Color(0xFF81B29A),
                                                   ),
                                               ],
                                             ),
@@ -735,12 +736,13 @@ class MyPageState extends State<MyPage> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFDEAE71),
+                      backgroundColor: const Color(0xFFE07A5F),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
+                      elevation: 2,
                     ),
                     child: Text(
                       '저장 (${selectedIngredientIds.length})',
@@ -902,7 +904,7 @@ class MyPageState extends State<MyPage> {
                   fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
-                  color: Color(0xFFDEAE71),
+                  color: Color(0xFF81B29A),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -965,7 +967,7 @@ class MyPageState extends State<MyPage> {
                   fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
-                  color: Color(0xFFDEAE71),
+                  color: Color(0xFF81B29A),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -1035,12 +1037,12 @@ class MyPageState extends State<MyPage> {
                               ),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? const Color(0xFFDEAE71).withValues(alpha: 0.1)
+                                    ? const Color(0xFF81B29A).withValues(alpha: 0.1)
                                     : Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: isSelected
-                                      ? const Color(0xFFDEAE71)
+                                      ? const Color(0xFF81B29A)
                                       : Colors.grey.shade300,
                                   width: isSelected ? 2 : 1,
                                 ),
@@ -1052,7 +1054,7 @@ class MyPageState extends State<MyPage> {
                                         ? Icons.check_circle
                                         : Icons.circle_outlined,
                                     color: isSelected
-                                        ? const Color(0xFFDEAE71)
+                                        ? const Color(0xFF81B29A)
                                         : Colors.grey,
                                     size: 24,
                                   ),
@@ -1109,7 +1111,7 @@ class MyPageState extends State<MyPage> {
                       fontFamily: 'NanumGothicCoding-Regular',
                       letterSpacing: 0.5,
                       fontSize: 14,
-                      color: Color(0xFFDEAE71),
+                      color: Color(0xFF81B29A),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -1392,7 +1394,7 @@ class MyPageState extends State<MyPage> {
                   fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
-                  color: Color(0xFFDEAE71),
+                  color: Color(0xFF81B29A),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -1446,63 +1448,47 @@ class MyPageState extends State<MyPage> {
   }
 
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/homeimage2.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withOpacity(0.2),
-                  Colors.white.withOpacity(0.4),
-                ],
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(), // 상단 계정 아이콘
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: kIsWeb ? 40 : 20,
-                      vertical: 20,
-                    ),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        // 회색 박스의 전체 가로 길이 (padding 포함)
-                        final grayBoxWidth = constraints.maxWidth;
-                        return Column(
-                          children: [
-                            const SizedBox(height: 20),
-                            _buildCategoryNavigation(grayBoxWidth),
-                            Container(
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                color: const Color(0xCCF2EFEB),
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 10),
-                                  ),
-                                ],
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(), // 상단 계정 아이콘
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: kIsWeb ? 40 : 20,
+                  vertical: 20,
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    // 회색 박스의 전체 가로 길이 (padding 포함)
+                    final grayBoxWidth = constraints.maxWidth;
+                    return Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        _buildCategoryNavigation(grayBoxWidth),
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
                               ),
-                              child: Column(
+                              BoxShadow(
+                                color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+                                blurRadius: 30,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                               SizedBox(
@@ -1511,7 +1497,7 @@ class MyPageState extends State<MyPage> {
                                 child: _controller.isLoading
                                     ? const Center(
                                         child: CircularProgressIndicator(
-                                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFDEAE71)),
+                                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF81B29A)),
                                         ),
                                       )
                                     : _currentCategoryIngredients.isEmpty
@@ -1633,11 +1619,12 @@ class MyPageState extends State<MyPage> {
                                 child: ElevatedButton(
                                   onPressed: () => _showAddIngredientDialog(context),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFDEAE71),
+                                    backgroundColor: const Color(0xFFE07A5F),
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(14),
                                     ),
+                                    elevation: 2,
                                   ),
                                   child: const Text(
                                     '재료 추가하기',
@@ -1662,10 +1649,8 @@ class MyPageState extends State<MyPage> {
           ],
         ),
       ),
-    ],
-  ),
-);
-}
+    );
+  }
   //카테고리 네비게이션 부분을 별도 함수로 추출 
   Widget _buildCategoryNavigation(double availableWidth) {
     final allCategories = IngredientCategory.values;
@@ -1801,13 +1786,13 @@ class MyPageState extends State<MyPage> {
           ),
           decoration: BoxDecoration(
             color: isSelected 
-                ? const Color(0xFFDEAE71) 
-                : Colors.white.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(8),
+                ? const Color(0xFF81B29A) 
+                : Colors.white,
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected 
-                  ? const Color(0xFFDEAE71) 
-                  : const Color(0xFF2C2C2C).withOpacity(0.3),
+                  ? const Color(0xFF81B29A) 
+                  : Colors.grey.shade300,
               width: 1.5,
             ),
           ),
@@ -1925,13 +1910,13 @@ class MyPageState extends State<MyPage> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           decoration: BoxDecoration(
             color: isSelected 
-                ? const Color(0xFFDEAE71) 
-                : Colors.white.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(8),
+                ? const Color(0xFF81B29A) 
+                : Colors.white,
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected 
-                  ? const Color(0xFFDEAE71) 
-                  : const Color(0xFF2C2C2C).withOpacity(0.3),
+                  ? const Color(0xFF81B29A) 
+                  : Colors.grey.shade300,
               width: 1.5,
             ),
           ),
@@ -1954,6 +1939,62 @@ class MyPageState extends State<MyPage> {
           ),
         ),
       ),
+    );
+  }
+
+  // REC::OOK 로고 위젯 (프로필 사진 크기와 동일)
+  Widget _buildRecookLogo() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildStyledLogoText('REC::', const Color(0xFFE07A5F)),
+        _buildStyledLogoText('OOK', const Color(0xFF81B29A)),
+      ],
+    );
+  }
+
+  // 스타일이 적용된 로고 텍스트 위젯 (outline 포함, 48px 높이)
+  Widget _buildStyledLogoText(String text, Color fillColor) {
+    const outlineColor = Color(0xFF8B4513);
+    const fontSize = 32.0; // 48px 높이에 맞게 조정
+    const outlineWidth = 2.0;
+    
+    return Stack(
+      children: [
+        // Outline
+        ...List.generate(8, (index) {
+          final angle = (index * 2 * math.pi) / 8;
+          final offsetX = outlineWidth * math.cos(angle);
+          final offsetY = outlineWidth * math.sin(angle);
+          return Positioned(
+            left: offsetX,
+            top: offsetY,
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w900,
+                color: outlineColor,
+                letterSpacing: 0.5,
+                fontFamily: 'Arial',
+                height: 1.0,
+              ),
+            ),
+          );
+        }),
+        // Main text
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w900,
+            color: fillColor,
+            letterSpacing: 0.5,
+            fontFamily: 'Arial',
+            height: 1.0,
+          ),
+        ),
+      ],
     );
   }
 }

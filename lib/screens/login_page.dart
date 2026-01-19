@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'signup_page.dart';
 import 'main_navigation.dart';
@@ -91,61 +92,22 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // 배경 이미지
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/homeimage2.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          // 배경 이미지 위에 오버레이 추가 (가독성 향상)
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withValues(alpha: 0.2),
-                  Colors.white.withValues(alpha: 0.4),
-                ],
-              ),
-            ),
-          ),
-          // 로그인 폼
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // 앱 타이틀
-                    const Text(
-                      '냉장고 프로젝트',
-                      style: TextStyle(
-                        fontFamily: 'NanumGothicCoding-Regular',
-                        fontSize: 50,
-                        letterSpacing: 2.0,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF2C2C2C),
-                        shadows: [
-                          Shadow(
-                            color: Colors.white,
-                            blurRadius: 10,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 80),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 앱 타이틀 - REC::OOK 스타일
+                _buildRecookTitle(),
+                const SizedBox(height: 80),
 
-                    // 로그인 폼 컨테이너 - 적당한 크기로 중앙 배치
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 400),
-                      child: DefaultTextStyle(
+                // 로그인 폼 컨테이너 - 적당한 크기로 중앙 배치
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: DefaultTextStyle(
                         style: const TextStyle(
                           fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
@@ -154,15 +116,20 @@ class _LoginPageState extends State<LoginPage> {
                           color: Color(0xFF2C2C2C),
                         ),
                         child: Container(
-                          padding: const EdgeInsets.all(24.0),
+                          padding: const EdgeInsets.all(28.0),
                           decoration: BoxDecoration(
-                            color: const Color(0xCCF2EFEB),
-                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.15),
-                                blurRadius: 25,
-                                offset: const Offset(0, 10),
+                                color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                              BoxShadow(
+                                color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+                                blurRadius: 30,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
@@ -201,35 +168,40 @@ class _LoginPageState extends State<LoginPage> {
                                   TextButton(
                                     onPressed: _handleSignUp,
                                     style: TextButton.styleFrom(
+                                      foregroundColor: const Color(0xFF81B29A),
                                       textStyle: const TextStyle(
                                         fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                                        fontSize: 14,
+                                        letterSpacing: 0.5,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.w700,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 12,
                                       ),
                                     ),
                                     child: const Text('회원가입'),
                                   ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 12),
                                   ElevatedButton(
                                     onPressed: _isLoading ? null : _handleLogin,
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFDEAE71),
+                                      backgroundColor: const Color(0xFFE07A5F),
                                       foregroundColor: Colors.white,
                                       textStyle: const TextStyle(
                                         fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                                        fontSize: 13,
+                                        letterSpacing: 0.5,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.w700,
                                       ),
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 32,
+                                        horizontal: 36,
                                         vertical: 14,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
-                                      elevation: 2,
+                                      elevation: 3,
                                     ),
                                     child: _isLoading
                                         ? const SizedBox(
@@ -249,13 +221,68 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
+    );
+  }
+
+  // REC::OOK 스타일 타이틀 위젯
+  Widget _buildRecookTitle() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // REC::
+        _buildStyledText('REC::', const Color(0xFFE07A5F)),
+        // OOK
+        _buildStyledText('OOK', const Color(0xFF81B29A)),
+      ],
+    );
+  }
+
+  // 스타일이 적용된 텍스트 위젯 (outline 포함)
+  Widget _buildStyledText(String text, Color fillColor) {
+    const outlineColor = Color(0xFF8B4513); // Rust brown outline
+    const fontSize = 60.0;
+    const outlineWidth = 3.0;
+    
+    return Stack(
+      children: [
+        // Outline (뒤에 그려짐) - 여러 방향으로 offset하여 outline 효과 생성
+        ...List.generate(8, (index) {
+          final angle = (index * 2 * math.pi) / 8;
+          final offsetX = outlineWidth * math.cos(angle);
+          final offsetY = outlineWidth * math.sin(angle);
+          return Positioned(
+            left: offsetX,
+            top: offsetY,
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w900,
+                color: outlineColor,
+                letterSpacing: 1.0,
+                fontFamily: 'Arial',
+              ),
+            ),
+          );
+        }),
+        // Main text (앞에 그려짐)
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w900,
+            color: fillColor,
+            letterSpacing: 1.0,
+            fontFamily: 'Arial',
+          ),
+        ),
+      ],
     );
   }
 
@@ -278,10 +305,10 @@ class _LoginPageState extends State<LoginPage> {
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Color(0xFF2C2C2C),
-            letterSpacing: -0.3,
+            letterSpacing: 0.2,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         TextField(
           controller: controller,
           focusNode: focusNode,
@@ -296,35 +323,35 @@ class _LoginPageState extends State<LoginPage> {
             hintText: hintText,
             hintStyle: TextStyle(
               color: Colors.grey.shade400,
-              fontSize: 16,
+              fontSize: 15,
             ),
-            prefixIcon: Icon(icon, color: Colors.grey.shade600, size: 22),
+            prefixIcon: Icon(icon, color: const Color(0xFF81B29A), size: 22),
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: const Color(0xFFF8F9FA),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: Colors.grey.shade200,
-                width: 1,
+                color: Colors.grey.shade300,
+                width: 1.5,
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: Colors.grey.shade200,
-                width: 1,
+                color: Colors.grey.shade300,
+                width: 1.5,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(
-                color: Color(0xFF2C2C2C),
-                width: 2,
+                color: Color(0xFF81B29A),
+                width: 2.5,
               ),
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
+              horizontal: 18,
+              vertical: 18,
             ),
           ),
         ),

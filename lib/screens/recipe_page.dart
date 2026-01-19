@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -35,6 +35,10 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   int _currentRecipeIndex = 0;
   final PageController _recipePageController = PageController();
   
+  // 초기 화면용 비디오 컨트롤러
+  VideoPlayerController? _initialVideoController;
+  bool _isInitialVideoInitializing = false;
+  
   // 사용 가능한 비디오 파일 목록 (파일명만 지정, 확장자 제외)
   // 숫자나 영어 파일명 모두 가능 (예: '1', 'cooking', 'recipe_video' 등)
   static const List<String> _availableVideos = ['1', '3', '4', '5', '6', '7', '8'];
@@ -56,6 +60,9 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
+    
+    // 초기 화면 비디오 초기화
+    _initializeInitialVideo();
   }
   
   /// 프로필 이미지를 사용자별로 고정된 이미지로 로드
@@ -75,8 +82,56 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
     _videoController?.removeListener(_videoListener);
     _videoController?.removeListener(_onVideoEnd);
     _videoController?.dispose();
+    _initialVideoController?.dispose();
     _recipePageController.dispose();
     super.dispose();
+  }
+  
+  // ------------------------------
+  // 초기 화면 비디오 초기화 함수
+  // ------------------------------
+  Future<void> _initializeInitialVideo() async {
+    // 기존 컨트롤러 정리
+    if (_initialVideoController != null) {
+      try {
+        await _initialVideoController!.pause();
+        await _initialVideoController!.dispose();
+      } catch (e) {
+        print('초기 비디오 컨트롤러 정리 중 오류: $e');
+      }
+      _initialVideoController = null;
+    }
+    
+    try {
+      setState(() {
+        _isInitialVideoInitializing = true;
+      });
+
+      if (kIsWeb) {
+        final videoUrl = '/assets/logos/recipes.mp4';
+        _initialVideoController = VideoPlayerController.network(videoUrl);
+      } else {
+        final videoPath = 'assets/logos/recipes.mp4';
+        _initialVideoController = VideoPlayerController.asset(videoPath);
+      }
+      
+      await _initialVideoController!.initialize();
+      _initialVideoController!.setLooping(true);
+      _initialVideoController!.play();
+      
+      if (mounted) {
+        setState(() {
+          _isInitialVideoInitializing = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isInitialVideoInitializing = false;
+        });
+      }
+      print('초기 화면 비디오 초기화 실패: $e');
+    }
   }
 
   // ------------------------------
@@ -91,7 +146,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
       return;
     }
 
-    final random = Random();
+    final random = math.Random();
     // 최대 3번까지 재시도
     int retryCount = 0;
     const maxRetries = 3;
@@ -260,104 +315,127 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // 배경 이미지 (로딩 중이 아닐 때만 표시)
-          if (_pageState != RecipePageState.loading)
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/homeimage2.jpg'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-
-          // 로딩 중일 때 검은색 배경
-          if (_pageState == RecipePageState.loading)
-            Container(
-              color: Colors.black,
-            ),
-
-          // 오버레이 (로딩 중이 아닐 때만 표시)
-          if (_pageState != RecipePageState.loading)
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.2),
-                    Colors.white.withValues(alpha: 0.4),
-                  ],
-                ),
-              ),
-            ),
-
-          SafeArea(
-            child: Column(
-              children: [
-                // 상단 계정 아이콘
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          key: _accountButtonKey,
-                          onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
-                          child: Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+      backgroundColor: _pageState == RecipePageState.loading ? Colors.black : Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 상단 헤더 (로고 + 계정 아이콘)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // 왼쪽: 로고
+                  _buildRecookLogo(),
+                  // 오른쪽: 계정 아이콘
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      key: _accountButtonKey,
+                      onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
                             ),
-                            child: ClipOval(
-                              child: _selectedProfileImage != null
-                                  ? Image.asset(
-                                      _selectedProfileImage!,
-                                      width: 48,
-                                      height: 48,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return const Icon(
-                                          Icons.account_circle,
-                                          size: 48,
-                                          color: Color(0xFF2C2C2C),
-                                        );
-                                      },
-                                    )
-                                  : const Icon(
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: _selectedProfileImage != null
+                              ? Image.asset(
+                                  _selectedProfileImage!,
+                                  width: 48,
+                                  height: 48,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
                                       Icons.account_circle,
                                       size: 48,
                                       color: Color(0xFF2C2C2C),
-                                    ),
-                            ),
-                          ),
+                                    );
+                                  },
+                                )
+                              : const Icon(
+                                  Icons.account_circle,
+                                  size: 48,
+                                  color: Color(0xFF2C2C2C),
+                                ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-
-                Expanded(
-                  child: _buildContent(context),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: _buildContent(context),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  // REC::OOK 로고 위젯 (프로필 사진 크기와 동일)
+  Widget _buildRecookLogo() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildStyledLogoText('REC::', const Color(0xFFE07A5F)),
+        _buildStyledLogoText('OOK', const Color(0xFF81B29A)),
+      ],
+    );
+  }
+
+  // 스타일이 적용된 로고 텍스트 위젯 (outline 포함, 48px 높이)
+  Widget _buildStyledLogoText(String text, Color fillColor) {
+    const outlineColor = Color(0xFF8B4513);
+    const fontSize = 32.0; // 48px 높이에 맞게 조정
+    const outlineWidth = 2.0;
+    
+    return Stack(
+      children: [
+        // Outline
+        ...List.generate(8, (index) {
+          final angle = (index * 2 * math.pi) / 8;
+          final offsetX = outlineWidth * math.cos(angle);
+          final offsetY = outlineWidth * math.sin(angle);
+          return Positioned(
+            left: offsetX,
+            top: offsetY,
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w900,
+                color: outlineColor,
+                letterSpacing: 0.5,
+                fontFamily: 'Arial',
+                height: 1.0,
+              ),
+            ),
+          );
+        }),
+        // Main text
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w900,
+            color: fillColor,
+            letterSpacing: 0.5,
+            fontFamily: 'Arial',
+            height: 1.0,
+          ),
+        ),
+      ],
     );
   }
 
@@ -383,11 +461,12 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // 아이콘
+          // 비디오 또는 아이콘
           Container(
-            padding: const EdgeInsets.all(24),
+            width: 112, // 전체 직경: 64px 아이콘 + 24px 패딩 * 2 = 112px
+            height: 112,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: Colors.white,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
@@ -397,21 +476,89 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.restaurant_menu,
-              size: 64,
-              color: Color(0xFFDEAE71),
+            child: ClipOval(
+              child: Stack(
+                children: [
+                  // 흰색 배경 (원 밖 부분을 흰색으로)
+                  Container(
+                    width: 112,
+                    height: 112,
+                    color: Colors.white,
+                  ),
+                  // 비디오 또는 아이콘
+                  _initialVideoController != null && 
+                  _initialVideoController!.value.isInitialized &&
+                  !_isInitialVideoInitializing
+                      ? Stack(
+                          children: [
+                            // 흰색 배경 (비디오가 렌더링되지 않는 부분)
+                            Container(
+                              width: 112,
+                              height: 112,
+                              color: Colors.white,
+                            ),
+                            // 비디오
+                            Center(
+                              child: SizedBox(
+                                width: 112,
+                                height: 112,
+                                child: FittedBox(
+                                  fit: BoxFit.cover,
+                                  child: SizedBox(
+                                    width: _initialVideoController!.value.size.width,
+                                    height: _initialVideoController!.value.size.height,
+                                    child: VideoPlayer(_initialVideoController!),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : _isInitialVideoInitializing
+                          ? Container(
+                              width: 112,
+                              height: 112,
+                              color: Colors.white,
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
+                                  strokeWidth: 3,
+                                ),
+                              ),
+                            )
+                          : Image.asset(
+                              'assets/recipe_icon.png', // 여기에 이미지 경로를 넣으세요
+                              width: 112,
+                              height: 112,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                // 이미지가 없을 경우 아이콘 표시
+                                return Container(
+                                  width: 112,
+                                  height: 112,
+                                  color: Colors.white,
+                                  padding: const EdgeInsets.all(24),
+                                  child: const Icon(
+                                    Icons.restaurant_menu,
+                                    size: 64,
+                                    color: Color(0xFFE07A5F),
+                                  ),
+                                );
+                              },
+                            ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           ElevatedButton(
             onPressed: _createRecipes,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDEAE71),
+              backgroundColor: const Color(0xFFE07A5F),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(16),
               ),
               elevation: 3,
             ),
@@ -419,8 +566,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
               '레시피 만들기',
               style: TextStyle(
                 fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                fontSize: 20,
+                letterSpacing: 0.5,
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -529,7 +676,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                         child: const Icon(
                           Icons.restaurant,
                           size: 64,
-                          color: Color(0xFFDEAE71),
+                          color: Color(0xFFE07A5F),
                         ),
                       ),
                     );
@@ -564,7 +711,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
             width: 40,
             height: 40,
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFDEAE71)),
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
               strokeWidth: 3,
             ),
           ),
@@ -606,14 +753,17 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   _reason = '';
                   _recipes = [];
                 });
+                // 비디오 다시 초기화
+                _initializeInitialVideo();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFDEAE71),
+                backgroundColor: const Color(0xFFE07A5F),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
+                elevation: 2,
               ),
               child: const Text(
                 '다시 만들기',
@@ -649,30 +799,38 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     color: Color(0xFF2C2C2C),
                   ),
                 ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _pageState = RecipePageState.initial;
-                      _decision = null;
-                      _reason = '';
-                      _recipes = [];
-                    });
-                  },
-                  icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text(
-                    '다시 만들기',
-                    style: TextStyle(
-                      fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                      fontSize: 14,
+                Flexible(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _pageState = RecipePageState.initial;
+                        _decision = null;
+                        _reason = '';
+                        _recipes = [];
+                      });
+                      // 비디오 다시 초기화
+                      _initializeInitialVideo();
+                    },
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '다시 만들기',
+                        style: TextStyle(
+                          fontFamily: 'NanumGothicCoding-Regular',
+                          letterSpacing: 0.5,
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withValues(alpha: 0.9),
-                    foregroundColor: const Color(0xFF2C2C2C),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFE07A5F),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 2,
                     ),
                   ),
                 ),
@@ -755,149 +913,164 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // 왼쪽: 제목과 네비게이션 버튼
-                Row(
-                  children: [
-                    Text(
-                      _recipes.isEmpty 
-                          ? '레시피 추천'
-                          : '${_recipes.length}개의 레시피',
-                      style: const TextStyle(
-                        fontFamily: 'NanumGothicCoding-Regular',
-                    letterSpacing: 0.5,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2C2C2C),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          _recipes.isEmpty 
+                              ? '레시피 추천'
+                              : '${_recipes.length}개의 레시피',
+                          style: const TextStyle(
+                            fontFamily: 'NanumGothicCoding-Regular',
+                            letterSpacing: 0.5,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2C2C2C),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                    // 네비게이션 버튼 (레시피가 2개 이상일 때만 표시)
-                    if (_recipes.length > 1) ...[
-                      const SizedBox(width: 16),
-                      // 이전 버튼
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: _currentRecipeIndex > 0
-                              ? () {
-                                  _recipePageController.previousPage(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                }
-                              : null,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: _currentRecipeIndex > 0
-                                  ? const Color(0xFFDEAE71)
-                                  : Colors.grey.shade300,
-                              shape: BoxShape.circle,
-                              boxShadow: _currentRecipeIndex > 0
-                                  ? [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.1),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: Icon(
-                              Icons.chevron_left,
-                              color: _currentRecipeIndex > 0
-                                  ? Colors.white
-                                  : Colors.grey.shade600,
-                              size: 20,
+                      // 네비게이션 버튼 (레시피가 2개 이상일 때만 표시)
+                      if (_recipes.length > 1) ...[
+                        const SizedBox(width: 12),
+                        // 이전 버튼
+                        MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: _currentRecipeIndex > 0
+                                ? () {
+                                    _recipePageController.previousPage(
+                                      duration: const Duration(milliseconds: 300),
+                                      curve: Curves.easeInOut,
+                                    );
+                                  }
+                                : null,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: _currentRecipeIndex > 0
+                                    ? const Color(0xFFE07A5F)
+                                    : Colors.grey.shade300,
+                                shape: BoxShape.circle,
+                                boxShadow: _currentRecipeIndex > 0
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.1),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Icon(
+                                Icons.chevron_left,
+                                color: _currentRecipeIndex > 0
+                                    ? Colors.white
+                                    : Colors.grey.shade600,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      // 페이지 인디케이터
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(
-                          _recipes.length,
-                          (index) => Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 3),
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _currentRecipeIndex == index
-                                  ? const Color(0xFFDEAE71)
-                                  : Colors.grey.shade300,
+                        const SizedBox(width: 6),
+                        // 페이지 인디케이터
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(
+                            _recipes.length,
+                            (index) => Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _currentRecipeIndex == index
+                                    ? const Color(0xFFE07A5F)
+                                    : Colors.grey.shade300,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      // 다음 버튼
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: _currentRecipeIndex < _recipes.length - 1
-                              ? () {
-                                  _recipePageController.nextPage(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                }
-                              : null,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: _currentRecipeIndex < _recipes.length - 1
-                                  ? const Color(0xFFDEAE71)
-                                  : Colors.grey.shade300,
-                              shape: BoxShape.circle,
-                              boxShadow: _currentRecipeIndex < _recipes.length - 1
-                                  ? [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.1),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: Icon(
-                              Icons.chevron_right,
-                              color: _currentRecipeIndex < _recipes.length - 1
-                                  ? Colors.white
-                                  : Colors.grey.shade600,
-                              size: 20,
+                        const SizedBox(width: 6),
+                        // 다음 버튼
+                        MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: _currentRecipeIndex < _recipes.length - 1
+                                ? () {
+                                    _recipePageController.nextPage(
+                                      duration: const Duration(milliseconds: 300),
+                                      curve: Curves.easeInOut,
+                                    );
+                                  }
+                                : null,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: _currentRecipeIndex < _recipes.length - 1
+                                    ? const Color(0xFFE07A5F)
+                                    : Colors.grey.shade300,
+                                shape: BoxShape.circle,
+                                boxShadow: _currentRecipeIndex < _recipes.length - 1
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.1),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Icon(
+                                Icons.chevron_right,
+                                color: _currentRecipeIndex < _recipes.length - 1
+                                    ? Colors.white
+                                    : Colors.grey.shade600,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
-                ),
-                // 오른쪽: 다시 만들기 버튼
-                ElevatedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _pageState = RecipePageState.initial;
-                      _decision = null;
-                      _reason = '';
-                      _recipes = [];
-                    });
-                  },
-                  icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text(
-                    '다시 만들기',
-                    style: TextStyle(
-                      fontFamily: 'NanumGothicCoding-Regular',
-                    letterSpacing: 0.5,
-                      fontSize: 14,
-                    ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withValues(alpha: 0.9),
-                    foregroundColor: const Color(0xFF2C2C2C),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                ),
+                const SizedBox(width: 8),
+                // 오른쪽: 다시 만들기 버튼
+                Flexible(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _pageState = RecipePageState.initial;
+                        _decision = null;
+                        _reason = '';
+                        _recipes = [];
+                      });
+                      // 비디오 다시 초기화
+                      _initializeInitialVideo();
+                    },
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '다시 만들기',
+                        style: TextStyle(
+                          fontFamily: 'NanumGothicCoding-Regular',
+                          letterSpacing: 0.5,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFE07A5F),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 2,
                     ),
                   ),
                 ),
@@ -912,13 +1085,18 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                 padding: const EdgeInsets.all(20),
                 margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  color: const Color(0xCCF2EFEB),
-                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
+                      color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                    BoxShadow(
+                      color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+                      blurRadius: 30,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -928,7 +1106,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     const Icon(
                       Icons.lightbulb_outline,
                       size: 24,
-                      color: Color(0xFFDEAE71),
+                      color: Color(0xFF81B29A),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1007,13 +1185,18 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: const Color(0xCCF2EFEB),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: const Color(0xFF81B29A).withValues(alpha: 0.15),
             blurRadius: 20,
-            offset: const Offset(0, 10),
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+            blurRadius: 30,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -1022,9 +1205,9 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
         children: [
           // 레시피 이름 헤더
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFDEAE71).withValues(alpha: 0.2),
+              color: const Color(0xFFE07A5F).withValues(alpha: 0.15),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
@@ -1033,10 +1216,10 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFDEAE71),
+                    color: const Color(0xFFE07A5F),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -1044,22 +1227,22 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                       '${index + 1}',
                       style: const TextStyle(
                         fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                        fontSize: 18,
+                        letterSpacing: 0.5,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     recipe.recipeName,
                     style: const TextStyle(
                       fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                      fontSize: 22,
+                      letterSpacing: 0.5,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2C2C2C),
                     ),
@@ -1080,14 +1263,14 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     Icon(
                       Icons.shopping_basket,
                       size: 20,
-                      color: Color(0xFFDEAE71),
+                      color: Color(0xFF81B29A),
                     ),
                     SizedBox(width: 8),
                     Text(
                       '재료',
                       style: TextStyle(
                         fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
+                        letterSpacing: 0.5,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF2C2C2C),
@@ -1096,55 +1279,23 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   ],
                 ),
                 const SizedBox(height: 12),
-                Row(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 왼쪽 칸
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: recipe.ingredients.asMap().entries.where((entry) => entry.key % 2 == 0).map((entry) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Text(
-                              entry.value,
-                              style: const TextStyle(
-                                fontFamily: 'NanumGothicCoding-Regular',
-                                letterSpacing: 0.5,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF2C2C2C),
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                          );
-                        }).toList(),
+                  children: recipe.ingredients.map((ingredient) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        ingredient,
+                        style: const TextStyle(
+                          fontFamily: 'NanumGothicCoding-Regular',
+                          letterSpacing: 0.5,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2C2C2C),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    // 오른쪽 칸
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: recipe.ingredients.asMap().entries.where((entry) => entry.key % 2 == 1).map((entry) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Text(
-                              entry.value,
-                              style: const TextStyle(
-                                fontFamily: 'NanumGothicCoding-Regular',
-                                letterSpacing: 0.5,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF2C2C2C),
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
+                    );
+                  }).toList(),
                 ),
                 const SizedBox(height: 24),
                 // 조리 단계 섹션
@@ -1153,14 +1304,14 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     Icon(
                       Icons.restaurant_menu,
                       size: 20,
-                      color: Color(0xFFDEAE71),
+                      color: Color(0xFF81B29A),
                     ),
                     SizedBox(width: 8),
                     Text(
                       '조리 단계',
                       style: TextStyle(
                         fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
+                        letterSpacing: 0.5,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF2C2C2C),
@@ -1179,7 +1330,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                           width: 28,
                           height: 28,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFDEAE71),
+                            color: const Color(0xFF81B29A),
                             shape: BoxShape.circle,
                           ),
                           child: Center(

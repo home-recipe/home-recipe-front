@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -31,6 +31,10 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
   int _currentVideoIndex = 0;
   bool _videoListenerAdded = false;
   
+  // 초기 화면용 비디오 컨트롤러
+  VideoPlayerController? _initialVideoController;
+  bool _isInitialVideoInitializing = false;
+  
   // 사용 가능한 비디오 파일 목록 (파일명만 지정, 확장자 제외)
   // 숫자나 영어 파일명 모두 가능 (예: '1', 'cooking', 'recipe_video' 등)
   static const List<String> _availableVideos = ['1', '3', '4', '5', '6'];
@@ -52,6 +56,9 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
+    
+    // 초기 화면 비디오 초기화
+    _initializeInitialVideo();
   }
   
   /// 프로필 이미지를 사용자별로 고정된 이미지로 로드
@@ -71,7 +78,55 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
     _videoController?.removeListener(_videoListener);
     _videoController?.removeListener(_onVideoEnd);
     _videoController?.dispose();
+    _initialVideoController?.dispose();
     super.dispose();
+  }
+  
+  // ------------------------------
+  // 초기 화면 비디오 초기화 함수
+  // ------------------------------
+  Future<void> _initializeInitialVideo() async {
+    // 기존 컨트롤러 정리
+    if (_initialVideoController != null) {
+      try {
+        await _initialVideoController!.pause();
+        await _initialVideoController!.dispose();
+      } catch (e) {
+        print('초기 비디오 컨트롤러 정리 중 오류: $e');
+      }
+      _initialVideoController = null;
+    }
+    
+    try {
+      setState(() {
+        _isInitialVideoInitializing = true;
+      });
+
+      if (kIsWeb) {
+        final videoUrl = '/assets/logos/recommendation.mp4';
+        _initialVideoController = VideoPlayerController.network(videoUrl);
+      } else {
+        final videoPath = 'assets/logos/recommendation.mp4';
+        _initialVideoController = VideoPlayerController.asset(videoPath);
+      }
+      
+      await _initialVideoController!.initialize();
+      _initialVideoController!.setLooping(true);
+      _initialVideoController!.play();
+      
+      if (mounted) {
+        setState(() {
+          _isInitialVideoInitializing = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isInitialVideoInitializing = false;
+        });
+      }
+      print('초기 화면 비디오 초기화 실패: $e');
+    }
   }
 
   // ------------------------------
@@ -86,7 +141,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
       return;
     }
 
-    final random = Random();
+    final random = math.Random();
     // 최대 3번까지 재시도
     int retryCount = 0;
     const maxRetries = 3;
@@ -253,103 +308,70 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // 배경 이미지 (로딩 중이 아닐 때만 표시)
-          if (_pageState != RecommendationPageState.loading)
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/homeimage2.jpg'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-
-          // 로딩 중일 때 검은색 배경
-          if (_pageState == RecommendationPageState.loading)
-            Container(
-              color: Colors.black,
-            ),
-
-          // 오버레이 (로딩 중이 아닐 때만 표시)
-          if (_pageState != RecommendationPageState.loading)
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.2),
-                    Colors.white.withValues(alpha: 0.4),
-                  ],
-                ),
-              ),
-            ),
-
-          SafeArea(
-            child: Column(
-              children: [
-                // 상단 계정 아이콘
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          key: _accountButtonKey,
-                          onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
-                          child: Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+      backgroundColor: _pageState == RecommendationPageState.loading ? Colors.black : Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 상단 헤더 (로고 + 계정 아이콘)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // 왼쪽: 로고
+                  _buildRecookLogo(),
+                  // 오른쪽: 계정 아이콘
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      key: _accountButtonKey,
+                      onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
                             ),
-                            child: ClipOval(
-                              child: _selectedProfileImage != null
-                                  ? Image.asset(
-                                      _selectedProfileImage!,
-                                      width: 48,
-                                      height: 48,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return const Icon(
-                                          Icons.account_circle,
-                                          size: 48,
-                                          color: Color(0xFF2C2C2C),
-                                        );
-                                      },
-                                    )
-                                  : const Icon(
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: _selectedProfileImage != null
+                              ? Image.asset(
+                                  _selectedProfileImage!,
+                                  width: 48,
+                                  height: 48,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
                                       Icons.account_circle,
                                       size: 48,
                                       color: Color(0xFF2C2C2C),
-                                    ),
-                            ),
-                          ),
+                                    );
+                                  },
+                                )
+                              : const Icon(
+                                  Icons.account_circle,
+                                  size: 48,
+                                  color: Color(0xFF2C2C2C),
+                                ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-
-                Expanded(
-                  child: _buildContent(context),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: _buildContent(context),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -376,11 +398,12 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // 아이콘
+          // 비디오 또는 아이콘
           Container(
-            padding: const EdgeInsets.all(24),
+            width: 112,
+            height: 112,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: Colors.white,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
@@ -390,21 +413,81 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.auto_awesome,
-              size: 64,
-              color: Color(0xFFDEAE71),
+            child: ClipOval(
+              child: Stack(
+                children: [
+                  // 흰색 배경 (원 밖 부분을 흰색으로)
+                  Container(
+                    width: 112,
+                    height: 112,
+                    color: Colors.white,
+                  ),
+                  // 비디오 또는 아이콘
+                  _initialVideoController != null && 
+                  _initialVideoController!.value.isInitialized &&
+                  !_isInitialVideoInitializing
+                      ? Stack(
+                          children: [
+                            // 흰색 배경 (비디오가 렌더링되지 않는 부분)
+                            Container(
+                              width: 112,
+                              height: 112,
+                              color: Colors.white,
+                            ),
+                            // 비디오
+                            Center(
+                              child: SizedBox(
+                                width: 112,
+                                height: 112,
+                                child: FittedBox(
+                                  fit: BoxFit.cover,
+                                  child: SizedBox(
+                                    width: _initialVideoController!.value.size.width,
+                                    height: _initialVideoController!.value.size.height,
+                                    child: VideoPlayer(_initialVideoController!),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : _isInitialVideoInitializing
+                          ? Container(
+                              width: 112,
+                              height: 112,
+                              color: Colors.white,
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
+                                  strokeWidth: 3,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.auto_awesome,
+                                size: 64,
+                                color: Color(0xFFE07A5F),
+                              ),
+                            ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           ElevatedButton(
             onPressed: _getRecommendations,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDEAE71),
+              backgroundColor: const Color(0xFFE07A5F),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(16),
               ),
               elevation: 3,
             ),
@@ -412,8 +495,8 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
               '레시피 추천받기',
               style: TextStyle(
                 fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                fontSize: 20,
+                letterSpacing: 0.5,
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -551,7 +634,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
             width: 40,
             height: 40,
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFDEAE71)),
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
               strokeWidth: 3,
             ),
           ),
@@ -572,42 +655,55 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                _recommendations.isEmpty 
-                    ? '추천 레시피'
-                    : '${_recommendations.length}개의 추천 레시피',
-                style: const TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C2C2C),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _recommendations.isEmpty 
+                        ? '추천 레시피'
+                        : '${_recommendations.length}개의 추천 레시피',
+                    style: const TextStyle(
+                      fontFamily: 'NanumGothicCoding-Regular',
+                      letterSpacing: 0.5,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                    maxLines: 1,
+                  ),
                 ),
               ),
-              ElevatedButton.icon(
+              const SizedBox(width: 8),
+              Flexible(
+                child: ElevatedButton.icon(
                 onPressed: () {
                   setState(() {
                     _pageState = RecommendationPageState.initial;
                     _recommendations = [];
                   });
+                  // 비디오 다시 초기화
+                  _initializeInitialVideo();
                 },
-                icon: const Icon(Icons.refresh, size: 18),
+                icon: const Icon(Icons.refresh, size: 16),
                 label: const Text(
                   '다시 추천받기',
                   style: TextStyle(
                     fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                    fontSize: 14,
+                    letterSpacing: 0.5,
+                    fontSize: 12,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.9),
-                  foregroundColor: const Color(0xFF2C2C2C),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  backgroundColor: const Color(0xFFE07A5F),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
+                  elevation: 2,
                 ),
+              ),
               ),
             ],
           ),
@@ -654,15 +750,20 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
   // ------------------------------
   Widget _buildRecommendationCard(RecommendationDetail recommendation, int index) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xCCF2EFEB),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: const Color(0xFF81B29A).withValues(alpha: 0.15),
             blurRadius: 20,
-            offset: const Offset(0, 10),
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+            blurRadius: 30,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -671,9 +772,9 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
         children: [
           // 레시피 이름 헤더
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFFDEAE71).withValues(alpha: 0.2),
+              color: const Color(0xFF81B29A).withValues(alpha: 0.15),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
@@ -682,10 +783,10 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFDEAE71),
+                    color: const Color(0xFF81B29A),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -693,22 +794,22 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                       '${index + 1}',
                       style: const TextStyle(
                         fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                        fontSize: 18,
+                        letterSpacing: 0.5,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     recommendation.recipeName,
                     style: const TextStyle(
                       fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                      fontSize: 22,
+                      letterSpacing: 0.5,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2C2C2C),
                     ),
@@ -719,7 +820,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
           ),
           // 레시피 내용
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -728,43 +829,43 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                   children: [
                     Icon(
                       Icons.shopping_basket,
-                      size: 20,
-                      color: Color(0xFFDEAE71),
+                      size: 18,
+                      color: Color(0xFF81B29A),
                     ),
-                    SizedBox(width: 8),
+                    SizedBox(width: 6),
                     Text(
                       '재료',
                       style: TextStyle(
                         fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                        fontSize: 18,
+                        letterSpacing: 0.5,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF2C2C2C),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 6,
+                  runSpacing: 6,
                   children: recommendation.ingredients.map((ingredient) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(16),
+                        color: const Color(0xFFF8F9FA),
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFFDEAE71).withValues(alpha: 0.3),
-                          width: 1,
+                          color: const Color(0xFF81B29A).withValues(alpha: 0.4),
+                          width: 1.5,
                         ),
                       ),
                       child: Text(
                         ingredient,
                         style: const TextStyle(
                           fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                          fontSize: 14,
+                          letterSpacing: 0.5,
+                          fontSize: 13,
                           color: Color(0xFF2C2C2C),
                         ),
                       ),
@@ -776,6 +877,62 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
           ),
         ],
       ),
+    );
+  }
+
+  // REC::OOK 로고 위젯 (프로필 사진 크기와 동일)
+  Widget _buildRecookLogo() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildStyledLogoText('REC::', const Color(0xFFE07A5F)),
+        _buildStyledLogoText('OOK', const Color(0xFF81B29A)),
+      ],
+    );
+  }
+
+  // 스타일이 적용된 로고 텍스트 위젯 (outline 포함, 48px 높이)
+  Widget _buildStyledLogoText(String text, Color fillColor) {
+    const outlineColor = Color(0xFF8B4513);
+    const fontSize = 32.0; // 48px 높이에 맞게 조정
+    const outlineWidth = 2.0;
+    
+    return Stack(
+      children: [
+        // Outline
+        ...List.generate(8, (index) {
+          final angle = (index * 2 * math.pi) / 8;
+          final offsetX = outlineWidth * math.cos(angle);
+          final offsetY = outlineWidth * math.sin(angle);
+          return Positioned(
+            left: offsetX,
+            top: offsetY,
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w900,
+                color: outlineColor,
+                letterSpacing: 0.5,
+                fontFamily: 'Arial',
+                height: 1.0,
+              ),
+            ),
+          );
+        }),
+        // Main text
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w900,
+            color: fillColor,
+            letterSpacing: 0.5,
+            fontFamily: 'Arial',
+            height: 1.0,
+          ),
+        ),
+      ],
     );
   }
 }

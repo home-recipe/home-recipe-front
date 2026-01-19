@@ -22,8 +22,10 @@ class LogoutHelper {
         offset.dy + size.height + 50,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
       ),
+      color: Colors.white,
+      elevation: 8,
       items: [
         PopupMenuItem(
           padding: EdgeInsets.zero,
@@ -64,7 +66,7 @@ class LogoutHelper {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
           ),
           title: const Text(
             '로그아웃',
@@ -119,7 +121,7 @@ class LogoutHelper {
                 style: TextStyle(
                   fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
-                  color: Color(0xFFDEAE71),
+                  color: Color(0xFFE07A5F),
                   fontWeight: FontWeight.w700,
                 ),
               ),

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../models/join_request.dart';
 import '../services/api_service.dart';
@@ -214,89 +215,55 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // 배경 이미지
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/homeimage2.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          // 배경 이미지 위에 오버레이 추가 (가독성 향상)
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withValues(alpha: 0.2),
-                  Colors.white.withValues(alpha: 0.4),
-                ],
-              ),
-            ),
-          ),
-          // 회원가입 폼
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // 앱 타이틀 (클릭 시 로그인 페이지로 이동)
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          '냉장고 프로젝트',
-                          style: TextStyle(
-                            fontFamily: 'NanumGothicCoding-Regular',
-                            fontSize: 50,
-                            letterSpacing: 2.0,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF2C2C2C),
-                            shadows: [
-                              Shadow(
-                                color: Colors.white,
-                                blurRadius: 10,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 앱 타이틀 (클릭 시 로그인 페이지로 이동)
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: _buildRecookTitle(),
+                  ),
+                ),
+                const SizedBox(height: 60),
 
-                    // 회원가입 폼 컨테이너
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 500),
-                      child: DefaultTextStyle(
-                        style: const TextStyle(
-                          fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF2C2C2C),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(24.0),
-                          decoration: BoxDecoration(
-                            color: const Color(0xCCF2EFEB),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.15),
-                                blurRadius: 25,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
+                // 회원가입 폼 컨테이너
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: DefaultTextStyle(
+                    style: const TextStyle(
+                      fontFamily: 'NanumGothicCoding-Regular',
+                      letterSpacing: 0.5,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(28.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
                           ),
+                          BoxShadow(
+                            color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+                            blurRadius: 30,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
                           child: Form(
                             key: _formKey,
                             child: Column(
@@ -361,22 +328,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ElevatedButton(
                                   onPressed: _isLoading ? null : _handleSignUp,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFDEAE71),
+                                    backgroundColor: const Color(0xFFE07A5F),
                                     foregroundColor: Colors.white,
                                     textStyle: const TextStyle(
                                       fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                                      fontSize: 16,
+                                      letterSpacing: 0.5,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.w700,
                                     ),
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 32,
+                                      horizontal: 36,
                                       vertical: 16,
                                     ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(14),
                                     ),
-                                    elevation: 2,
+                                    elevation: 3,
                                   ),
                                   child: _isLoading
                                       ? const SizedBox(
@@ -395,13 +362,68 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
+    );
+  }
+
+  // REC::OOK 스타일 타이틀 위젯
+  Widget _buildRecookTitle() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // REC::
+        _buildStyledText('REC::', const Color(0xFFE07A5F)),
+        // OOK
+        _buildStyledText('OOK', const Color(0xFF81B29A)),
+      ],
+    );
+  }
+
+  // 스타일이 적용된 텍스트 위젯 (outline 포함)
+  Widget _buildStyledText(String text, Color fillColor) {
+    const outlineColor = Color(0xFF8B4513); // Rust brown outline
+    const fontSize = 60.0;
+    const outlineWidth = 3.0;
+    
+    return Stack(
+      children: [
+        // Outline (뒤에 그려짐) - 여러 방향으로 offset하여 outline 효과 생성
+        ...List.generate(8, (index) {
+          final angle = (index * 2 * math.pi) / 8;
+          final offsetX = outlineWidth * math.cos(angle);
+          final offsetY = outlineWidth * math.sin(angle);
+          return Positioned(
+            left: offsetX,
+            top: offsetY,
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w900,
+                color: outlineColor,
+                letterSpacing: 1.0,
+                fontFamily: 'Arial',
+              ),
+            ),
+          );
+        }),
+        // Main text (앞에 그려짐)
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w900,
+            color: fillColor,
+            letterSpacing: 1.0,
+            fontFamily: 'Arial',
+          ),
+        ),
+      ],
     );
   }
 
@@ -427,10 +449,10 @@ class _SignUpPageState extends State<SignUpPage> {
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Color(0xFF2C2C2C),
-            letterSpacing: -0.3,
+            letterSpacing: 0.2,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         TextFormField(
           controller: controller,
           focusNode: focusNode,
@@ -449,49 +471,49 @@ class _SignUpPageState extends State<SignUpPage> {
             hintText: hintText,
             hintStyle: TextStyle(
               color: Colors.grey.shade400,
-              fontSize: 16,
+              fontSize: 15,
             ),
-            prefixIcon: Icon(icon, color: Colors.grey.shade600, size: 22),
+            prefixIcon: Icon(icon, color: const Color(0xFF81B29A), size: 22),
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: const Color(0xFFF8F9FA),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: Colors.grey.shade200,
-                width: 1,
+                color: Colors.grey.shade300,
+                width: 1.5,
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: Colors.grey.shade200,
-                width: 1,
+                color: Colors.grey.shade300,
+                width: 1.5,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(
-                color: Color(0xFF2C2C2C),
-                width: 2,
+                color: Color(0xFF81B29A),
+                width: 2.5,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(
                 color: Colors.red,
-                width: 1,
+                width: 1.5,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(
                 color: Colors.red,
-                width: 2,
+                width: 2.5,
               ),
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
+              horizontal: 18,
+              vertical: 18,
             ),
           ),
         ),
@@ -509,169 +531,161 @@ class _SignUpPageState extends State<SignUpPage> {
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Color(0xFF2C2C2C),
-            letterSpacing: -0.3,
+            letterSpacing: 0.2,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
+        // 이메일 입력칸 (전체 너비)
+        TextFormField(
+          controller: _emailPrefixController,
+          focusNode: _emailPrefixFocusNode,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) {
+            FocusScope.of(context).requestFocus(_passwordFocusNode);
+          },
+          validator: _validateEmail,
+          onChanged: (_) {
+            // 이메일 입력 변경 시 중복확인 초기화
+            setState(() {
+              _isEmailChecked = false;
+              _isEmailVerified = false;
+              _emailCheckMessage = null;
+            });
+          },
+          style: const TextStyle(
+            fontSize: 16,
+            color: Color(0xFF2C2C2C),
+          ),
+          decoration: InputDecoration(
+            hintText: '이메일을 입력하세요',
+            hintStyle: TextStyle(
+              color: Colors.grey.shade400,
+              fontSize: 15,
+            ),
+            prefixIcon: const Icon(
+              Icons.email_outlined,
+              color: Color(0xFF81B29A),
+              size: 22,
+            ),
+            suffixText: '@$_selectedDomain',
+            suffixStyle: const TextStyle(
+              fontSize: 15,
+              color: Color(0xFF2C2C2C),
+              fontWeight: FontWeight.w500,
+            ),
+            filled: true,
+            fillColor: const Color(0xFFF8F9FA),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: Colors.grey.shade300,
+                width: 1.5,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: Colors.grey.shade300,
+                width: 1.5,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(
+                color: Color(0xFF81B29A),
+                width: 2.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(
+                color: Colors.red,
+                width: 1.5,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(
+                color: Colors.red,
+                width: 2.5,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 18,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        // 도메인 선택과 중복확인 버튼
         Row(
           children: [
-            // 이메일 앞부분 입력
-            Expanded(
-              flex: 2,
-              child: TextFormField(
-                controller: _emailPrefixController,
-                focusNode: _emailPrefixFocusNode,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_passwordFocusNode);
-                },
-                validator: _validateEmail,
-                onChanged: (_) {
-                  // 이메일 입력 변경 시 중복확인 초기화
-                  setState(() {
-                    _isEmailChecked = false;
-                    _isEmailVerified = false;
-                    _emailCheckMessage = null;
-                  });
-                },
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF2C2C2C),
-                ),
-                decoration: InputDecoration(
-                  hintText: '',
-                  hintStyle: TextStyle(
-                    color: Colors.grey.shade400,
-                    fontSize: 16,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.email_outlined,
-                    color: Colors.grey,
-                    size: 22,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade200,
-                      width: 1,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade200,
-                      width: 1,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF2C2C2C),
-                      width: 2,
-                    ),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Colors.red,
-                      width: 1,
-                    ),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Colors.red,
-                      width: 2,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            // @ 기호
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                '@',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2C2C2C),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
             // 도메인 드롭다운
             Expanded(
-              flex: 2,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isEmailChecked = false; // 도메인 변경 시 중복확인 초기화
-                    _isEmailVerified = false;
-                    _emailCheckMessage = null;
-                  });
-                  _showDomainDropdown(context);
-                },
-                child: Container(
-                  key: _dropdownKey,
-                  height: 49, // 고정 높이로 크기 제한
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.grey.shade200,
-                      width: 1,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _isEmailChecked = false; // 도메인 변경 시 중복확인 초기화
+                      _isEmailVerified = false;
+                      _emailCheckMessage = null;
+                    });
+                    _showDomainDropdown(context);
+                  },
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    key: _dropdownKey,
+                    height: 56,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8F9FA),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                        width: 1.5,
+                      ),
                     ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
                           _selectedDomain,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             color: Color(0xFF2C2C2C),
+                            fontWeight: FontWeight.w500,
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      const Icon(
-                        Icons.arrow_drop_down,
-                        color: Color(0xFF2C2C2C),
-                        size: 24,
-                      ),
-                    ],
+                        const Icon(
+                          Icons.arrow_drop_down,
+                          color: Color(0xFF81B29A),
+                          size: 24,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             // 중복확인 버튼
             SizedBox(
-              height: 49,
+              height: 56,
               child: ElevatedButton(
                 onPressed: _isCheckingEmail ? null : _checkEmailDuplicate,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFDEAE71),
+                  backgroundColor: const Color(0xFF81B29A),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 24,
                     vertical: 0,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  elevation: 0,
+                  elevation: 2,
                 ),
                 child: _isCheckingEmail
                     ? const SizedBox(
@@ -686,7 +700,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         '중복확인',
                         style: TextStyle(
                           fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
+                          letterSpacing: 0.5,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
@@ -729,19 +743,45 @@ class _SignUpPageState extends State<SignUpPage> {
         offset.dy + size.height + 4 + 200, // 최대 높이
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
       ),
+      color: Colors.white,
+      elevation: 8,
       items: _emailDomains.map((String domain) {
+        final isSelected = domain == _selectedDomain;
         return PopupMenuItem<String>(
           value: domain,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Text(
-              domain,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Color(0xFF2C2C2C),
-              ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: isSelected 
+                  ? const Color(0xFF81B29A).withValues(alpha: 0.1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    domain,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: isSelected 
+                          ? const Color(0xFF81B29A)
+                          : const Color(0xFF2C2C2C),
+                      fontWeight: isSelected 
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  const Icon(
+                    Icons.check,
+                    color: Color(0xFF81B29A),
+                    size: 20,
+                  ),
+              ],
             ),
           ),
         );
