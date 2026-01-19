@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:http/http.dart' as http;
 import 'package:http/browser_client.dart';
@@ -774,12 +775,13 @@ class ApiService {
 
   /* ================= 관리자 - 사용자 권한 변경 ================= */
 
-  static Future<ApiResponse<void>> updateUserRole(int userId, Role role) async {
+  static Future<ApiResponse<AdminUserResponse>> updateUserRole(int userId, Role role) async {
     try {
       var response = await _client.put(
-        Uri.parse('$baseUrl/api/admin/user/$userId/role'),
+        Uri.parse('$baseUrl/api/admin/role'),
         headers: await _getHeaders(),
         body: jsonEncode({
+          'id': userId,
           'role': role.toJson(),
         }),
         encoding: utf8,
@@ -788,13 +790,9 @@ class ApiService {
       var json =
           jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
 
-      var apiResponse = ApiResponse<void>(
-        code: json['code'] as int,
-        message: json['message'] as String,
-        response: ResponseDetail<void>(
-          code: json['response']['code'] as String,
-          data: null,
-        ),
+      var apiResponse = ApiResponse<AdminUserResponse>.fromJson(
+        json,
+        (data) => AdminUserResponse.fromJson(data),
       );
 
       // 인증 에러 처리
@@ -803,27 +801,24 @@ class ApiService {
           apiResponse.response.code == 'AUTH_NOT_EXIST_TOKEN')) {
         // 재시도
         response = await _client.put(
-          Uri.parse('$baseUrl/api/admin/user/$userId/role'),
+          Uri.parse('$baseUrl/api/admin/role'),
           headers: await _getHeaders(),
           body: jsonEncode({
+            'id': userId,
             'role': role.toJson(),
           }),
           encoding: utf8,
         );
         json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
-        apiResponse = ApiResponse<void>(
-          code: json['code'] as int,
-          message: json['message'] as String,
-          response: ResponseDetail<void>(
-            code: json['response']['code'] as String,
-            data: null,
-          ),
+        apiResponse = ApiResponse<AdminUserResponse>.fromJson(
+          json,
+          (data) => AdminUserResponse.fromJson(data),
         );
       }
 
       return apiResponse;
     } catch (e) {
-      return _networkError<void>('네트워크 오류가 발생했습니다.');
+      return _networkError<AdminUserResponse>('네트워크 오류가 발생했습니다.');
     }
   }
 
@@ -865,6 +860,117 @@ class ApiService {
       return apiResponse;
     } catch (e) {
       return _networkError<RecommendationsResponse>('네트워크 오류가 발생했습니다.');
+    }
+  }
+
+  /* ================= 관리자 - 동영상 업로드 ================= */
+
+  static Future<ApiResponse<void>> uploadVideo(dynamic fileData, String fileName) async {
+    try {
+      final token = await TokenService.getAccessToken();
+      final headers = <String, String>{
+        'X-Client-Type': kIsWeb ? 'WEB' : 'MOBILE',
+      };
+
+      if (token != null && token.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/api/videos/video'),
+      );
+
+      request.headers.addAll(headers);
+      
+      if (kIsWeb) {
+        // 웹: bytes 사용
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'file',
+            fileData as List<int>,
+            filename: fileName,
+          ),
+        );
+      } else {
+        // 모바일: path 사용
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'file',
+            (fileData as File).path,
+            filename: fileName,
+          ),
+        );
+      }
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      var json =
+          jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+
+      var apiResponse = ApiResponse<void>(
+        code: json['code'] as int,
+        message: json['message'] as String,
+        response: ResponseDetail<void>(
+          code: json['response']['code'] as String,
+          data: null,
+        ),
+      );
+
+      // 인증 에러 처리
+      final shouldRetry = await _handleAuthError(apiResponse);
+      if (shouldRetry && (apiResponse.response.code == 'AUTH_EXPIRED_TOKEN' || 
+          apiResponse.response.code == 'AUTH_NOT_EXIST_TOKEN')) {
+        // 재시도
+        final newToken = await TokenService.getAccessToken();
+        final newHeaders = <String, String>{
+          'X-Client-Type': kIsWeb ? 'WEB' : 'MOBILE',
+        };
+        if (newToken != null && newToken.isNotEmpty) {
+          newHeaders['Authorization'] = 'Bearer $newToken';
+        }
+
+        request = http.MultipartRequest(
+          'POST',
+          Uri.parse('$baseUrl/api/videos/video'),
+        );
+        request.headers.addAll(newHeaders);
+        
+        if (kIsWeb) {
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'file',
+              fileData as List<int>,
+              filename: fileName,
+            ),
+          );
+        } else {
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'file',
+              (fileData as File).path,
+              filename: fileName,
+            ),
+          );
+        }
+
+        streamedResponse = await request.send();
+        response = await http.Response.fromStream(streamedResponse);
+        json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        apiResponse = ApiResponse<void>(
+          code: json['code'] as int,
+          message: json['message'] as String,
+          response: ResponseDetail<void>(
+            code: json['response']['code'] as String,
+            data: null,
+          ),
+        );
+      }
+
+      return apiResponse;
+    } catch (e) {
+      return _networkError<void>('네트워크 오류가 발생했습니다.');
     }
   }
 }

@@ -158,7 +158,7 @@ class MyPageState extends State<MyPage> {
                             Text(
                               '페이지 관리',
                               style: TextStyle(
-                                fontFamily: 'Cafe24PROSlimFit',
+                                fontFamily: 'NanumGothicCoding-Regular',
                                 letterSpacing: 0.5,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
@@ -257,7 +257,7 @@ class MyPageState extends State<MyPage> {
               title: const Text(
                 '재료 추가',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -279,14 +279,14 @@ class MyPageState extends State<MyPage> {
                       TextField(
                         controller: searchController,
                         style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
                         ),
                         decoration: InputDecoration(
                           hintText: '재료 이름을 입력하세요',
                           hintStyle: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   color: Colors.grey.shade400,
                           ),
@@ -367,7 +367,7 @@ class MyPageState extends State<MyPage> {
                             : const Text(
                                 '조회',
                                 style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
                                   fontWeight: FontWeight.w700,
@@ -397,7 +397,7 @@ class MyPageState extends State<MyPage> {
                                       Text(
                                         '${searchResults.length}개의 재료를 찾았어요',
                                         style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -529,7 +529,7 @@ class MyPageState extends State<MyPage> {
                                                       Text(
                                                         ingredient.name,
                                                         style: TextStyle(
-                          fontFamily: 'Cafe24PROSlimFit',
+                          fontFamily: 'NanumGothicCoding-Regular',
                           letterSpacing: 0.5,
                           fontSize: 15,
                                                             fontWeight: FontWeight.w600,
@@ -552,7 +552,7 @@ class MyPageState extends State<MyPage> {
                                                           child: const Text(
                                                             '이미 저장된 재료',
                                                             style: TextStyle(
-                          fontFamily: 'Cafe24PROSlimFit',
+                          fontFamily: 'NanumGothicCoding-Regular',
                           letterSpacing: 0.5,
                           fontSize: 11,
                                                               color: Colors.grey,
@@ -601,7 +601,7 @@ class MyPageState extends State<MyPage> {
                                         const Text(
                                           '검색 결과가 없어요',
                                           style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 16,
                                             fontWeight: FontWeight.w600,
@@ -612,7 +612,7 @@ class MyPageState extends State<MyPage> {
                                         Text(
                                           '다른 검색어로 시도해보세요',
                                           style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 13,
                                             color: Colors.grey.shade600,
@@ -651,7 +651,7 @@ class MyPageState extends State<MyPage> {
                             content: const Text(
                               '저장할 재료를 선택해주세요',
                               style: TextStyle(
-                                fontFamily: 'Cafe24PROSlimFit',
+                                fontFamily: 'NanumGothicCoding-Regular',
                                 letterSpacing: 0.5,
                                 fontSize: 14,
                               ),
@@ -721,7 +721,7 @@ class MyPageState extends State<MyPage> {
                                 ? '$successCount개 재료가 추가되었습니다. ($failCount개 실패)'
                                 : '$successCount개 재료가 추가되었습니다!',
                             style: const TextStyle(
-                              fontFamily: 'Cafe24PROSlimFit',
+                              fontFamily: 'NanumGothicCoding-Regular',
                               letterSpacing: 0.5,
                               fontSize: 14,
                             ),
@@ -745,7 +745,7 @@ class MyPageState extends State<MyPage> {
                     child: Text(
                       '저장 (${selectedIngredientIds.length})',
                       style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -757,7 +757,7 @@ class MyPageState extends State<MyPage> {
                   child: const Text(
                     '닫기',
                     style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
                       color: Colors.grey,
@@ -805,7 +805,7 @@ class MyPageState extends State<MyPage> {
                         ? '검색 결과가 없어요'
                         : response.message),
                 style: const TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
                 ),
@@ -831,7 +831,7 @@ class MyPageState extends State<MyPage> {
             content: Text(
               '재료 검색 중 오류가 발생했습니다: $e',
               style: const TextStyle(
-                fontFamily: 'Cafe24PROSlimFit',
+                fontFamily: 'NanumGothicCoding-Regular',
                 letterSpacing: 0.5,
                 fontSize: 14,
               ),
@@ -865,7 +865,7 @@ class MyPageState extends State<MyPage> {
           title: const Text(
             '재료 저장',
             style: TextStyle(
-              fontFamily: 'Cafe24PROSlimFit',
+              fontFamily: 'NanumGothicCoding-Regular',
               letterSpacing: 0.5,
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -875,7 +875,7 @@ class MyPageState extends State<MyPage> {
           content: Text(
             '[$ingredientNames] 재료를 저장하시겠어요?',
             style: const TextStyle(
-              fontFamily: 'Cafe24PROSlimFit',
+              fontFamily: 'NanumGothicCoding-Regular',
               letterSpacing: 0.5,
               fontSize: 16,
               color: Color(0xFF2C2C2C),
@@ -887,7 +887,7 @@ class MyPageState extends State<MyPage> {
               child: const Text(
                 '취소',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
                   color: Colors.grey,
@@ -899,7 +899,7 @@ class MyPageState extends State<MyPage> {
               child: const Text(
                 '확인',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
                   color: Color(0xFFDEAE71),
@@ -925,7 +925,7 @@ class MyPageState extends State<MyPage> {
           title: const Text(
             '재료 추가',
             style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -935,7 +935,7 @@ class MyPageState extends State<MyPage> {
           content: Text(
             '${ingredient.name} 냉장고에 추가하시겠어요?',
             style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 16,
               color: Color(0xFF2C2C2C),
@@ -947,7 +947,7 @@ class MyPageState extends State<MyPage> {
               child: const Text(
                 '취소',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
                   color: Colors.grey,
@@ -962,7 +962,7 @@ class MyPageState extends State<MyPage> {
               child: const Text(
                 '확인',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
                   color: Color(0xFFDEAE71),
@@ -992,7 +992,7 @@ class MyPageState extends State<MyPage> {
               title: const Text(
                 '🍳 축하드립니다! 냉장고 프로젝트에 재료를 공여하셨습니다!',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -1008,7 +1008,7 @@ class MyPageState extends State<MyPage> {
                     const Text(
                       '이제 이 재료의 카테고리를 지정해 주세요.\n당신이 선택한 카테고리는 이 재료를 선택한 모든 사람의 냉장고에 반영됩니다.',
                       style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
                         color: Color(0xFF2C2C2C),
@@ -1060,7 +1060,7 @@ class MyPageState extends State<MyPage> {
                                   Text(
                                     IngredientCategory.toDisplayName(category),
                                     style: TextStyle(
-                                      fontFamily: 'Cafe24PROSlimFit',
+                                      fontFamily: 'NanumGothicCoding-Regular',
                                       letterSpacing: 0.5,
                                       fontSize: 16,
                                       fontWeight: isSelected
@@ -1085,7 +1085,7 @@ class MyPageState extends State<MyPage> {
                   child: const Text(
                     '취소',
                     style: TextStyle(
-                      fontFamily: 'Cafe24PROSlimFit',
+                      fontFamily: 'NanumGothicCoding-Regular',
                       letterSpacing: 0.5,
                       fontSize: 14,
                       color: Colors.grey,
@@ -1106,7 +1106,7 @@ class MyPageState extends State<MyPage> {
                   child: const Text(
                     '확인',
                     style: TextStyle(
-                      fontFamily: 'Cafe24PROSlimFit',
+                      fontFamily: 'NanumGothicCoding-Regular',
                       letterSpacing: 0.5,
                       fontSize: 14,
                       color: Color(0xFFDEAE71),
@@ -1158,7 +1158,7 @@ class MyPageState extends State<MyPage> {
               content: const Text(
                 '재료 공여가 성공했습니다!',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
                 ),
@@ -1176,7 +1176,7 @@ class MyPageState extends State<MyPage> {
               content: Text(
                 addResponse.message,
                 style: const TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
                 ),
@@ -1195,7 +1195,7 @@ class MyPageState extends State<MyPage> {
             content: Text(
               createResponse.message,
               style: const TextStyle(
-                fontFamily: 'Cafe24PROSlimFit',
+                fontFamily: 'NanumGothicCoding-Regular',
                 letterSpacing: 0.5,
                 fontSize: 14,
               ),
@@ -1215,7 +1215,7 @@ class MyPageState extends State<MyPage> {
           content: Text(
             '재료 추가 중 오류가 발생했습니다: $e',
             style: const TextStyle(
-              fontFamily: 'Cafe24PROSlimFit',
+              fontFamily: 'NanumGothicCoding-Regular',
               letterSpacing: 0.5,
               fontSize: 14,
             ),
@@ -1247,7 +1247,7 @@ class MyPageState extends State<MyPage> {
               content: const Text(
                 '재료 ID가 없습니다',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
                 ),
@@ -1286,7 +1286,7 @@ class MyPageState extends State<MyPage> {
             content: const Text(
               '재료가 추가되었습니다',
               style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
               ),
@@ -1305,7 +1305,7 @@ class MyPageState extends State<MyPage> {
             content: Text(
               response.message,
               style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
               ),
@@ -1325,7 +1325,7 @@ class MyPageState extends State<MyPage> {
           content: Text(
             '재료 추가 중 오류가 발생했습니다: $e',
             style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
             ),
@@ -1352,7 +1352,7 @@ class MyPageState extends State<MyPage> {
           title: const Text(
             '재료 삭제',
             style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -1362,7 +1362,7 @@ class MyPageState extends State<MyPage> {
           content: Text(
             '${ingredient.name} 삭제하시겠어요?',
             style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 16,
               color: Color(0xFF2C2C2C),
@@ -1374,7 +1374,7 @@ class MyPageState extends State<MyPage> {
               child: const Text(
                 '취소',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
                   color: Colors.grey,
@@ -1389,7 +1389,7 @@ class MyPageState extends State<MyPage> {
               child: const Text(
                 '확인',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
                   color: Color(0xFFDEAE71),
@@ -1409,7 +1409,7 @@ class MyPageState extends State<MyPage> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('재료 ID가 없습니다', style: TextStyle(fontFamily: 'Cafe24PROSlimFit', letterSpacing: 0.5)),
+            content: const Text('재료 ID가 없습니다', style: TextStyle(fontFamily: 'NanumGothicCoding-Regular', letterSpacing: 0.5)),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -1430,7 +1430,7 @@ class MyPageState extends State<MyPage> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('재료가 삭제되었습니다', style: TextStyle(fontFamily: 'Cafe24PROSlimFit', letterSpacing: 0.5)),
+            content: Text('재료가 삭제되었습니다', style: TextStyle(fontFamily: 'NanumGothicCoding-Regular', letterSpacing: 0.5)),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
@@ -1519,59 +1519,113 @@ class MyPageState extends State<MyPage> {
                                             child: Text(
                                               '재료를 추가해주세요',
                                               style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 16,
                                                 color: Colors.grey.shade600,
                                               ),
                                             ),
                                           )
-                                        : SizedBox(
-                                        height: 280,
-                                        child: SingleChildScrollView(
-                                          physics: const AlwaysScrollableScrollPhysics(),
-                                          child: Wrap(
-                                            spacing: 8,
-                                            runSpacing: 10,
-                                            children: _currentCategoryIngredients.map((ingredient) {
-                                              return MouseRegion(
-                                                cursor: SystemMouseCursors.click,
-                                                child: GestureDetector(
-                                                  onTap: () => _showDeleteConfirmDialog(context, ingredient),
-                                                  child: Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white.withOpacity(0.9),
-                                                      borderRadius: BorderRadius.circular(20),
-                                                      border: Border.all(
-                                                        color: const Color(0xFFDEAE71).withOpacity(0.4),
-                                                        width: 1.5,
-                                                      ),
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: Colors.black.withOpacity(0.05),
-                                                          blurRadius: 4,
-                                                          offset: const Offset(0, 2),
+                                        : kIsWeb
+                                            ? SizedBox(
+                                                height: 280,
+                                                child: SingleChildScrollView(
+                                                  physics: const AlwaysScrollableScrollPhysics(),
+                                                  child: Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: List.generate(4, (columnIndex) {
+                                                      // 재료를 4칸에 균등하게 분배
+                                                      final totalIngredients = _currentCategoryIngredients.length;
+                                                      final itemsPerColumn = (totalIngredients / 4).ceil();
+                                                      final startIndex = columnIndex * itemsPerColumn;
+                                                      final endIndex = (startIndex + itemsPerColumn < totalIngredients)
+                                                          ? startIndex + itemsPerColumn
+                                                          : totalIngredients;
+                                                      
+                                                      // startIndex가 유효한 범위인지 확인
+                                                      final ingredientsInColumn = (startIndex < totalIngredients)
+                                                          ? _currentCategoryIngredients.sublist(
+                                                              startIndex,
+                                                              endIndex,
+                                                            )
+                                                          : <IngredientResponse>[];
+                                                      
+                                                      return Expanded(
+                                                        child: Padding(
+                                                          padding: EdgeInsets.only(
+                                                            left: columnIndex == 0 ? 0 : 8,
+                                                            right: columnIndex == 3 ? 0 : 8,
+                                                          ),
+                                                          child: Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: ingredientsInColumn.map((ingredient) {
+                                                              return MouseRegion(
+                                                                cursor: SystemMouseCursors.click,
+                                                                child: GestureDetector(
+                                                                  onTap: () => _showDeleteConfirmDialog(context, ingredient),
+                                                                  child: Padding(
+                                                                    padding: const EdgeInsets.only(bottom: 8),
+                                                                    child: Text(
+                                                                      ingredient.name,
+                                                                      style: const TextStyle(
+                                                                        fontFamily: 'NanumGothicCoding-Regular',
+                                                                        letterSpacing: 0.5,
+                                                                        fontSize: 16,
+                                                                        fontWeight: FontWeight.w600,
+                                                                        color: Color(0xFF2C2C2C),
+                                                                      ),
+                                                                      textAlign: TextAlign.left,
+                                                                      maxLines: 1,
+                                                                      overflow: TextOverflow.ellipsis,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            }).toList(),
+                                                          ),
                                                         ),
-                                                      ],
-                                                    ),
-                                                    child: Text(
-                                                      ingredient.name,
-                                                      style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
-                        letterSpacing: 0.5,
-                        fontSize: 14,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: Color(0xFF2C2C2C),
-                                                      ),
-                                                    ),
+                                                      );
+                                                    }),
                                                   ),
                                                 ),
-                                              );
-                                            }).toList(),
-                                          ),
-                                        ),
-                                      ),
+                                              )
+                                            : SizedBox(
+                                                height: 280,
+                                                child: GridView.builder(
+                                                  physics: const AlwaysScrollableScrollPhysics(),
+                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: 2, // 모바일: 2칸
+                                                    crossAxisSpacing: 8,
+                                                    mainAxisSpacing: 10,
+                                                    childAspectRatio: 2.0,
+                                                  ),
+                                                  itemCount: _currentCategoryIngredients.length,
+                                                  itemBuilder: (context, index) {
+                                                    final ingredient = _currentCategoryIngredients[index];
+                                                    return MouseRegion(
+                                                      cursor: SystemMouseCursors.click,
+                                                      child: GestureDetector(
+                                                        onTap: () => _showDeleteConfirmDialog(context, ingredient),
+                                                        child: Center(
+                                                          child: Text(
+                                                            ingredient.name,
+                                                            style: const TextStyle(
+                                                              fontFamily: 'NanumGothicCoding-Regular',
+                                                              letterSpacing: 0.5,
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.w600,
+                                                              color: Color(0xFF2C2C2C),
+                                                            ),
+                                                            textAlign: TextAlign.center,
+                                                            maxLines: 2,
+                                                            overflow: TextOverflow.ellipsis,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
                               ),
                               const SizedBox(height: 20),
                               Align(
@@ -1588,7 +1642,7 @@ class MyPageState extends State<MyPage> {
                                   child: const Text(
                                     '재료 추가하기',
                                     style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
                                       fontWeight: FontWeight.w700,
@@ -1630,7 +1684,7 @@ class MyPageState extends State<MyPage> {
           
           // TextPainter를 사용하여 각 카테고리 버튼의 실제 너비 계산
           final textStyle = TextStyle(
-            fontFamily: 'Cafe24PROSlimFit',
+            fontFamily: 'NanumGothicCoding-Regular',
             letterSpacing: 0.5,
             fontSize: isWeb ? 16 : 13, // 모바일 글씨 크기 소폭 축소
             fontWeight: FontWeight.w600,
@@ -1760,7 +1814,7 @@ class MyPageState extends State<MyPage> {
           child: Text(
             label,
             style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: isWeb ? 16 : 13,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
@@ -1811,7 +1865,7 @@ class MyPageState extends State<MyPage> {
         title: const Text(
           '카테고리 선택',
           style: TextStyle(
-            fontFamily: 'Cafe24PROSlimFit',
+            fontFamily: 'NanumGothicCoding-Regular',
             letterSpacing: 0.5,
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -1850,7 +1904,7 @@ class MyPageState extends State<MyPage> {
             child: const Text(
               '닫기',
               style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   color: Color(0xFF2C2C2C),
               ),
@@ -1885,7 +1939,7 @@ class MyPageState extends State<MyPage> {
             child: Text(
               label,
               style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,

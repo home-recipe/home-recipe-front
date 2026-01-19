@@ -256,7 +256,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         child: const Text(
                           '냉장고 프로젝트',
                           style: TextStyle(
-                            fontFamily: 'Cafe24PROSlimFit',
+                            fontFamily: 'NanumGothicCoding-Regular',
                             fontSize: 50,
                             letterSpacing: 2.0,
                             fontWeight: FontWeight.w700,
@@ -278,7 +278,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       constraints: const BoxConstraints(maxWidth: 500),
                       child: DefaultTextStyle(
                         style: const TextStyle(
-                          fontFamily: 'Cafe24PROSlimFit',
+                          fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -364,7 +364,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                     backgroundColor: const Color(0xFFDEAE71),
                                     foregroundColor: Colors.white,
                                     textStyle: const TextStyle(
-                                      fontFamily: 'Cafe24PROSlimFit',
+                                      fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -685,7 +685,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     : const Text(
                         '중복확인',
                         style: TextStyle(
-                          fontFamily: 'Cafe24PROSlimFit',
+                          fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,

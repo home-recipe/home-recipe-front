@@ -56,13 +56,13 @@ class _MainNavigationState extends State<MainNavigation> {
         selectedItemColor: const Color(0xFFDEAE71),
         unselectedItemColor: Colors.grey,
         selectedLabelStyle: const TextStyle(
-          fontFamily: 'Cafe24PROSlimFit',
+          fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
           fontSize: 12,
           fontWeight: FontWeight.w700,
         ),
         unselectedLabelStyle: const TextStyle(
-          fontFamily: 'Cafe24PROSlimFit',
+          fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
           fontSize: 12,
         ),

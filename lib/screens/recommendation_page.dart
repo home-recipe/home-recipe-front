@@ -255,29 +255,37 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
     return Scaffold(
       body: Stack(
         children: [
-          // 배경 이미지
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/homeimage2.jpg'),
-                fit: BoxFit.cover,
+          // 배경 이미지 (로딩 중이 아닐 때만 표시)
+          if (_pageState != RecommendationPageState.loading)
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/homeimage2.jpg'),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
 
-          // 오버레이
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withValues(alpha: 0.2),
-                  Colors.white.withValues(alpha: 0.4),
-                ],
+          // 로딩 중일 때 검은색 배경
+          if (_pageState == RecommendationPageState.loading)
+            Container(
+              color: Colors.black,
+            ),
+
+          // 오버레이 (로딩 중이 아닐 때만 표시)
+          if (_pageState != RecommendationPageState.loading)
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.white.withValues(alpha: 0.2),
+                    Colors.white.withValues(alpha: 0.4),
+                  ],
+                ),
               ),
             ),
-          ),
 
           SafeArea(
             child: Column(
@@ -403,7 +411,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
             child: const Text(
               '레시피 추천받기',
               style: TextStyle(
-                fontFamily: 'Cafe24PROSlimFit',
+                fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -523,15 +531,15 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
             animation: _pulseController,
             builder: (context, child) {
               return Opacity(
-                opacity: 0.5 + (_pulseController.value * 0.5),
+                opacity: 0.7 + (_pulseController.value * 0.3),
                 child: const Text(
                   '맛있는 레시피를 추천하고 있어요...',
                   style: TextStyle(
-                    fontFamily: 'Cafe24PROSlimFit',
+                    fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2C2C2C),
+                    color: Color(0xFF000000),
                   ),
                 ),
               );
@@ -569,7 +577,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                     ? '추천 레시피'
                     : '${_recommendations.length}개의 추천 레시피',
                 style: const TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -587,7 +595,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                 label: const Text(
                   '다시 추천받기',
                   style: TextStyle(
-                    fontFamily: 'Cafe24PROSlimFit',
+                    fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                     fontSize: 14,
                   ),
@@ -620,7 +628,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                       const Text(
                         '추천 레시피가 없습니다',
                         style: TextStyle(
-                          fontFamily: 'Cafe24PROSlimFit',
+                          fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                           fontSize: 18,
                           color: Color(0xFF2C2C2C),
@@ -684,7 +692,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                     child: Text(
                       '${index + 1}',
                       style: const TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -698,7 +706,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                   child: Text(
                     recommendation.recipeName,
                     style: const TextStyle(
-                      fontFamily: 'Cafe24PROSlimFit',
+                      fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -727,7 +735,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                     Text(
                       '재료',
                       style: TextStyle(
-                        fontFamily: 'Cafe24PROSlimFit',
+                        fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -754,7 +762,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                       child: Text(
                         ingredient,
                         style: const TextStyle(
-                          fontFamily: 'Cafe24PROSlimFit',
+                          fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                           fontSize: 14,
                           color: Color(0xFF2C2C2C),

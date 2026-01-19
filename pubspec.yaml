@@ -37,6 +37,7 @@ dependencies:
   http: ^1.1.0
   shared_preferences: ^2.2.2
   video_player: ^2.8.2
+  file_picker: ^8.0.0
 
 dev_dependencies:
   flutter_test:
@@ -93,6 +94,10 @@ flutter:
           weight: 700
         - asset: assets/fonts/NanumMyeongjo-ExtraBold.ttf
           weight: 800
+
+    - family: NanumGothicCoding-Regular
+      fonts:
+        - asset: assets/fonts/NanumGothicCoding-Regular.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

@@ -42,7 +42,7 @@ class LogoutHelper {
                   Text(
                     '로그아웃',
                     style: TextStyle(
-                      fontFamily: 'Cafe24PROSlimFit',
+                      fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                       fontSize: 14,
                       color: Color(0xFF2C2C2C),
@@ -69,7 +69,7 @@ class LogoutHelper {
           title: const Text(
             '로그아웃',
             style: TextStyle(
-              fontFamily: 'Cafe24PROSlimFit',
+              fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -78,7 +78,7 @@ class LogoutHelper {
           content: const Text(
             '로그아웃 하시겠습니까?',
             style: TextStyle(
-              fontFamily: 'Cafe24PROSlimFit',
+              fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
               fontSize: 16,
             ),
@@ -89,7 +89,7 @@ class LogoutHelper {
               child: const Text(
                 '취소',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   color: Colors.grey,
                 ),
@@ -117,7 +117,7 @@ class LogoutHelper {
               child: const Text(
                 '로그아웃',
                 style: TextStyle(
-                  fontFamily: 'Cafe24PROSlimFit',
+                  fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   color: Color(0xFFDEAE71),
                   fontWeight: FontWeight.w700,
