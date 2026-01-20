@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
@@ -9,6 +8,7 @@ import '../utils/logout_helper.dart';
 import '../utils/profile_image_helper.dart';
 import 'my_page/my_page_controller.dart';
 import 'admin_page.dart';
+import '../widgets/recook_logo.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -115,7 +115,7 @@ class MyPageState extends State<MyPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 왼쪽: 로고
-          _buildRecookLogo(),
+          const RecookLogo(),
           // 오른쪽에 페이지 관리 버튼과 프로필 아이콘 배치
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -991,29 +991,113 @@ class MyPageState extends State<MyPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              title: const Text(
-                '🍳 축하드립니다! 냉장고 프로젝트에 재료를 공여하셨습니다!',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF2C2C2C),
-                ),
-                textAlign: TextAlign.center,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    '🎉',
+                    style: TextStyle(fontSize: 28),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      '재료 공여 완료!',
+                      style: const TextStyle(
+                        fontFamily: 'NanumGothicCoding-Regular',
+                        letterSpacing: 0.5,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF2C2C2C),
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '이제 이 재료의 카테고리를 지정해 주세요.\n당신이 선택한 카테고리는 이 재료를 선택한 모든 사람의 냉장고에 반영됩니다.',
-                      style: TextStyle(
-                        fontFamily: 'NanumGothicCoding-Regular',
-                        letterSpacing: 0.5,
-                        fontSize: 14,
-                        color: Color(0xFF2C2C2C),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE07A5F).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFFE07A5F).withValues(alpha: 0.2),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Text(
+                              '✨',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              '이제 이 재료의 카테고리를 지정해주세요',
+                              style: const TextStyle(
+                                fontFamily: 'NanumGothicCoding-Regular',
+                                letterSpacing: 0.3,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1A1A1A),
+                                height: 1.5,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.visible,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF81B29A).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFF81B29A).withValues(alpha: 0.2),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Text(
+                              '💡',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              '선택한 카테고리는 모든 사용자에게 반영돼요',
+                              style: const TextStyle(
+                                fontFamily: 'NanumGothicCoding-Regular',
+                                letterSpacing: 0.3,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1A1A1A),
+                                height: 1.5,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.visible,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -1029,7 +1113,7 @@ class MyPageState extends State<MyPage> {
                                 selectedCategory = category;
                               });
                             },
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -1037,38 +1121,65 @@ class MyPageState extends State<MyPage> {
                               ),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? const Color(0xFF81B29A).withValues(alpha: 0.1)
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(12),
+                                    ? const Color(0xFF81B29A).withValues(alpha: 0.15)
+                                    : const Color(0xFFF8F9FA),
+                                borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
                                   color: isSelected
                                       ? const Color(0xFF81B29A)
-                                      : Colors.grey.shade300,
-                                  width: isSelected ? 2 : 1,
+                                      : const Color(0xFF81B29A).withValues(alpha: 0.3),
+                                  width: isSelected ? 2 : 1.5,
                                 ),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: const Color(0xFF81B29A).withValues(alpha: 0.2),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null,
                               ),
                               child: Row(
                                 children: [
-                                  Icon(
-                                    isSelected
-                                        ? Icons.check_circle
-                                        : Icons.circle_outlined,
-                                    color: isSelected
-                                        ? const Color(0xFF81B29A)
-                                        : Colors.grey,
-                                    size: 24,
+                                  Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? const Color(0xFF81B29A)
+                                          : Colors.transparent,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? const Color(0xFF81B29A)
+                                            : Colors.grey.shade400,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: isSelected
+                                        ? const Icon(
+                                            Icons.check,
+                                            size: 16,
+                                            color: Colors.white,
+                                          )
+                                        : null,
                                   ),
                                   const SizedBox(width: 12),
-                                  Text(
-                                    IngredientCategory.toDisplayName(category),
-                                    style: TextStyle(
-                                      fontFamily: 'NanumGothicCoding-Regular',
-                                      letterSpacing: 0.5,
-                                      fontSize: 16,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w700
-                                          : FontWeight.normal,
-                                      color: const Color(0xFF2C2C2C),
+                                  Expanded(
+                                    child: Text(
+                                      IngredientCategory.toDisplayName(category),
+                                      style: TextStyle(
+                                        fontFamily: 'NanumGothicCoding-Regular',
+                                        letterSpacing: 0.5,
+                                        fontSize: 15,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w700
+                                            : FontWeight.w600,
+                                        color: const Color(0xFF2C2C2C),
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
@@ -1158,18 +1269,22 @@ class MyPageState extends State<MyPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text(
-                '재료 공여가 성공했습니다!',
+                '재료 공여가 완료되었습니다',
                 style: TextStyle(
                   fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                   fontSize: 14,
+                  fontWeight: FontWeight.w600,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: const Color(0xFF81B29A),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
+              duration: const Duration(seconds: 2),
             ),
           );
         } else {
@@ -1288,16 +1403,20 @@ class MyPageState extends State<MyPage> {
             content: const Text(
               '재료가 추가되었습니다',
               style: TextStyle(
-                        fontFamily: 'NanumGothicCoding-Regular',
-                        letterSpacing: 0.5,
-                        fontSize: 14,
+                fontFamily: 'NanumGothicCoding-Regular',
+                letterSpacing: 0.5,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: const Color(0xFF81B29A),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
+            duration: const Duration(seconds: 2),
           ),
         );
       } else {
@@ -1435,11 +1554,16 @@ class MyPageState extends State<MyPage> {
             content: Text('재료가 삭제되었습니다', style: TextStyle(fontFamily: 'NanumGothicCoding-Regular', letterSpacing: 0.5)),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 3),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('삭제에 실패했습니다'), backgroundColor: Colors.red),
+          const SnackBar(
+            content: Text('삭제에 실패했습니다'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
         );
       }
     } catch (e) {
@@ -1942,60 +2066,5 @@ class MyPageState extends State<MyPage> {
     );
   }
 
-  // REC::OOK 로고 위젯 (프로필 사진 크기와 동일)
-  Widget _buildRecookLogo() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildStyledLogoText('REC::', const Color(0xFFE07A5F)),
-        _buildStyledLogoText('OOK', const Color(0xFF81B29A)),
-      ],
-    );
-  }
-
-  // 스타일이 적용된 로고 텍스트 위젯 (outline 포함, 48px 높이)
-  Widget _buildStyledLogoText(String text, Color fillColor) {
-    const outlineColor = Color(0xFF8B4513);
-    const fontSize = 32.0; // 48px 높이에 맞게 조정
-    const outlineWidth = 2.0;
-    
-    return Stack(
-      children: [
-        // Outline
-        ...List.generate(8, (index) {
-          final angle = (index * 2 * math.pi) / 8;
-          final offsetX = outlineWidth * math.cos(angle);
-          final offsetY = outlineWidth * math.sin(angle);
-          return Positioned(
-            left: offsetX,
-            top: offsetY,
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.w900,
-                color: outlineColor,
-                letterSpacing: 0.5,
-                fontFamily: 'Arial',
-                height: 1.0,
-              ),
-            ),
-          );
-        }),
-        // Main text
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w900,
-            color: fillColor,
-            letterSpacing: 0.5,
-            fontFamily: 'Arial',
-            height: 1.0,
-          ),
-        ),
-      ],
-    );
-  }
 }
 

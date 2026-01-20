@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:shared_preferences/shared_preferences.dart';
-
-// 웹에서만 사용하는 import (조건부)
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'storage_web.dart' if (dart.library.io) 'storage_stub.dart';
 
 class TokenService {
@@ -9,105 +7,111 @@ class TokenService {
   static const String _refreshTokenKey = 'refresh_token';
   static const String _userRoleKey = 'user_role';
 
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
+  );
+
   // AccessToken 저장
   static Future<void> saveAccessToken(String token) async {
     if (kIsWeb) {
-      // 웹: 브라우저 localStorage 사용
+      // 웹: localStorage 사용
       await StorageWeb.setItem(_accessTokenKey, token);
     } else {
-      // 모바일/태블릿: SharedPreferences 사용
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_accessTokenKey, token);
+      // iOS: Keychain, Android: Keystore 사용
+      await _secureStorage.write(key: _accessTokenKey, value: token);
     }
   }
 
   // AccessToken 불러오기
   static Future<String?> getAccessToken() async {
     if (kIsWeb) {
-      // 웹: 브라우저 localStorage 사용
+      // 웹: localStorage에서 읽기
       return await StorageWeb.getItem(_accessTokenKey);
     } else {
-      // 모바일/태블릿: SharedPreferences 사용
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getString(_accessTokenKey);
+      // iOS: Keychain, Android: Keystore에서 읽기
+      return await _secureStorage.read(key: _accessTokenKey);
     }
   }
 
   // AccessToken 삭제
   static Future<void> deleteAccessToken() async {
     if (kIsWeb) {
-      // 웹: 브라우저 localStorage 사용
+      // 웹: localStorage에서 삭제
       await StorageWeb.removeItem(_accessTokenKey);
     } else {
-      // 모바일/태블릿: SharedPreferences 사용
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_accessTokenKey);
+      // iOS: Keychain, Android: Keystore에서 삭제
+      await _secureStorage.delete(key: _accessTokenKey);
     }
   }
 
   // RefreshToken 저장
   static Future<void> saveRefreshToken(String token) async {
     if (kIsWeb) {
-      // 웹: 브라우저 localStorage 사용
+      // 웹: localStorage 사용 (쿠키 아님)
       await StorageWeb.setItem(_refreshTokenKey, token);
     } else {
-      // 모바일/태블릿: SharedPreferences 사용
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_refreshTokenKey, token);
+      // iOS: Keychain, Android: Keystore 사용
+      await _secureStorage.write(key: _refreshTokenKey, value: token);
     }
   }
 
   // RefreshToken 불러오기
   static Future<String?> getRefreshToken() async {
     if (kIsWeb) {
-      // 웹: 브라우저 localStorage 사용
+      // 웹: localStorage에서 읽기
       return await StorageWeb.getItem(_refreshTokenKey);
     } else {
-      // 모바일/태블릿: SharedPreferences 사용
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getString(_refreshTokenKey);
+      // iOS: Keychain, Android: Keystore에서 읽기
+      return await _secureStorage.read(key: _refreshTokenKey);
     }
   }
 
   // RefreshToken 삭제
   static Future<void> deleteRefreshToken() async {
     if (kIsWeb) {
-      // 웹: 브라우저 localStorage 사용
+      // 웹: localStorage에서 삭제
       await StorageWeb.removeItem(_refreshTokenKey);
     } else {
-      // 모바일/태블릿: SharedPreferences 사용
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_refreshTokenKey);
+      // iOS: Keychain, Android: Keystore에서 삭제
+      await _secureStorage.delete(key: _refreshTokenKey);
     }
   }
 
   // User Role 저장
   static Future<void> saveUserRole(String role) async {
     if (kIsWeb) {
+      // 웹: localStorage 사용
       await StorageWeb.setItem(_userRoleKey, role);
     } else {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_userRoleKey, role);
+      // iOS: Keychain, Android: Keystore 사용
+      await _secureStorage.write(key: _userRoleKey, value: role);
     }
   }
 
   // User Role 불러오기
   static Future<String?> getUserRole() async {
     if (kIsWeb) {
+      // 웹: localStorage에서 읽기
       return await StorageWeb.getItem(_userRoleKey);
     } else {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getString(_userRoleKey);
+      // iOS: Keychain, Android: Keystore에서 읽기
+      return await _secureStorage.read(key: _userRoleKey);
     }
   }
 
   // User Role 삭제
   static Future<void> deleteUserRole() async {
     if (kIsWeb) {
+      // 웹: localStorage에서 삭제
       await StorageWeb.removeItem(_userRoleKey);
     } else {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_userRoleKey);
+      // iOS: Keychain, Android: Keystore에서 삭제
+      await _secureStorage.delete(key: _userRoleKey);
     }
   }
 

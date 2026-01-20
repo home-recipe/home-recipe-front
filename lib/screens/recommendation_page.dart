@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../utils/logout_helper.dart';
 import '../utils/profile_image_helper.dart';
+import '../utils/translation_helper.dart';
 import '../services/api_service.dart';
 import '../models/recommendations_response.dart';
+import '../widgets/recook_logo.dart';
 
 enum RecommendationPageState {
   initial, // 초기 화면
@@ -319,7 +321,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // 왼쪽: 로고
-                  _buildRecookLogo(),
+                  const RecookLogo(),
                   // 오른쪽: 계정 아이콘
                   MouseRegion(
                     cursor: SystemMouseCursors.click,
@@ -805,7 +807,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    recommendation.recipeName,
+                    TranslationHelper.translateRecipeName(recommendation.recipeName),
                     style: const TextStyle(
                       fontFamily: 'NanumGothicCoding-Regular',
                       letterSpacing: 0.5,
@@ -861,7 +863,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                         ),
                       ),
                       child: Text(
-                        ingredient,
+                        TranslationHelper.translateIngredient(ingredient),
                         style: const TextStyle(
                           fontFamily: 'NanumGothicCoding-Regular',
                           letterSpacing: 0.5,
@@ -880,61 +882,6 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
     );
   }
 
-  // REC::OOK 로고 위젯 (프로필 사진 크기와 동일)
-  Widget _buildRecookLogo() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildStyledLogoText('REC::', const Color(0xFFE07A5F)),
-        _buildStyledLogoText('OOK', const Color(0xFF81B29A)),
-      ],
-    );
-  }
-
-  // 스타일이 적용된 로고 텍스트 위젯 (outline 포함, 48px 높이)
-  Widget _buildStyledLogoText(String text, Color fillColor) {
-    const outlineColor = Color(0xFF8B4513);
-    const fontSize = 32.0; // 48px 높이에 맞게 조정
-    const outlineWidth = 2.0;
-    
-    return Stack(
-      children: [
-        // Outline
-        ...List.generate(8, (index) {
-          final angle = (index * 2 * math.pi) / 8;
-          final offsetX = outlineWidth * math.cos(angle);
-          final offsetY = outlineWidth * math.sin(angle);
-          return Positioned(
-            left: offsetX,
-            top: offsetY,
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.w900,
-                color: outlineColor,
-                letterSpacing: 0.5,
-                fontFamily: 'Arial',
-                height: 1.0,
-              ),
-            ),
-          );
-        }),
-        // Main text
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w900,
-            color: fillColor,
-            letterSpacing: 0.5,
-            fontFamily: 'Arial',
-            height: 1.0,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 

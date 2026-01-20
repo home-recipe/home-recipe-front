@@ -78,6 +78,29 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (_) => const MainNavigation(initialIndex: 2)),
           (_) => false,
         );
+      } else {
+        // 로그인 실패 시 에러 메시지 표시
+        final errorMessage = response.message.isNotEmpty 
+            ? response.message 
+            : '로그인에 실패했습니다. 다시 시도해주세요.';
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                errorMessage,
+                style: const TextStyle(
+                  fontFamily: 'NanumGothicCoding-Regular',
+                  letterSpacing: 0.5,
+                  fontSize: 14,
+                ),
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (!mounted) return;
@@ -85,7 +108,31 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isLoading = false;
       });
+      
       debugPrint('로그인 오류: $e');
+      
+      // 예외 발생 시 사용자에게 알림
+      final errorMessage = e.toString().contains('Exception') 
+          ? e.toString().replaceAll('Exception: ', '')
+          : '로그인 중 오류가 발생했습니다. 다시 시도해주세요.';
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              errorMessage,
+              style: const TextStyle(
+                fontFamily: 'NanumGothicCoding-Regular',
+                letterSpacing: 0.5,
+                fontSize: 14,
+              ),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 

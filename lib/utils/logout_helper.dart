@@ -66,23 +66,25 @@ class LogoutHelper {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(20),
           ),
           title: const Text(
             '로그아웃',
             style: TextStyle(
               fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-              fontSize: 16,
+              letterSpacing: 0.5,
+              fontSize: 18,
               fontWeight: FontWeight.w700,
+              color: Color(0xFF2C2C2C),
             ),
           ),
           content: const Text(
             '로그아웃 하시겠습니까?',
             style: TextStyle(
               fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-              fontSize: 16,
+              letterSpacing: 0.5,
+              fontSize: 14,
+              color: Color(0xFF2C2C2C),
             ),
           ),
           actions: [
@@ -93,6 +95,7 @@ class LogoutHelper {
                 style: TextStyle(
                   fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
+                  fontSize: 14,
                   color: Colors.grey,
                 ),
               ),
@@ -121,6 +124,7 @@ class LogoutHelper {
                 style: TextStyle(
                   fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
+                  fontSize: 14,
                   color: Color(0xFFE07A5F),
                   fontWeight: FontWeight.w700,
                 ),

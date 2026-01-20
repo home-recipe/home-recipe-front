@@ -6,6 +6,9 @@ import '../services/api_service.dart';
 import '../services/token_service.dart';
 import '../models/admin_user_response.dart';
 import '../models/role.dart';
+import '../utils/logout_helper.dart';
+import '../utils/profile_image_helper.dart';
+import '../widgets/recook_logo.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -31,6 +34,8 @@ class AdminPageState extends State<AdminPage> {
   PlatformFile? _selectedVideoFile;
   dynamic _selectedVideoData;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey _accountButtonKey = GlobalKey();
+  String? _selectedProfileImage;
 
   // 메뉴 정보 리스트 - 메뉴 추가 시 여기에만 추가하면 됨
   final List<MapEntry<AdminMenu, String>> _menuItems = [
@@ -41,7 +46,18 @@ class AdminPageState extends State<AdminPage> {
   @override
   void initState() {
     super.initState();
+    _loadRandomProfileImage();
     _checkAdminAccess();
+  }
+
+  /// 프로필 이미지를 사용자별로 고정된 이미지로 로드
+  Future<void> _loadRandomProfileImage() async {
+    final image = await ProfileImageHelper.getUserProfileImage();
+    if (mounted) {
+      setState(() {
+        _selectedProfileImage = image;
+      });
+    }
   }
 
   void _onAdminAccessGranted() {
@@ -339,63 +355,17 @@ class AdminPageState extends State<AdminPage> {
     }
   }
 
-  Widget _buildMenuButton(String title, AdminMenu menu, {required bool isFirst}) {
-    final isSelected = _selectedMenu == menu;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedMenu = menu;
-        });
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFFDEAE71)
-              : Colors.transparent,
-          borderRadius: isFirst
-              ? const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
-                )
-              : null,
-        ),
-        child: Text(
-          title,
-          style: TextStyle(
-            fontFamily: 'NanumGothicCoding-Regular',
-            letterSpacing: 0.5,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: isSelected
-                ? Colors.white
-                : const Color(0xFF2C2C2C),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildDrawer() {
     return Drawer(
-      backgroundColor: const Color(0xCCF2EFEB),
+      backgroundColor: Colors.white,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Text(
-                '페이지 관리',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF2C2C2C),
-                ),
-              ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: const RecookLogo(),
             ),
             const Divider(),
             Expanded(
@@ -405,27 +375,38 @@ class AdminPageState extends State<AdminPage> {
                   final menu = entry.key;
                   final title = entry.value;
                   final isSelected = _selectedMenu == menu;
-                  return ListTile(
-                    selected: isSelected,
-                    selectedTileColor: const Color(0xFFDEAE71).withOpacity(0.3),
-                    title: Text(
-                      title,
-                      style: TextStyle(
-                        fontFamily: 'NanumGothicCoding-Regular',
-                        letterSpacing: 0.5,
-                        fontSize: 16,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                        color: isSelected
-                            ? const Color(0xFFDEAE71)
-                            : const Color(0xFF2C2C2C),
-                      ),
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFFE07A5F).withValues(alpha: 0.15)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onTap: () {
-                      setState(() {
-                        _selectedMenu = menu;
-                      });
-                      Navigator.of(context).pop(); // Drawer 닫기
-                    },
+                    child: ListTile(
+                      selected: isSelected,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      title: Text(
+                        title,
+                        style: TextStyle(
+                          fontFamily: 'NanumGothicCoding-Regular',
+                          letterSpacing: 0.5,
+                          fontSize: 16,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                          color: isSelected
+                              ? const Color(0xFFE07A5F)
+                              : const Color(0xFF2C2C2C),
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _selectedMenu = menu;
+                        });
+                        Navigator.of(context).pop(); // Drawer 닫기
+                      },
+                    ),
                   );
                 }).toList(),
               ),
@@ -445,6 +426,9 @@ class AdminPageState extends State<AdminPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               title: const Text(
                 '권한 변경',
                 style: TextStyle(
@@ -452,6 +436,7 @@ class AdminPageState extends State<AdminPage> {
                   letterSpacing: 0.5,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
+                  color: Color(0xFF2C2C2C),
                 ),
               ),
               content: Column(
@@ -464,16 +449,19 @@ class AdminPageState extends State<AdminPage> {
                       fontFamily: 'NanumGothicCoding-Regular',
                       letterSpacing: 0.5,
                       fontSize: 14,
+                      color: Color(0xFF2C2C2C),
                     ),
                   ),
                   const SizedBox(height: 20),
                   RadioListTile<Role>(
+                    activeColor: const Color(0xFFE07A5F),
                     title: const Text(
                       'ADMIN',
                       style: TextStyle(
                         fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
+                        color: Color(0xFF2C2C2C),
                       ),
                     ),
                     value: Role.ADMIN,
@@ -485,12 +473,14 @@ class AdminPageState extends State<AdminPage> {
                     },
                   ),
                   RadioListTile<Role>(
+                    activeColor: const Color(0xFFE07A5F),
                     title: const Text(
                       'USER',
                       style: TextStyle(
                         fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
+                        color: Color(0xFF2C2C2C),
                       ),
                     ),
                     value: Role.USER,
@@ -512,6 +502,7 @@ class AdminPageState extends State<AdminPage> {
                       fontFamily: 'NanumGothicCoding-Regular',
                       letterSpacing: 0.5,
                       fontSize: 14,
+                      color: Color(0xFF2C2C2C),
                     ),
                   ),
                 ),
@@ -528,6 +519,7 @@ class AdminPageState extends State<AdminPage> {
                       letterSpacing: 0.5,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
+                      color: Color(0xFFE07A5F),
                     ),
                   ),
                 ),
@@ -607,17 +599,10 @@ class AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/homeimage2.jpg'),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFDEAE71)),
-            ),
+        backgroundColor: Colors.white,
+        body: const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
           ),
         ),
       );
@@ -629,91 +614,88 @@ class AdminPageState extends State<AdminPage> {
 
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: Colors.white,
       drawer: _buildDrawer(),
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/homeimage2.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withOpacity(0.2),
-                  Colors.white.withOpacity(0.4),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 상단 헤더 (로고 + 메뉴 아이콘 + 계정 아이콘)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // 왼쪽: 메뉴 아이콘 + 로고
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.menu, color: Color(0xFF2C2C2C)),
+                          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                        const SizedBox(width: 8),
+                        const RecookLogo(),
+                      ],
+                    ),
+                  ),
+                  // 오른쪽: 계정 아이콘
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      key: _accountButtonKey,
+                      onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: _selectedProfileImage != null
+                              ? Image.asset(
+                                  _selectedProfileImage!,
+                                  width: 48,
+                                  height: 48,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.account_circle,
+                                      size: 48,
+                                      color: Color(0xFF2C2C2C),
+                                    );
+                                  },
+                                )
+                              : const Icon(
+                                  Icons.account_circle,
+                                  size: 48,
+                                  color: Color(0xFF2C2C2C),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                // 헤더
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.menu, color: Color(0xFF2C2C2C)),
-                        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                      ),
-                      const Expanded(
-                        child: Text(
-                          '페이지 관리',
-                          style: TextStyle(
-                            fontFamily: 'NanumGothicCoding-Regular',
-                            letterSpacing: 0.5,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF2C2C2C),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Color(0xFF2C2C2C)),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: kIsWeb ? 40 : 8,
-                      vertical: 12,
-                    ),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: kIsWeb ? 32 : 8,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xCCF2EFEB),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: _buildContent(),
-                    ),
-                  ),
-                ),
-              ],
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: _buildContent(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -738,14 +720,14 @@ class AdminPageState extends State<AdminPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color(0xFFDEAE71).withOpacity(0.3),
+                            color: const Color(0xFF81B29A).withValues(alpha: 0.4),
                             width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -807,7 +789,7 @@ class AdminPageState extends State<AdminPage> {
                         underline: Container(),
                         icon: const Icon(
                           Icons.arrow_drop_down,
-                          color: Color(0xFFDEAE71),
+                          color: Color(0xFF81B29A),
                           size: 24,
                         ),
                         isExpanded: false,
@@ -827,11 +809,13 @@ class AdminPageState extends State<AdminPage> {
                       child: ElevatedButton(
                         onPressed: _isLoadingUsers ? null : _loadUsers,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFDEAE71),
+                          backgroundColor: const Color(0xFFE07A5F),
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                           ),
+                          elevation: 2,
                         ),
                         child: _isLoadingUsers
                             ? const SizedBox(
@@ -866,14 +850,14 @@ class AdminPageState extends State<AdminPage> {
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: const Color(0xFFDEAE71).withOpacity(0.3),
+                                  color: const Color(0xFF81B29A).withValues(alpha: 0.4),
                                   width: 1.5,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Colors.black.withValues(alpha: 0.05),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -935,7 +919,7 @@ class AdminPageState extends State<AdminPage> {
                               underline: Container(),
                               icon: const Icon(
                                 Icons.arrow_drop_down,
-                                color: Color(0xFFDEAE71),
+                                color: Color(0xFF81B29A),
                                 size: 24,
                               ),
                               isExpanded: true,
@@ -957,11 +941,13 @@ class AdminPageState extends State<AdminPage> {
                       child: ElevatedButton(
                         onPressed: _isLoadingUsers ? null : _loadUsers,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFDEAE71),
+                          backgroundColor: const Color(0xFFE07A5F),
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                           ),
+                          elevation: 2,
                         ),
                         child: _isLoadingUsers
                             ? const SizedBox(
@@ -993,34 +979,64 @@ class AdminPageState extends State<AdminPage> {
               child: Padding(
                 padding: EdgeInsets.all(16.0),
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFDEAE71)),
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
                 ),
               ),
             )
           else if (_filteredUsers.isEmpty)
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: const Center(
-                child: Text(
-                  '사용자가 없습니다.',
-                  style: TextStyle(
-                    fontFamily: 'NanumGothicCoding-Regular',
-                    letterSpacing: 0.5,
-                    fontSize: 12,
-                    color: Color(0xFF2C2C2C),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.people_outline,
+                      size: 48,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      '사용자가 없습니다.',
+                      style: TextStyle(
+                        fontFamily: 'NanumGothicCoding-Regular',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
+                        color: Color(0xFF2C2C2C),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
           else
             Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+                    blurRadius: 30,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
@@ -1031,10 +1047,10 @@ class AdminPageState extends State<AdminPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFDEAE71).withOpacity(0.3),
+                      color: const Color(0xFF81B29A).withValues(alpha: 0.15),
                       borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(8),
-                        topRight: Radius.circular(8),
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
                       ),
                     ),
                     child: Row(
@@ -1158,7 +1174,7 @@ class AdminPageState extends State<AdminPage> {
                                 icon: Icon(
                                   Icons.edit,
                                   size: kIsWeb ? 18 : 20,
-                                  color: const Color(0xFFDEAE71),
+                                  color: const Color(0xFFE07A5F),
                                 ),
                                 onPressed: () {
                                   _showRoleChangeDialog(user);
@@ -1181,8 +1197,20 @@ class AdminPageState extends State<AdminPage> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.7),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+                  blurRadius: 30,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1190,7 +1218,7 @@ class AdminPageState extends State<AdminPage> {
                 Icon(
                   Icons.video_library,
                   size: 64,
-                  color: const Color(0xFFDEAE71).withOpacity(0.7),
+                  color: const Color(0xFFE07A5F).withValues(alpha: 0.7),
                 ),
                 const SizedBox(height: 16),
                 const Text(
@@ -1221,10 +1249,12 @@ class AdminPageState extends State<AdminPage> {
                   child: ElevatedButton.icon(
                     onPressed: _pickVideo,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFDEAE71),
+                      backgroundColor: const Color(0xFFE07A5F),
+                      foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                       ),
+                      elevation: 2,
                     ),
                     icon: const Icon(
                       Icons.folder_open,
@@ -1247,10 +1277,10 @@ class AdminPageState extends State<AdminPage> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xFFF8F9FA),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color(0xFFDEAE71).withOpacity(0.3),
+                        color: const Color(0xFF81B29A).withValues(alpha: 0.4),
                         width: 1.5,
                       ),
                     ),
@@ -1258,7 +1288,7 @@ class AdminPageState extends State<AdminPage> {
                       children: [
                         const Icon(
                           Icons.video_file,
-                          color: Color(0xFFDEAE71),
+                          color: Color(0xFFE07A5F),
                           size: 24,
                         ),
                         const SizedBox(width: 12),
@@ -1284,10 +1314,12 @@ class AdminPageState extends State<AdminPage> {
                     child: ElevatedButton.icon(
                       onPressed: _isUploadingVideo ? null : _uploadVideo,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDEAE71),
+                        backgroundColor: const Color(0xFFE07A5F),
+                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                         ),
+                        elevation: 2,
                       ),
                       icon: _isUploadingVideo
                           ? const SizedBox(
