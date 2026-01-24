@@ -426,18 +426,37 @@ class AdminPageState extends State<AdminPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
+              backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
               ),
-              title: const Text(
-                '권한 변경',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF2C2C2C),
-                ),
+              contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE07A5F).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      '👤',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    '권한 변경',
+                    style: TextStyle(
+                      fontFamily: 'NanumGothicCoding-Regular',
+                      letterSpacing: 0.5,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                  ),
+                ],
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -494,34 +513,62 @@ class AdminPageState extends State<AdminPage> {
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text(
-                    '취소',
-                    style: TextStyle(
-                      fontFamily: 'NanumGothicCoding-Regular',
-                      letterSpacing: 0.5,
-                      fontSize: 14,
-                      color: Color(0xFF2C2C2C),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          '취소',
+                          style: TextStyle(
+                            fontFamily: 'NanumGothicCoding-Regular',
+                            letterSpacing: 0.5,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    if (selectedRole != null) {
-                      Navigator.of(context).pop(selectedRole);
-                    }
-                  },
-                  child: const Text(
-                    '변경',
-                    style: TextStyle(
-                      fontFamily: 'NanumGothicCoding-Regular',
-                      letterSpacing: 0.5,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFFE07A5F),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (selectedRole != null) {
+                            Navigator.of(context).pop(selectedRole);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE07A5F),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: const Text(
+                          '변경',
+                          style: TextStyle(
+                            fontFamily: 'NanumGothicCoding-Regular',
+                            letterSpacing: 0.5,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             );

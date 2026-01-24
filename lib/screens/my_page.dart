@@ -251,18 +251,37 @@ class MyPageState extends State<MyPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
               ),
-              title: const Text(
-                '재료 추가',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF2C2C2C),
-                ),
+              contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF81B29A).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      '🥬',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    '재료 추가',
+                    style: TextStyle(
+                      fontFamily: 'NanumGothicCoding-Regular',
+                      letterSpacing: 0.5,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                  ),
+                ],
               ),
               content: ConstrainedBox(
                 constraints: BoxConstraints(
@@ -756,12 +775,23 @@ class MyPageState extends State<MyPage> {
                   ),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
                   child: const Text(
                     '닫기',
                     style: TextStyle(
-                        fontFamily: 'NanumGothicCoding-Regular',
-                        letterSpacing: 0.5,
-                        fontSize: 14,
+                      fontFamily: 'NanumGothicCoding-Regular',
+                      letterSpacing: 0.5,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                       color: Colors.grey,
                     ),
                   ),
@@ -861,18 +891,37 @@ class MyPageState extends State<MyPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
           ),
-          title: const Text(
-            '재료 저장',
-            style: TextStyle(
-              fontFamily: 'NanumGothicCoding-Regular',
-              letterSpacing: 0.5,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF2C2C2C),
-            ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF81B29A).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  '💾',
+                  style: TextStyle(fontSize: 24),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                '재료 저장',
+                style: TextStyle(
+                  fontFamily: 'NanumGothicCoding-Regular',
+                  letterSpacing: 0.5,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF2C2C2C),
+                ),
+              ),
+            ],
           ),
           content: Text(
             '[$ingredientNames] 재료를 저장하시겠어요?',
@@ -884,30 +933,58 @@ class MyPageState extends State<MyPage> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text(
-                '취소',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 14,
-                  color: Colors.grey,
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      '취소',
+                      style: TextStyle(
+                        fontFamily: 'NanumGothicCoding-Regular',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text(
-                '확인',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 14,
-                  color: Color(0xFF81B29A),
-                  fontWeight: FontWeight.w700,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF81B29A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: const Text(
+                      '확인',
+                      style: TextStyle(
+                        fontFamily: 'NanumGothicCoding-Regular',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         );
@@ -921,18 +998,37 @@ class MyPageState extends State<MyPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
           ),
-          title: const Text(
-            '재료 추가',
-            style: TextStyle(
-                        fontFamily: 'NanumGothicCoding-Regular',
-                        letterSpacing: 0.5,
-                        fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF2C2C2C),
-            ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF81B29A).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  '➕',
+                  style: TextStyle(fontSize: 24),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                '재료 추가',
+                style: TextStyle(
+                  fontFamily: 'NanumGothicCoding-Regular',
+                  letterSpacing: 0.5,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF2C2C2C),
+                ),
+              ),
+            ],
           ),
           content: Text(
             '${ingredient.name} 냉장고에 추가하시겠어요?',
@@ -944,33 +1040,61 @@ class MyPageState extends State<MyPage> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                '취소',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 14,
-                  color: Colors.grey,
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      '취소',
+                      style: TextStyle(
+                        fontFamily: 'NanumGothicCoding-Regular',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _addIngredientToRefrigerator(context, ingredient);
-              },
-              child: const Text(
-                '확인',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 14,
-                  color: Color(0xFF81B29A),
-                  fontWeight: FontWeight.w700,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _addIngredientToRefrigerator(context, ingredient);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF81B29A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: const Text(
+                      '확인',
+                      style: TextStyle(
+                        fontFamily: 'NanumGothicCoding-Regular',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         );
@@ -988,24 +1112,33 @@ class MyPageState extends State<MyPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
               ),
+              contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    '🎉',
-                    style: TextStyle(fontSize: 28),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF81B29A).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      '🎉',
+                      style: TextStyle(fontSize: 28),
+                    ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   Flexible(
                     child: Text(
                       '재료 공여 완료!',
                       style: const TextStyle(
                         fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF2C2C2C),
                       ),
@@ -1193,39 +1326,67 @@ class MyPageState extends State<MyPage> {
                 ),
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    '취소',
-                    style: TextStyle(
-                      fontFamily: 'NanumGothicCoding-Regular',
-                      letterSpacing: 0.5,
-                      fontSize: 14,
-                      color: Colors.grey,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          '취소',
+                          style: TextStyle(
+                            fontFamily: 'NanumGothicCoding-Regular',
+                            letterSpacing: 0.5,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: selectedCategory == null
-                      ? null
-                      : () {
-                          Navigator.pop(context);
-                          _addIngredientToRefrigeratorWithCategory(
-                            context,
-                            ingredient,
-                            selectedCategory!,
-                          );
-                        },
-                  child: const Text(
-                    '확인',
-                    style: TextStyle(
-                      fontFamily: 'NanumGothicCoding-Regular',
-                      letterSpacing: 0.5,
-                      fontSize: 14,
-                      color: Color(0xFF81B29A),
-                      fontWeight: FontWeight.w700,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: selectedCategory == null
+                            ? null
+                            : () {
+                                Navigator.pop(context);
+                                _addIngredientToRefrigeratorWithCategory(
+                                  context,
+                                  ingredient,
+                                  selectedCategory!,
+                                );
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF81B29A),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: const Text(
+                          '확인',
+                          style: TextStyle(
+                            fontFamily: 'NanumGothicCoding-Regular',
+                            letterSpacing: 0.5,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             );
@@ -1467,18 +1628,37 @@ class MyPageState extends State<MyPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
           ),
-          title: const Text(
-            '재료 삭제',
-            style: TextStyle(
-                        fontFamily: 'NanumGothicCoding-Regular',
-                        letterSpacing: 0.5,
-                        fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF2C2C2C),
-            ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE07A5F).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  '🗑️',
+                  style: TextStyle(fontSize: 24),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                '재료 삭제',
+                style: TextStyle(
+                  fontFamily: 'NanumGothicCoding-Regular',
+                  letterSpacing: 0.5,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF2C2C2C),
+                ),
+              ),
+            ],
           ),
           content: Text(
             '${ingredient.name} 삭제하시겠어요?',
@@ -1490,33 +1670,61 @@ class MyPageState extends State<MyPage> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                '취소',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 14,
-                  color: Colors.grey,
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      '취소',
+                      style: TextStyle(
+                        fontFamily: 'NanumGothicCoding-Regular',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _deleteIngredient(context, ingredient);
-              },
-              child: const Text(
-                '확인',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 14,
-                  color: Color(0xFF81B29A),
-                  fontWeight: FontWeight.w700,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _deleteIngredient(context, ingredient);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFE07A5F),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: const Text(
+                      '확인',
+                      style: TextStyle(
+                        fontFamily: 'NanumGothicCoding-Regular',
+                        letterSpacing: 0.5,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         );
@@ -1971,14 +2179,37 @@ class MyPageState extends State<MyPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(
-          '카테고리 선택',
-          style: TextStyle(
-            fontFamily: 'NanumGothicCoding-Regular',
-            letterSpacing: 0.5,
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF81B29A).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                '📂',
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              '카테고리 선택',
+              style: TextStyle(
+                fontFamily: 'NanumGothicCoding-Regular',
+                letterSpacing: 0.5,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF2C2C2C),
+              ),
+            ),
+          ],
         ),
         content: ConstrainedBox(
           constraints: BoxConstraints(
@@ -2008,14 +2239,24 @@ class MyPageState extends State<MyPage> {
           ),
         ),
         actions: [
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF81B29A),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+            ),
             child: const Text(
               '닫기',
               style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  color: Color(0xFF2C2C2C),
+                fontFamily: 'NanumGothicCoding-Regular',
+                letterSpacing: 0.5,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
