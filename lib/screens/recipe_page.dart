@@ -342,7 +342,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
+                              color: Colors.black.withOpacity(0.1),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -416,7 +416,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
+                  color: Colors.black.withOpacity(0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -569,14 +569,14 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        const Color(0xFFF2EFEB).withValues(alpha: 0.9),
-                        const Color(0xFFE8E0D6).withValues(alpha: 0.9),
+                        const Color(0xFFF2EFEB).withOpacity(0.9),
+                        const Color(0xFFE8E0D6).withOpacity(0.9),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
+                        color: Colors.black.withOpacity(0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -609,11 +609,11 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                         width: 120,
                         height: 120,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: Colors.white.withOpacity(0.9),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
+                              color: Colors.black.withOpacity(0.1),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -791,7 +791,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -804,7 +804,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFDEAE71).withValues(alpha: 0.2),
+                      color: const Color(0xFFDEAE71).withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Row(
@@ -903,7 +903,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                                 boxShadow: _currentRecipeIndex > 0
                                     ? [
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.1),
+                                          color: Colors.black.withOpacity(0.1),
                                           blurRadius: 4,
                                           offset: const Offset(0, 2),
                                         ),
@@ -962,7 +962,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                                 boxShadow: _currentRecipeIndex < _recipes.length - 1
                                     ? [
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.1),
+                                          color: Colors.black.withOpacity(0.1),
                                           blurRadius: 4,
                                           offset: const Offset(0, 2),
                                         ),
@@ -1035,12 +1035,12 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                      color: const Color(0xFF81B29A).withOpacity(0.15),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
                     BoxShadow(
-                      color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+                      color: const Color(0xFFE07A5F).withOpacity(0.1),
                       blurRadius: 30,
                       offset: const Offset(0, 4),
                     ),
@@ -1135,12 +1135,12 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+            color: const Color(0xFF81B29A).withOpacity(0.15),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+            color: const Color(0xFFE07A5F).withOpacity(0.1),
             blurRadius: 30,
             offset: const Offset(0, 4),
           ),
@@ -1153,7 +1153,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFE07A5F).withValues(alpha: 0.15),
+              color: const Color(0xFFE07A5F).withOpacity(0.15),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),

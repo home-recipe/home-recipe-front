@@ -169,12 +169,12 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                                color: const Color(0xFF81B29A).withOpacity(0.15),
                                 blurRadius: 20,
                                 offset: const Offset(0, 8),
                               ),
                               BoxShadow(
-                                color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+                                color: const Color(0xFFE07A5F).withOpacity(0.1),
                                 blurRadius: 30,
                                 offset: const Offset(0, 4),
                               ),
@@ -295,41 +295,46 @@ class _LoginPageState extends State<LoginPage> {
     const outlineColor = Color(0xFF8B4513); // Rust brown outline
     const fontSize = 60.0;
     const outlineWidth = 3.0;
+    const padding = outlineWidth + 2.0; // 테두리 여유 공간 확보
     
-    return Stack(
-      children: [
-        // Outline (뒤에 그려짐) - 여러 방향으로 offset하여 outline 효과 생성
-        ...List.generate(8, (index) {
-          final angle = (index * 2 * math.pi) / 8;
-          final offsetX = outlineWidth * math.cos(angle);
-          final offsetY = outlineWidth * math.sin(angle);
-          return Positioned(
-            left: offsetX,
-            top: offsetY,
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.w900,
-                color: outlineColor,
-                letterSpacing: 1.0,
-                fontFamily: 'Arial',
+    return Padding(
+      padding: const EdgeInsets.all(padding),
+      child: Stack(
+        clipBehavior: Clip.none, // 테두리가 잘리지 않도록 설정
+        children: [
+          // Outline (뒤에 그려짐) - 여러 방향으로 offset하여 outline 효과 생성
+          ...List.generate(8, (index) {
+            final angle = (index * 2 * math.pi) / 8;
+            final offsetX = outlineWidth * math.cos(angle);
+            final offsetY = outlineWidth * math.sin(angle);
+            return Positioned(
+              left: offsetX,
+              top: offsetY,
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.w900,
+                  color: outlineColor,
+                  letterSpacing: 1.0,
+                  fontFamily: 'Arial',
+                ),
               ),
+            );
+          }),
+          // Main text (앞에 그려짐)
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w900,
+              color: fillColor,
+              letterSpacing: 1.0,
+              fontFamily: 'Arial',
             ),
-          );
-        }),
-        // Main text (앞에 그려짐)
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w900,
-            color: fillColor,
-            letterSpacing: 1.0,
-            fontFamily: 'Arial',
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -379,7 +379,7 @@ class AdminPageState extends State<AdminPage> {
                     margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? const Color(0xFFE07A5F).withValues(alpha: 0.15)
+                          ? const Color(0xFFE07A5F).withOpacity(0.15)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -655,7 +655,7 @@ class AdminPageState extends State<AdminPage> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
+                              color: Colors.black.withOpacity(0.1),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -722,12 +722,12 @@ class AdminPageState extends State<AdminPage> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color(0xFF81B29A).withValues(alpha: 0.4),
+                            color: const Color(0xFF81B29A).withOpacity(0.4),
                             width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
+                              color: Colors.black.withOpacity(0.05),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -852,12 +852,12 @@ class AdminPageState extends State<AdminPage> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: const Color(0xFF81B29A).withValues(alpha: 0.4),
+                                  color: const Color(0xFF81B29A).withOpacity(0.4),
                                   width: 1.5,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
+                                    color: Colors.black.withOpacity(0.05),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -991,7 +991,7 @@ class AdminPageState extends State<AdminPage> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                    color: const Color(0xFF81B29A).withOpacity(0.15),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -1027,12 +1027,12 @@ class AdminPageState extends State<AdminPage> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                    color: const Color(0xFF81B29A).withOpacity(0.15),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
-                    color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+                    color: const Color(0xFFE07A5F).withOpacity(0.1),
                     blurRadius: 30,
                     offset: const Offset(0, 4),
                   ),
@@ -1047,7 +1047,7 @@ class AdminPageState extends State<AdminPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                      color: const Color(0xFF81B29A).withOpacity(0.15),
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(20),
                         topRight: Radius.circular(20),
@@ -1201,12 +1201,12 @@ class AdminPageState extends State<AdminPage> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF81B29A).withValues(alpha: 0.15),
+                  color: const Color(0xFF81B29A).withOpacity(0.15),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
                 BoxShadow(
-                  color: const Color(0xFFE07A5F).withValues(alpha: 0.1),
+                  color: const Color(0xFFE07A5F).withOpacity(0.1),
                   blurRadius: 30,
                   offset: const Offset(0, 4),
                 ),
@@ -1218,7 +1218,7 @@ class AdminPageState extends State<AdminPage> {
                 Icon(
                   Icons.video_library,
                   size: 64,
-                  color: const Color(0xFFE07A5F).withValues(alpha: 0.7),
+                  color: const Color(0xFFE07A5F).withOpacity(0.7),
                 ),
                 const SizedBox(height: 16),
                 const Text(
@@ -1280,7 +1280,7 @@ class AdminPageState extends State<AdminPage> {
                       color: const Color(0xFFF8F9FA),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color(0xFF81B29A).withValues(alpha: 0.4),
+                        color: const Color(0xFF81B29A).withOpacity(0.4),
                         width: 1.5,
                       ),
                     ),
