@@ -72,43 +72,48 @@ class _StyledLogoText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const outlineColor = Color(0xFF8B4513);
+    final padding = outlineWidth + 2.0; // 테두리 여유 공간 확보
 
-    return Stack(
-      children: [
-        // Outline
-        ...List.generate(8, (index) {
-          final angle = (index * 2 * math.pi) / 8;
-          final offsetX = outlineWidth * math.cos(angle);
-          final offsetY = outlineWidth * math.sin(angle);
-          return Positioned(
-            left: offsetX,
-            top: offsetY,
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.w900,
-                color: outlineColor,
-                letterSpacing: letterSpacing,
-                fontFamily: 'Arial',
-                height: 1.0,
+    return Padding(
+      padding: EdgeInsets.all(padding),
+      child: Stack(
+        clipBehavior: Clip.none, // 테두리가 잘리지 않도록 설정
+        children: [
+          // Outline
+          ...List.generate(8, (index) {
+            final angle = (index * 2 * math.pi) / 8;
+            final offsetX = outlineWidth * math.cos(angle);
+            final offsetY = outlineWidth * math.sin(angle);
+            return Positioned(
+              left: offsetX,
+              top: offsetY,
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.w900,
+                  color: outlineColor,
+                  letterSpacing: letterSpacing,
+                  fontFamily: 'Arial',
+                  height: 1.0,
+                ),
               ),
+            );
+          }),
+          // Main text
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w900,
+              color: fillColor,
+              letterSpacing: letterSpacing,
+              fontFamily: 'Arial',
+              height: 1.0,
             ),
-          );
-        }),
-        // Main text
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w900,
-            color: fillColor,
-            letterSpacing: letterSpacing,
-            fontFamily: 'Arial',
-            height: 1.0,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
