@@ -1847,75 +1847,13 @@ class MyPageState extends State<MyPage> {
                                         : kIsWeb
                                             ? SizedBox(
                                                 height: 280,
-                                                child: SingleChildScrollView(
-                                                  physics: const AlwaysScrollableScrollPhysics(),
-                                                  child: Row(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: List.generate(4, (columnIndex) {
-                                                      // 재료를 4칸에 균등하게 분배
-                                                      final totalIngredients = _currentCategoryIngredients.length;
-                                                      final itemsPerColumn = (totalIngredients / 4).ceil();
-                                                      final startIndex = columnIndex * itemsPerColumn;
-                                                      final endIndex = (startIndex + itemsPerColumn < totalIngredients)
-                                                          ? startIndex + itemsPerColumn
-                                                          : totalIngredients;
-                                                      
-                                                      // startIndex가 유효한 범위인지 확인
-                                                      final ingredientsInColumn = (startIndex < totalIngredients)
-                                                          ? _currentCategoryIngredients.sublist(
-                                                              startIndex,
-                                                              endIndex,
-                                                            )
-                                                          : <IngredientResponse>[];
-                                                      
-                                                      return Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                            left: columnIndex == 0 ? 0 : 8,
-                                                            right: columnIndex == 3 ? 0 : 8,
-                                                          ),
-                                                          child: Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: ingredientsInColumn.map((ingredient) {
-                                                              return MouseRegion(
-                                                                cursor: SystemMouseCursors.click,
-                                                                child: GestureDetector(
-                                                                  onTap: () => _showDeleteConfirmDialog(context, ingredient),
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.only(bottom: 8),
-                                                                    child: Text(
-                                                                      ingredient.name,
-                                                                      style: const TextStyle(
-                                                                        fontFamily: 'NanumGothicCoding-Regular',
-                                                                        letterSpacing: 0.5,
-                                                                        fontSize: 16,
-                                                                        fontWeight: FontWeight.w600,
-                                                                        color: Color(0xFF2C2C2C),
-                                                                      ),
-                                                                      textAlign: TextAlign.left,
-                                                                      maxLines: 1,
-                                                                      overflow: TextOverflow.ellipsis,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            }).toList(),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    }),
-                                                  ),
-                                                ),
-                                              )
-                                            : SizedBox(
-                                                height: 280,
                                                 child: GridView.builder(
                                                   physics: const AlwaysScrollableScrollPhysics(),
                                                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                    crossAxisCount: 2, // 모바일: 2칸
-                                                    crossAxisSpacing: 8,
-                                                    mainAxisSpacing: 10,
-                                                    childAspectRatio: 2.0,
+                                                    crossAxisCount: 4, // 웹: 4칸
+                                                    crossAxisSpacing: 12,
+                                                    mainAxisSpacing: 8,
+                                                    childAspectRatio: 5.0, // 카드를 더 작게
                                                   ),
                                                   itemCount: _currentCategoryIngredients.length,
                                                   itemBuilder: (context, index) {
@@ -1924,19 +1862,98 @@ class MyPageState extends State<MyPage> {
                                                       cursor: SystemMouseCursors.click,
                                                       child: GestureDetector(
                                                         onTap: () => _showDeleteConfirmDialog(context, ingredient),
-                                                        child: Center(
-                                                          child: Text(
-                                                            ingredient.name,
-                                                            style: const TextStyle(
-                                                              fontFamily: 'NanumGothicCoding-Regular',
-                                                              letterSpacing: 0.5,
-                                                              fontSize: 16,
-                                                              fontWeight: FontWeight.w600,
-                                                              color: Color(0xFF2C2C2C),
+                                                        child: Container(
+                                                          padding: const EdgeInsets.symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 6,
+                                                          ),
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius: BorderRadius.circular(10),
+                                                            border: Border.all(
+                                                              color: const Color(0xFF81B29A).withOpacity(0.3),
+                                                              width: 1.5,
                                                             ),
-                                                            textAlign: TextAlign.center,
-                                                            maxLines: 2,
-                                                            overflow: TextOverflow.ellipsis,
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                color: const Color(0xFF81B29A).withOpacity(0.1),
+                                                                blurRadius: 3,
+                                                                offset: const Offset(0, 1),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          child: Center(
+                                                            child: Text(
+                                                              ingredient.name,
+                                                              style: const TextStyle(
+                                                                fontFamily: 'NanumGothicCoding-Regular',
+                                                                letterSpacing: 0.5,
+                                                                fontSize: 14,
+                                                                fontWeight: FontWeight.w600,
+                                                                color: Color(0xFF2C2C2C),
+                                                              ),
+                                                              textAlign: TextAlign.center,
+                                                              maxLines: 1,
+                                                              overflow: TextOverflow.ellipsis,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              )
+                                            : SizedBox(
+                                                height: 280,
+                                                child: GridView.builder(
+                                                  physics: const AlwaysScrollableScrollPhysics(),
+                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: 2, // 모바일: 2칸
+                                                    crossAxisSpacing: 12,
+                                                    mainAxisSpacing: 8,
+                                                    childAspectRatio: 4.5, // 카드를 더 작게
+                                                  ),
+                                                  itemCount: _currentCategoryIngredients.length,
+                                                  itemBuilder: (context, index) {
+                                                    final ingredient = _currentCategoryIngredients[index];
+                                                    return MouseRegion(
+                                                      cursor: SystemMouseCursors.click,
+                                                      child: GestureDetector(
+                                                        onTap: () => _showDeleteConfirmDialog(context, ingredient),
+                                                        child: Container(
+                                                          padding: const EdgeInsets.symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 6,
+                                                          ),
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius: BorderRadius.circular(10),
+                                                            border: Border.all(
+                                                              color: const Color(0xFF81B29A).withOpacity(0.3),
+                                                              width: 1.5,
+                                                            ),
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                color: const Color(0xFF81B29A).withOpacity(0.1),
+                                                                blurRadius: 3,
+                                                                offset: const Offset(0, 1),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          child: Center(
+                                                            child: Text(
+                                                              ingredient.name,
+                                                              style: const TextStyle(
+                                                                fontFamily: 'NanumGothicCoding-Regular',
+                                                                letterSpacing: 0.5,
+                                                                fontSize: 14,
+                                                                fontWeight: FontWeight.w600,
+                                                                color: Color(0xFF2C2C2C),
+                                                              ),
+                                                              textAlign: TextAlign.center,
+                                                              maxLines: 1,
+                                                              overflow: TextOverflow.ellipsis,
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
