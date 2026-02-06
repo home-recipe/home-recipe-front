@@ -7,25 +7,19 @@ import '../models/admin_user_response.dart';
 import '../models/role.dart';
 import 'api_client.dart';
 import 'token_service.dart';
-import '../utils/api_response_parser.dart';
 
 /// 관리자 관련 API 서비스
 class AdminService {
   /// 모든 사용자 조회
-  static Future<ApiResponse<List<AdminUserResponse>>> getAllUsers() async {
-    try {
-      final response = await ApiClient.get<Map<String, dynamic>>(
-        '/api/admin/users',
-        (data) => data,
-      );
-
-      return ApiResponseParser.parseListResponse<AdminUserResponse>(
-        response: response,
-        fromJson: (data) => AdminUserResponse.fromJson(data),
-      );
-    } catch (e) {
-      return ApiClient.networkError<List<AdminUserResponse>>('네트워크 오류가 발생했습니다.');
+  static Future<ApiResponse<List<AdminUserResponse>>> getAllUsers({Role? role}) async {
+    String endpoint = '/api/admin/users';
+    if (role != null) {
+      endpoint = '$endpoint?role=${role.toJson()}';
     }
+    return await ApiClient.getList<AdminUserResponse>(
+      endpoint,
+      (data) => AdminUserResponse.fromJson(data),
+    );
   }
 
   /// 사용자 권한 변경
@@ -51,7 +45,7 @@ class AdminService {
 
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('${ApiClient.baseUrl}/api/videos/video'),
+        Uri.parse('${ApiClient.baseUrl}/api/admin/video'),
       );
 
       request.headers.addAll(headers);
@@ -99,7 +93,7 @@ class AdminService {
         
         request = http.MultipartRequest(
           'POST',
-          Uri.parse('${ApiClient.baseUrl}/api/videos/video'),
+          Uri.parse('${ApiClient.baseUrl}/api/admin/video'),
         );
         request.headers.addAll(newHeaders);
         

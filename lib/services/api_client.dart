@@ -1,24 +1,24 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/browser_client.dart';
 import '../models/api_response.dart';
+import '../config/env_config.dart';
 import 'token_service.dart';
 import '../screens/login_page.dart';
 import 'auth_service.dart';
+import 'http_client_stub.dart'
+    if (dart.library.html) 'http_client_web.dart'
+    if (dart.library.io) 'http_client_io.dart';
 
 /// 공통 API 클라이언트
 /// 인증 에러 처리, 재시도 로직 등을 통합 관리
 class ApiClient {
-  static const String baseUrl = 'http://localhost:8080';
+  static String get baseUrl => EnvConfig.baseUrl;
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   /// Web / Mobile 공통 HTTP Client
-  static http.Client get client => kIsWeb
-      ? (BrowserClient()..withCredentials = true)
-      : http.Client();
+  static http.Client get client => createHttpClient();
 
   /// 공통 헤더 생성
   static Future<Map<String, String>> getHeaders({
@@ -111,8 +111,8 @@ class ApiClient {
 
       // 인증 에러 처리
       final shouldRetry = await handleAuthError(apiResponse);
-      if (shouldRetry && 
-          (apiResponse.response.code == 'AUTH_EXPIRED_TOKEN' || 
+      if (shouldRetry &&
+          (apiResponse.response.code == 'AUTH_EXPIRED_TOKEN' ||
            apiResponse.response.code == 'AUTH_NOT_EXIST_TOKEN')) {
         // 재시도
         response = await client.get(
@@ -127,6 +127,65 @@ class ApiClient {
     } catch (e) {
       return networkError<T>('네트워크 오류가 발생했습니다.');
     }
+  }
+
+  /// GET 요청 실행 - 리스트 응답용 (인증 에러 처리 및 재시도 포함)
+  static Future<ApiResponse<List<T>>> getList<T>(
+    String endpoint,
+    T Function(Map<String, dynamic>) fromJson,
+  ) async {
+    try {
+      var response = await client.get(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await getHeaders(),
+      );
+
+      var json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      var apiResponse = _parseListResponse<T>(json, fromJson);
+
+      // 인증 에러 처리
+      final shouldRetry = await handleAuthError(apiResponse);
+      if (shouldRetry &&
+          (apiResponse.response.code == 'AUTH_EXPIRED_TOKEN' ||
+           apiResponse.response.code == 'AUTH_NOT_EXIST_TOKEN')) {
+        // 재시도
+        response = await client.get(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await getHeaders(),
+        );
+        json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        apiResponse = _parseListResponse<T>(json, fromJson);
+      }
+
+      return apiResponse;
+    } catch (e) {
+      return networkError<List<T>>('네트워크 오류가 발생했습니다.');
+    }
+  }
+
+  /// 리스트 응답 파싱 헬퍼
+  static ApiResponse<List<T>> _parseListResponse<T>(
+    Map<String, dynamic> json,
+    T Function(Map<String, dynamic>) fromJson,
+  ) {
+    final responseJson = json['response'] as Map<String, dynamic>;
+    final dataJson = responseJson['data'];
+
+    List<T> items = [];
+    if (dataJson != null && dataJson is List) {
+      items = dataJson
+          .map((item) => fromJson(item as Map<String, dynamic>))
+          .toList();
+    }
+
+    return ApiResponse<List<T>>(
+      code: json['code'] as int,
+      message: json['message'] as String,
+      response: ResponseDetail<List<T>>(
+        code: responseJson['code'] as String,
+        data: items,
+      ),
+    );
   }
 
   /// POST 요청 실행 (인증 에러 처리 및 재시도 포함)

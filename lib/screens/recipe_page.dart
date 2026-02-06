@@ -637,15 +637,65 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
             animation: _pulseController,
             builder: (context, child) {
               return Opacity(
-                opacity: 0.7 + (_pulseController.value * 0.3),
-                child: const Text(
-                  '맛있는 레시피를 만들고 있어요...',
-                  style: TextStyle(
-                    fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF000000),
+                opacity: 0.85 + (_pulseController.value * 0.15),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withOpacity(0.15),
+                        Colors.white.withOpacity(0.08),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'AI 요리사가 냉장고를 관찰중입니다',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'NanumGothicCoding-Regular',
+                          letterSpacing: 0.5,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '영상 에피타이저 먼저 내어드립니다 🍿',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'NanumGothicCoding-Regular',
+                          letterSpacing: 0.5,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFE07A5F),
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );

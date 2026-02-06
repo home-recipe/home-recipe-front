@@ -81,8 +81,8 @@ class ApiService {
       RecommendationService.getRecommendations();
 
   // AdminService 메서드들
-  static Future<ApiResponse<List<AdminUserResponse>>> getAllUsers() =>
-      AdminService.getAllUsers();
+  static Future<ApiResponse<List<AdminUserResponse>>> getAllUsers({Role? role}) =>
+      AdminService.getAllUsers(role: role);
   
   static Future<ApiResponse<AdminUserResponse>> updateUserRole(int userId, Role role) =>
       AdminService.updateUserRole(userId, role);

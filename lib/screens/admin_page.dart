@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 import '../services/token_service.dart';
 import '../models/admin_user_response.dart';
@@ -31,8 +31,7 @@ class AdminPageState extends State<AdminPage> {
   Role? _selectedRoleFilter;
   bool _isLoadingUsers = false;
   bool _isUploadingVideo = false;
-  PlatformFile? _selectedVideoFile;
-  dynamic _selectedVideoData;
+  XFile? _selectedVideoFile;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey _accountButtonKey = GlobalKey();
   String? _selectedProfileImage;
@@ -61,9 +60,9 @@ class AdminPageState extends State<AdminPage> {
   }
 
   void _onAdminAccessGranted() {
-    // 관리자 권한이 확인되면 자동으로 사용자 목록 불러오기
+    // 관리자 권한이 확인되면 자동으로 사용자 목록 불러오기 (전체 사용자)
     if (_selectedMenu == AdminMenu.userManagement) {
-      _loadUsers();
+      _loadUsers(useFilter: false);
     }
   }
 
@@ -122,17 +121,19 @@ class AdminPageState extends State<AdminPage> {
     }
   }
 
-  Future<void> _loadUsers() async {
+  Future<void> _loadUsers({bool useFilter = true}) async {
     setState(() {
       _isLoadingUsers = true;
     });
 
     try {
-      final response = await ApiService.getAllUsers();
+      // useFilter가 true이고 role 필터가 선택되어 있으면 서버에서 필터링
+      final roleFilter = useFilter ? _selectedRoleFilter : null;
+      final response = await ApiService.getAllUsers(role: roleFilter);
       if (response.code == 200 && response.response.data != null) {
         setState(() {
           _allUsers = response.response.data!;
-          _applyFilter();
+          _filteredUsers = List.from(_allUsers);
           _isLoadingUsers = false;
         });
       } else {
@@ -179,16 +180,6 @@ class AdminPageState extends State<AdminPage> {
     }
   }
 
-  void _applyFilter() {
-    if (_selectedRoleFilter == null) {
-      _filteredUsers = List.from(_allUsers);
-    } else {
-      _filteredUsers = _allUsers
-          .where((user) => user.role == _selectedRoleFilter)
-          .toList();
-    }
-  }
-
   void _onRoleFilterChanged(Role? role) {
     setState(() {
       _selectedRoleFilter = role;
@@ -198,62 +189,12 @@ class AdminPageState extends State<AdminPage> {
 
   Future<void> _pickVideo() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.video,
-        allowMultiple: false,
-      );
+      final ImagePicker picker = ImagePicker();
+      final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
 
-      if (result != null) {
-        final file = result.files.single;
-        
-        // 웹에서는 bytes가, 모바일에서는 path가 필요
-        if (kIsWeb && file.bytes == null) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  '파일을 읽을 수 없습니다.',
-                  style: TextStyle(
-                    fontFamily: 'NanumGothicCoding-Regular',
-                    letterSpacing: 0.5,
-                    fontSize: 14,
-                  ),
-                ),
-                backgroundColor: Colors.red,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-          return;
-        }
-
-        if (!kIsWeb && file.path == null) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  '파일 경로를 가져올 수 없습니다.',
-                  style: TextStyle(
-                    fontFamily: 'NanumGothicCoding-Regular',
-                    letterSpacing: 0.5,
-                    fontSize: 14,
-                  ),
-                ),
-                backgroundColor: Colors.red,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-          return;
-        }
-
+      if (video != null) {
         setState(() {
-          _selectedVideoFile = file;
-          if (kIsWeb) {
-            _selectedVideoData = file.bytes;
-          } else {
-            _selectedVideoData = File(file.path!);
-          }
+          _selectedVideoFile = video;
         });
       }
     } catch (e) {
@@ -277,7 +218,7 @@ class AdminPageState extends State<AdminPage> {
   }
 
   Future<void> _uploadVideo() async {
-    if (_selectedVideoFile == null || _selectedVideoData == null) {
+    if (_selectedVideoFile == null) {
       return;
     }
 
@@ -286,8 +227,9 @@ class AdminPageState extends State<AdminPage> {
     });
 
     try {
+      final File videoFile = File(_selectedVideoFile!.path);
       final response = await ApiService.uploadVideo(
-        _selectedVideoData,
+        videoFile,
         _selectedVideoFile!.name,
       );
 
@@ -299,7 +241,6 @@ class AdminPageState extends State<AdminPage> {
         if (response.code == 200) {
           setState(() {
             _selectedVideoFile = null;
-            _selectedVideoData = null;
           });
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -890,10 +831,9 @@ class AdminPageState extends State<AdminPage> {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                          child: SizedBox(
-                            height: 48,
-                            child: Container(
+                    SizedBox(
+                      height: 48,
+                      child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -979,7 +919,6 @@ class AdminPageState extends State<AdminPage> {
                               ),
                             ),
                           ),
-                        ),
                         ),
                     const SizedBox(height: 8),
                     SizedBox(

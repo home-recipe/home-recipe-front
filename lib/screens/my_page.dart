@@ -7,7 +7,6 @@ import '../models/ingredient_response.dart';
 import '../utils/logout_helper.dart';
 import '../utils/profile_image_helper.dart';
 import 'my_page/my_page_controller.dart';
-import 'admin_page.dart';
 import '../widgets/recook_logo.dart';
 
 class MyPage extends StatefulWidget {
@@ -116,67 +115,16 @@ class MyPageState extends State<MyPage> {
         children: [
           // 왼쪽: 로고
           const RecookLogo(),
-          // 오른쪽에 페이지 관리 버튼과 프로필 아이콘 배치
+          // 오른쪽: 프로필 아이콘
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // ADMIN인 경우에만 페이지 관리 버튼 표시
-              if (_isAdmin && !_isCheckingRole)
-                Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const AdminPage()),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE07A5F),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFE07A5F).withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.settings,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              '페이지 관리',
-                              style: TextStyle(
-                                fontFamily: 'NanumGothicCoding-Regular',
-                                letterSpacing: 0.5,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               // 프로필 아이콘
               MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   key: _accountButtonKey,
-                  onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
+                  onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey, isAdmin: _isAdmin),
                   child: Container(
                     width: 48,
                     height: 48,
@@ -2011,7 +1959,8 @@ class MyPageState extends State<MyPage> {
         builder: (context, constraints) {
           // 카테고리 버튼들의 예상 너비 계산 (모바일/웹 차별화)
           final actualWidth = constraints.maxWidth;
-          final buttonPadding = isWeb ? 32.0 : 20.0; // 모바일 패딩 축소
+          // _buildCategoryButton의 실제 패딩 (horizontal * 2) + border width (1.5 * 2)
+          final buttonPadding = isWeb ? 35.0 : 27.0; // 16*2+3 또는 12*2+3
           final buttonSpacing = 8.0;
           final moreButtonWidth = isWeb ? 80.0 : 65.0; // 더보기 버튼 예상 너비
           final moreButtonSpacing = 8.0;

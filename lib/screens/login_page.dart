@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'signup_page.dart';
 import 'main_navigation.dart';
 import '../models/login_request.dart';
 import '../services/api_service.dart';
-import '../services/token_service.dart';
+import '../config/env_config.dart';
 
 //LoginPage는 상태를 가질 수 있는 화면 위젯이고,
 //실제 상태관리와 UI 갱신은 _LoginPageState가 담당한다.
@@ -147,9 +148,24 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 앱 타이틀 - REC::OOK 스타일
-                _buildRecookTitle(),
-                const SizedBox(height: 80),
+                // 앱 타이틀 - REC::OOK 스타일 (클릭 시 새로고침)
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) => const LoginPage(),
+                          transitionDuration: Duration.zero,
+                          reverseTransitionDuration: Duration.zero,
+                        ),
+                      );
+                    },
+                    child: _buildRecookTitle(),
+                  ),
+                ),
+                const SizedBox(height: 40),
 
                 // 로그인 폼 컨테이너 - 적당한 크기로 중앙 배치
                 ConstrainedBox(
@@ -207,7 +223,7 @@ class _LoginPageState extends State<LoginPage> {
                                 textInputAction: TextInputAction.done,
                                 onSubmitted: (_) => _handleLogin(),
                               ),
-                              const SizedBox(height: 32),
+                              const SizedBox(height: 20),
 
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
@@ -218,51 +234,80 @@ class _LoginPageState extends State<LoginPage> {
                                       foregroundColor: const Color(0xFF81B29A),
                                       textStyle: const TextStyle(
                                         fontFamily: 'NanumGothicCoding-Regular',
-                                        letterSpacing: 0.5,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.3,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 20,
+                                        horizontal: 16,
                                         vertical: 12,
                                       ),
                                     ),
                                     child: const Text('회원가입'),
                                   ),
-                                  const SizedBox(width: 12),
-                                  ElevatedButton(
+                                  TextButton(
                                     onPressed: _isLoading ? null : _handleLogin,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFE07A5F),
-                                      foregroundColor: Colors.white,
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: const Color(0xFFE07A5F),
                                       textStyle: const TextStyle(
                                         fontFamily: 'NanumGothicCoding-Regular',
-                                        letterSpacing: 0.5,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.3,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w900,
                                       ),
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 36,
-                                        vertical: 14,
+                                        horizontal: 16,
+                                        vertical: 12,
                                       ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
-                                      elevation: 3,
                                     ),
                                     child: _isLoading
                                         ? const SizedBox(
-                                            height: 16,
-                                            width: 16,
+                                            height: 14,
+                                            width: 14,
                                             child: CircularProgressIndicator(
                                               strokeWidth: 2,
-                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
                                             ),
                                           )
                                         : const Text('로그인'),
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 28),
+                              // 구분선
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      height: 1,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: Text(
+                                      '또는',
+                                      style: TextStyle(
+                                        fontFamily: 'NanumGothicCoding-Regular',
+                                        fontSize: 13,
+                                        color: Colors.grey.shade500,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      height: 1,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              // 소셜 로그인 버튼들
+                              _buildGoogleLoginButton(),
+                              const SizedBox(height: 12),
+                              _buildKakaoLoginButton(),
                             ],
                           ),
                         ),
@@ -334,6 +379,167 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // OAuth2 로그인 처리
+  Future<void> _handleOAuthLogin(String provider) async {
+    final String url;
+    if (provider == 'google') {
+      url = EnvConfig.googleOAuthUrl;
+    } else if (provider == 'kakao') {
+      url = EnvConfig.kakaoOAuthUrl;
+    } else {
+      return;
+    }
+
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                '브라우저를 열 수 없습니다.',
+                style: TextStyle(
+                  fontFamily: 'NanumGothicCoding-Regular',
+                  letterSpacing: 0.5,
+                  fontSize: 14,
+                ),
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              '로그인 페이지를 열 수 없습니다.',
+              style: TextStyle(
+                fontFamily: 'NanumGothicCoding-Regular',
+                letterSpacing: 0.5,
+                fontSize: 14,
+              ),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  // 구글 로그인 버튼
+  Widget _buildGoogleLoginButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 44,
+      child: OutlinedButton(
+        onPressed: () => _handleOAuthLogin('google'),
+        style: OutlinedButton.styleFrom(
+          backgroundColor: Colors.white,
+          side: BorderSide(color: Colors.grey.shade300, width: 1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 구글 로고
+            Text(
+              'G',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                height: 1.0,
+                foreground: Paint()
+                  ..shader = const LinearGradient(
+                    colors: [
+                      Color(0xFF4285F4), // Google Blue
+                      Color(0xFFEA4335), // Google Red
+                      Color(0xFFFBBC05), // Google Yellow
+                      Color(0xFF34A853), // Google Green
+                    ],
+                    stops: [0.0, 0.33, 0.66, 1.0],
+                  ).createShader(const Rect.fromLTWH(0, 0, 18, 18)),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Google로 계속하기',
+              style: TextStyle(
+                fontFamily: 'NanumGothicCoding-Regular',
+                letterSpacing: 0.3,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2C2C2C),
+                height: 1.0,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 카카오 로그인 버튼
+  Widget _buildKakaoLoginButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 44,
+      child: ElevatedButton(
+        onPressed: () => _handleOAuthLogin('kakao'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFFEE500), // 카카오 노란색
+          foregroundColor: const Color(0xFF191919), // 카카오 검정색
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 카카오 말풍선 아이콘
+            Padding(
+              padding: const EdgeInsets.only(bottom: 1),
+              child: SizedBox(
+                width: 16,
+                height: 16,
+                child: CustomPaint(
+                  painter: KakaoIconPainter(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              '카카오로 계속하기',
+              style: TextStyle(
+                fontFamily: 'NanumGothicCoding-Regular',
+                letterSpacing: 0.3,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF191919),
+                height: 1.0,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -410,5 +616,42 @@ class _LoginPageState extends State<LoginPage> {
       ],
     );
   }
+}
+
+// 카카오 말풍선 아이콘 페인터
+class KakaoIconPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF3C1E1E)
+      ..style = PaintingStyle.fill;
+
+    final w = size.width;
+    final h = size.height;
+
+    final path = Path();
+
+    // 말풍선 본체 (둥근 사각형 느낌의 타원)
+    path.addRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(w * 0.1, h * 0.1, w * 0.8, h * 0.6),
+        Radius.circular(w * 0.35),
+      ),
+    );
+
+    // 말풍선 꼬리 (왼쪽 아래)
+    final tailPath = Path();
+    tailPath.moveTo(w * 0.25, h * 0.6);
+    tailPath.lineTo(w * 0.15, h * 0.85);
+    tailPath.lineTo(w * 0.45, h * 0.65);
+    tailPath.close();
+
+    path.addPath(tailPath, Offset.zero);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 

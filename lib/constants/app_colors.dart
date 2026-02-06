@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 /// 앱 전체에서 사용하는 색상 상수
 class AppColors {
   // Primary Colors

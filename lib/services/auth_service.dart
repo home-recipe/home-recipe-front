@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/browser_client.dart';
 import '../models/api_response.dart';
 import '../models/login_request.dart';
 import '../models/login_response.dart';

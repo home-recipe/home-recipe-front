@@ -62,4 +62,5 @@ Thumbs.db
 
 # Environment
 .env
-.env.*
+.env.*deploy.tar.gz
+deploy.tar.gz

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../screens/login_page.dart';
+import '../screens/admin_page.dart';
 import '../services/api_service.dart';
 import '../services/token_service.dart';
 
 class LogoutHelper {
-  // 로그아웃 메뉴 표시
-  static void showLogoutMenu(BuildContext context, GlobalKey accountButtonKey) {
+  // 로그아웃 메뉴 표시 (ADMIN이면 페이지 관리 메뉴도 표시)
+  static void showLogoutMenu(BuildContext context, GlobalKey accountButtonKey, {bool isAdmin = false}) {
     final RenderBox? renderBox =
         accountButtonKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
@@ -27,12 +28,76 @@ class LogoutHelper {
       color: Colors.white,
       elevation: 12,
       items: [
+        // ADMIN인 경우 페이지 관리 메뉴 표시
+        if (isAdmin)
+          PopupMenuItem(
+            padding: EdgeInsets.zero,
+            height: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AdminPage()),
+                  );
+                },
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF81B29A).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.settings,
+                          size: 16,
+                          color: Color(0xFF81B29A),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        '페이지 관리',
+                        style: TextStyle(
+                          fontFamily: 'NanumGothicCoding-Regular',
+                          letterSpacing: 0.5,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2C2C2C),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        // 로그아웃 메뉴
         PopupMenuItem(
           padding: EdgeInsets.zero,
           height: 0,
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: isAdmin
+                  ? const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    )
+                  : BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFFE07A5F).withOpacity(0.1),
@@ -46,7 +111,12 @@ class LogoutHelper {
                 Navigator.pop(context);
                 handleLogout(context);
               },
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: isAdmin
+                  ? const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    )
+                  : BorderRadius.circular(16),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
@@ -214,4 +284,3 @@ class LogoutHelper {
     );
   }
 }
-
