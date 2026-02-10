@@ -1,7 +1,9 @@
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'screens/login_page.dart';
+import 'screens/login_callback_page.dart';
 import 'screens/main_navigation.dart';
 import 'screens/my_page.dart';
 import 'screens/recipe_page.dart';
@@ -10,6 +12,9 @@ import 'utils/web_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // URL에서 # 제거 (예: /#/login-callback → /login-callback)
+  usePathUrlStrategy();
 
   runApp(const MyApp());
 }
@@ -29,6 +34,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const FontPreloadWrapper(child: LoginPage()),
+        '/login-callback': (context) => const LoginCallbackPage(),
       },
       debugShowCheckedModeBanner: false,
     );

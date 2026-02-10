@@ -17,7 +17,7 @@ class EnvConfig {
   /// - 로컬 개발 (iOS 시뮬레이터): http://localhost:8080
   /// - 실제 기기: http://컴퓨터의 실제 IP:8080 (예: http://192.168.x.x:8080)
   /// - 배포 환경: https://실제서버도메인
-  static const String _baseUrl = 'http://recook-server.site:8080';
+  static const String _baseUrl = 'https://recook.kr';
 
   /// API 기본 URL
   static String get baseUrl => _baseUrl;
