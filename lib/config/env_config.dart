@@ -23,10 +23,10 @@ class EnvConfig {
   static String get baseUrl => _baseUrl;
 
   /// OAuth2 Google 로그인 URL
-  static String get googleOAuthUrl => '$baseUrl/oauth2/authorization/google';
+  static String get googleOAuthUrl => 'https://recook-server.site/oauth2/authorization/google';
 
   /// OAuth2 Kakao 로그인 URL
-  static String get kakaoOAuthUrl => '$baseUrl/oauth2/authorization/kakao';
+  static String get kakaoOAuthUrl => 'https://recook-server.site/oauth2/authorization/kakao';
 
   // ============================================================
   // 디버그 정보
