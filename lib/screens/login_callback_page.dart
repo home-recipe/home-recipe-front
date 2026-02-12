@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../services/token_service.dart';
 import 'main_navigation.dart';
+import 'dart:html' as html;
 
 /// OAuth2 로그인 콜백 페이지
 ///
@@ -28,7 +29,9 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
   Future<void> _processCallback() async {
     try {
       // 현재 URL에서 쿼리 파라미터 추출
-      final uri = Uri.base;
+      final String currentUrl = html.window.location.href; 
+      final Uri uri = Uri.parse(currentUrl);
+      debugPrint('Native Browser URL: $currentUrl');
       final accessToken = uri.queryParameters['accessToken'];
       final refreshToken = uri.queryParameters['refreshToken'];
 
