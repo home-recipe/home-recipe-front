@@ -67,31 +67,49 @@ class AuthService {
   }
 
   /// Refresh Token으로 Access Token 재발급
+  ///
+  /// 플랫폼별 처리:
+  /// - 웹(WEB): refreshToken이 HttpOnly 쿠키로 자동 전송됨 (withCredentials: true)
+  /// - 앱(MOBILE): refreshToken을 Authorization 헤더에 포함하여 전송
   static Future<ApiResponse<AccessTokenResponse>> refreshToken() async {
     try {
-      final refreshTokenValue = await TokenService.getRefreshToken();
-      if (refreshTokenValue == null || refreshTokenValue.isEmpty) {
-        await _forceLogout();
-        return ApiResponse<AccessTokenResponse>(
-          code: 401,
-          message: 'Refresh token이 없습니다.',
-          response: ResponseDetail<AccessTokenResponse>(
-            code: 'AUTH_NOT_EXIST_TOKEN',
-            data: null,
-          ),
+      final http.Response response;
+
+      if (kIsWeb) {
+        // 웹: 쿠키가 자동으로 전송됨 (withCredentials: true)
+        response = await ApiClient.client.post(
+          Uri.parse('${ApiClient.baseUrl}/api/auth/reissue'),
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'X-Client-Type': 'WEB',
+          },
+          encoding: utf8,
+        );
+      } else {
+        // 모바일: refreshToken을 secure storage에서 가져와서 헤더로 전송
+        final refreshTokenValue = await TokenService.getRefreshToken();
+        if (refreshTokenValue == null || refreshTokenValue.isEmpty) {
+          await _forceLogout();
+          return ApiResponse<AccessTokenResponse>(
+            code: 401,
+            message: 'Refresh token이 없습니다.',
+            response: ResponseDetail<AccessTokenResponse>(
+              code: 'AUTH_NOT_EXIST_TOKEN',
+              data: null,
+            ),
+          );
+        }
+
+        response = await ApiClient.client.post(
+          Uri.parse('${ApiClient.baseUrl}/api/auth/reissue'),
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'X-Client-Type': 'MOBILE',
+            'Authorization': 'Bearer $refreshTokenValue',
+          },
+          encoding: utf8,
         );
       }
-
-      // Authorization Bearer 헤더에 refreshToken 넣기
-      final response = await ApiClient.client.post(
-        Uri.parse('${ApiClient.baseUrl}/api/auth/reissue'),
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'X-Client-Type': kIsWeb ? 'WEB' : 'MOBILE',
-          'Authorization': 'Bearer $refreshTokenValue',
-        },
-        encoding: utf8,
-      );
 
       final json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
       final apiResponse = ApiResponse<AccessTokenResponse>.fromJson(

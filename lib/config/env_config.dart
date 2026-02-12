@@ -19,14 +19,22 @@ class EnvConfig {
   /// - 배포 환경: https://실제서버도메인
   static const String _baseUrl = 'https://recook.kr';
 
+  /// OAuth2 서버 URL
+  static const String _oauthServerUrl = 'https://recook-server.site';
+
   /// API 기본 URL
   static String get baseUrl => _baseUrl;
 
-  /// OAuth2 Google 로그인 URL
-  static String get googleOAuthUrl => 'https://recook-server.site/oauth2/authorization/google';
+  /// 클라이언트 타입 (WEB 또는 MOBILE)
+  static String get clientType => kIsWeb ? 'WEB' : 'MOBILE';
 
-  /// OAuth2 Kakao 로그인 URL
-  static String get kakaoOAuthUrl => 'https://recook-server.site/oauth2/authorization/kakao';
+  /// OAuth2 Google 로그인 URL (state 파라미터에 클라이언트 타입 포함)
+  static String get googleOAuthUrl =>
+      '$_oauthServerUrl/oauth2/authorization/google?state=$clientType';
+
+  /// OAuth2 Kakao 로그인 URL (state 파라미터에 클라이언트 타입 포함)
+  static String get kakaoOAuthUrl =>
+      '$_oauthServerUrl/oauth2/authorization/kakao?state=$clientType';
 
   // ============================================================
   // 디버그 정보

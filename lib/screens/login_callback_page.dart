@@ -1,10 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../services/token_service.dart';
 import 'main_navigation.dart';
 
 /// OAuth2 로그인 콜백 페이지
-/// 서버에서 https://recook.kr/login-callback?accessToken=xxx&refreshToken=xxx 형태로 리다이렉트하면
-/// 이 페이지에서 토큰을 파싱하여 저장하고 메인 화면으로 이동합니다.
+///
+/// 플랫폼별 처리:
+/// - 웹(WEB): accessToken만 URL 파라미터로 받음. refreshToken은 HttpOnly 쿠키로 자동 관리
+/// - 앱(MOBILE): accessToken, refreshToken 모두 URL 파라미터로 받아서 secure storage에 저장
 class LoginCallbackPage extends StatefulWidget {
   const LoginCallbackPage({super.key});
 
@@ -30,6 +33,7 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
       final refreshToken = uri.queryParameters['refreshToken'];
 
       debugPrint('OAuth Callback - URI: ${uri.toString()}');
+      debugPrint('OAuth Callback - Platform: ${kIsWeb ? "WEB" : "MOBILE"}');
       debugPrint('OAuth Callback - accessToken: ${accessToken != null ? "exists" : "null"}');
       debugPrint('OAuth Callback - refreshToken: ${refreshToken != null ? "exists" : "null"}');
 
@@ -41,10 +45,27 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
         return;
       }
 
-      // 토큰 저장
+      // accessToken 저장 (공통)
       await TokenService.saveAccessToken(accessToken);
-      if (refreshToken != null && refreshToken.isNotEmpty) {
-        await TokenService.saveRefreshToken(refreshToken);
+
+      // refreshToken 처리 (플랫폼별 분기)
+      if (kIsWeb) {
+        // 웹: refreshToken은 HttpOnly 쿠키로 관리됨
+        // 쿠키는 브라우저가 자동으로 API 요청에 포함시킴 (withCredentials: true)
+        debugPrint('OAuth Callback - Web: refreshToken managed by HttpOnly cookie');
+      } else {
+        // 모바일: refreshToken을 URL 파라미터에서 추출하여 secure storage에 저장
+        if (refreshToken != null && refreshToken.isNotEmpty) {
+          await TokenService.saveRefreshToken(refreshToken);
+          debugPrint('OAuth Callback - Mobile: refreshToken saved to secure storage');
+        } else {
+          // 모바일인데 refreshToken이 없으면 에러
+          setState(() {
+            _isProcessing = false;
+            _errorMessage = '로그인 정보가 불완전합니다.';
+          });
+          return;
+        }
       }
 
       // 기본 사용자 역할 저장 (서버에서 role도 전달한다면 추가 가능)
