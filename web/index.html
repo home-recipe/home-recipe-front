@@ -85,11 +85,13 @@
   </div>
 
   <script>
+    // 서버에서 토큰이 담긴 URL로 리다이렉트시켰을 때, Flutter 엔진이 초기화되면서 URL을 덮어쓰거나 유실하는 상황을 방지
     // OAuth 콜백: Flutter 로드 전 URL 보존 (서버 리다이렉트 시에도 참고용)
     window.__INITIAL_PATH = window.location.pathname;
     window.__INITIAL_HREF = window.location.href;
 
     // 로딩 화면 제거 함수 - Flutter에서 호출
+    // 플러터 앱이 실행 완료된 시점에 Dart코드에서 이 JS 함수 호출하여 로딩창 지움
     window.removeLoadingScreen = function() {
       const loading = document.getElementById('loading');
       if (loading) {
@@ -108,7 +110,10 @@
     {{flutter_js}}
     {{flutter_build_config}}
 
+
+    // 웹 환경에서도 앱과 같은 부드러운 그래픽을 제공하기 위한 설정
     // Flutter 앱 초기화
+    // CanvasKit 렌더링 강제 지정
     _flutter.loader.load({
       onEntrypointLoaded: async function(engineInitializer) {
         // CanvasKit 엔진 초기화
