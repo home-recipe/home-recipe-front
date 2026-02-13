@@ -473,7 +473,6 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                               ),
                             )
                           : Image.asset(
-                              'assets/recipe_icon.png', // 여기에 이미지 경로를 넣으세요
                               width: 112,
                               height: 112,
                               fit: BoxFit.cover,

@@ -83,14 +83,7 @@ class _FontPreloadWrapperState extends State<FontPreloadWrapper> {
 
     // 각 폰트로 텍스트를 렌더링하여 폰트 로드를 트리거
     final fontFamilies = [
-      'DoHyeon',
-      'Cafe24Danjunghae',
-      'Cafe24PROSlimFit',
-      'GowunBatang',
-      'Jua',
-      'NanumBrushScript',
-      'NanumMyeongjo',
-      'NanumGothicCoding-Regular',
+      'NanumGothicCoding-Regular'
     ];
 
     for (final family in fontFamilies) {
