@@ -8,6 +8,7 @@ import 'screens/main_navigation.dart';
 import 'screens/my_page.dart';
 import 'screens/recipe_page.dart';
 import 'services/api_service.dart';
+import 'utils/url_helper.dart' as url_helper;
 import 'utils/web_utils.dart';
 
 void main() async {
@@ -32,6 +33,18 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       initialRoute: '/',
+      onGenerateInitialRoutes: (String initialRoute) {
+        // 웹: window.location.pathname 사용 (OAuth 콜백 라우팅)
+        final path = kIsWeb ? url_helper.getCurrentPath() : initialRoute;
+        if (path == '/login-callback' || path.startsWith('/login-callback')) {
+          return [
+            MaterialPageRoute(builder: (_) => const LoginCallbackPage()),
+          ];
+        }
+        return [
+          MaterialPageRoute(builder: (_) => const FontPreloadWrapper(child: LoginPage())),
+        ];
+      },
       routes: {
         '/': (context) => const FontPreloadWrapper(child: LoginPage()),
         '/login-callback': (context) => const LoginCallbackPage(),

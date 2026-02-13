@@ -85,6 +85,10 @@
   </div>
 
   <script>
+    // OAuth 콜백: Flutter 로드 전 URL 보존 (서버 리다이렉트 시에도 참고용)
+    window.__INITIAL_PATH = window.location.pathname;
+    window.__INITIAL_HREF = window.location.href;
+
     // 로딩 화면 제거 함수 - Flutter에서 호출
     window.removeLoadingScreen = function() {
       const loading = document.getElementById('loading');
