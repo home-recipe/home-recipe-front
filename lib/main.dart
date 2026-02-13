@@ -12,8 +12,10 @@ import 'utils/url_helper.dart' as url_helper;
 import 'utils/web_utils.dart';
 
 void main() async {
+  //Flutter가 위젯을 그릴 준비가 될 때까지 대기
   WidgetsFlutterBinding.ensureInitialized();
 
+  //URL에서 지저분한 해시를 제거
   // URL에서 # 제거 (예: /#/login-callback → /login-callback)
   usePathUrlStrategy();
 
@@ -27,6 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '냉장고 프로젝트',
+      //BuildContext 없이도 어디서든 화면 이동 가능하도록 키 설정
       navigatorKey: ApiService.navigatorKey,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
@@ -34,8 +37,9 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       onGenerateInitialRoutes: (String initialRoute) {
-        // 웹: window.location.pathname 사용 (OAuth 콜백 라우팅)
+        //웹일 경우, 서버가 리다이렉트 시킨 URL 경로를 직접 읽어옴(OAUth2 토큰 유실 방지)
         final path = kIsWeb ? url_helper.getCurrentPath() : initialRoute;
+        //만약 경로가 로그인 콜백이면, 첫 화면을 띄우지 않고 바로 콜백페이지로 이동
         if (path == '/login-callback' || path.startsWith('/login-callback')) {
           return [
             MaterialPageRoute(builder: (_) => const LoginCallbackPage()),

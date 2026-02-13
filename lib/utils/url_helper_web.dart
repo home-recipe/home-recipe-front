@@ -7,5 +7,5 @@ void redirectTo(String url) {
 
 /// 웹에서 현재 경로 반환 (OAuth 콜백 라우팅용)
 String getCurrentPath() {
-  return html.window.location.pathname;
+  return html.window.location.pathname ?? '/'; 
 }
