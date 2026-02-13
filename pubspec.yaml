@@ -39,8 +39,9 @@ flutter:
     - assets/profiles/
     - assets/videos/
     - assets/logos/
+    - assets/fonts/
 
   fonts:
     - family: NanumGothicCoding-Regular
       fonts:
-        - asset: assetsfonts/NanumGothicCoding-Regular.ttf
+        - asset: assets/fonts/NanumGothicCoding-Regular.ttf
