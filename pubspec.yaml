@@ -41,42 +41,6 @@ flutter:
     - assets/logos/
 
   fonts:
-    - family: DoHyeon
-      fonts:
-        - asset: assets/fonts/DoHyeon-Regular.ttf
-
-    - family: Cafe24Danjunghae
-      fonts:
-        - asset: assets/fonts/Cafe24Danjunghae-v2.0.ttf
-
-    - family: Cafe24PROSlimFit
-      fonts:
-        - asset: assets/fonts/Cafe24PROSlimFit.ttf
-
-    - family: GowunBatang
-      fonts:
-        - asset: assets/fonts/GowunBatang-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/GowunBatang-Bold.ttf
-          weight: 700
-
-    - family: Jua
-      fonts:
-        - asset: assets/fonts/Jua-Regular.ttf
-
-    - family: NanumBrushScript
-      fonts:
-        - asset: assets/fonts/NanumBrushScript-Regular.ttf
-
-    - family: NanumMyeongjo
-      fonts:
-        - asset: assets/fonts/NanumMyeongjo-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/NanumMyeongjo-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/NanumMyeongjo-ExtraBold.ttf
-          weight: 800
-
     - family: NanumGothicCoding-Regular
       fonts:
-        - asset: assets/fonts/NanumGothicCoding-Regular.ttf
+        - asset: assetsfonts/NanumGothicCoding-Regular.ttf

@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '냉장고 프로젝트',
+      title: 'REC::OOK',
       //BuildContext 없이도 어디서든 화면 이동 가능하도록 키 설정
       navigatorKey: ApiService.navigatorKey,
       theme: ThemeData(
