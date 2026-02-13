@@ -472,24 +472,10 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                                 ),
                               ),
                             )
-                          : Image.asset(
-                              width: 112,
-                              height: 112,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                // 이미지가 없을 경우 아이콘 표시
-                                return Container(
-                                  width: 112,
-                                  height: 112,
-                                  color: Colors.white,
-                                  padding: const EdgeInsets.all(24),
-                                  child: const Icon(
-                                    Icons.restaurant_menu,
-                                    size: 64,
-                                    color: Color(0xFFE07A5F),
-                                  ),
-                                );
-                              },
+                          : const Icon(
+                              Icons.restaurant,
+                              size: 64,
+                              color: Color(0xFFE07A5F),
                             ),
                 ],
               ),
