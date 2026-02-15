@@ -44,4 +44,4 @@ flutter:
   fonts:
     - family: NanumGothicCoding-Regular
       fonts:
-        - asset: fonts/NanumGothicCoding-Regular.ttf
+        - asset: assets/fonts/NanumGothicCoding-Regular.ttf

@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../services/token_service.dart';
 import 'main_navigation.dart';
-import 'dart:html' as html;
+import '../helpers/url_helper.dart';
 
 /// OAuth2 로그인 콜백 페이지
 ///
@@ -28,8 +28,20 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
 
   Future<void> _processCallback() async {
     try {
-      // 현재 URL에서 쿼리 파라미터 추출
-      final String currentUrl = html.window.location.href; 
+      String currentUrl = '';
+
+      if(kIsWeb) {
+        //웹 브라우저의 주소 가져오기
+        currentUrl = getFullUrl();
+      } else {
+        //모바일은 DeepLink/UniLinks 통해 앱이 실행될 때 URL을 넘겨받는다.
+        debugPrint('Mobile 환경 : DeepLink 처리 필요');
+      }
+
+      if(currentUrl.isEmpty && kIsWeb) {
+        throw Exception('URL 정보를 가져올 수 없습니다.');
+      }
+      
       final Uri uri = Uri.parse(currentUrl);
       debugPrint('Native Browser URL: $currentUrl');
       final accessToken = uri.queryParameters['accessToken'];
@@ -60,7 +72,6 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
         // 모바일: refreshToken을 URL 파라미터에서 추출하여 secure storage에 저장
         if (refreshToken != null && refreshToken.isNotEmpty) {
           await TokenService.saveRefreshToken(refreshToken);
-          debugPrint('OAuth Callback - Mobile: refreshToken saved to secure storage');
         } else {
           // 모바일인데 refreshToken이 없으면 에러
           setState(() {
