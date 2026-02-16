@@ -159,7 +159,7 @@ class LogoutHelper {
   static Future<void> handleLogout(BuildContext context) async {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
@@ -212,7 +212,7 @@ class LogoutHelper {
               children: [
                 Expanded(
                   child: TextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(dialogContext),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
@@ -239,15 +239,17 @@ class LogoutHelper {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
 
                       // 로그아웃 API 호출
                       try {
                         await ApiService.logout();
                       } catch (e) {
                         // 에러가 발생해도 토큰은 삭제하고 로그인 페이지로 이동
-                        await TokenService.clearTokens();
                       }
+
+                      // 성공/실패 관계없이 토큰 삭제
+                      await TokenService.clearTokens();
 
                       if (!context.mounted) return;
 

@@ -19,24 +19,33 @@ class _MainNavigationState extends State<MainNavigation> {
   late int _currentIndex;
   late final List<Widget> _pages;
   final GlobalKey<MyPageState> _myPageKey = GlobalKey<MyPageState>();
+  late final ValueNotifier<int> _tabNotifier;
   int? _hoveredIndex;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    _tabNotifier = ValueNotifier<int>(_currentIndex);
     _pages = [
-      const RecommendationPage(), // Store (추천 레시피) - 인덱스 0
-      const RecipePage(), // Cook (레시피 만들기) - 인덱스 1
+      RecommendationPage(tabNotifier: _tabNotifier, tabIndex: 0), // Store (추천 레시피) - 인덱스 0
+      RecipePage(tabNotifier: _tabNotifier, tabIndex: 1), // Cook (레시피 만들기) - 인덱스 1
       MyPage(key: _myPageKey), // My (재료 관리) - 인덱스 2
     ];
+  }
+
+  @override
+  void dispose() {
+    _tabNotifier.dispose();
+    super.dispose();
   }
 
   void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
     });
-    
+    _tabNotifier.value = index;
+
     // My 탭을 클릭하면 데이터 새로고침
     if (index == 2 && _myPageKey.currentState != null) {
       _myPageKey.currentState!.refreshData();

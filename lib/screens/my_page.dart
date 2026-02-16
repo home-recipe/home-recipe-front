@@ -1859,7 +1859,7 @@ class MyPageState extends State<MyPage> {
                                                     crossAxisCount: 2, // 모바일: 2칸
                                                     crossAxisSpacing: 12,
                                                     mainAxisSpacing: 8,
-                                                    childAspectRatio: 4.5, // 카드를 더 작게
+                                                    childAspectRatio: 3.5, // 카드 높이 확보
                                                   ),
                                                   itemCount: _currentCategoryIngredients.length,
                                                   itemBuilder: (context, index) {
@@ -1871,7 +1871,7 @@ class MyPageState extends State<MyPage> {
                                                         child: Container(
                                                           padding: const EdgeInsets.symmetric(
                                                             horizontal: 10,
-                                                            vertical: 6,
+                                                            vertical: 8,
                                                           ),
                                                           decoration: BoxDecoration(
                                                             color: Colors.white,
@@ -2140,7 +2140,7 @@ class MyPageState extends State<MyPage> {
     );
   }
 
-  // 더보기 다이얼로그
+  // 더보
   void _showMoreCategoriesDialog(BuildContext context, List<String> hiddenCategories, List<String> allCategories) {
     showDialog(
       context: context,

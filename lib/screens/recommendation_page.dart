@@ -16,7 +16,10 @@ enum RecommendationPageState {
 }
 
 class RecommendationPage extends StatefulWidget {
-  const RecommendationPage({super.key});
+  final ValueNotifier<int>? tabNotifier;
+  final int tabIndex;
+
+  const RecommendationPage({super.key, this.tabNotifier, this.tabIndex = 0});
 
   @override
   State<RecommendationPage> createState() => _RecommendationPageState();
@@ -49,7 +52,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
     super.initState();
     // 앱 시작 시 랜덤하게 프로필 사진 선택 (비동기)
     _loadRandomProfileImage();
-    
+
     _loadingController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -58,9 +61,35 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
-    
-    // 초기 화면 비디오 초기화
-    _initializeInitialVideo();
+
+    // 탭 변경 리스너 등록
+    widget.tabNotifier?.addListener(_onTabChanged);
+
+    // 현재 탭이 이 페이지일 때만 비디오 초기화
+    if (widget.tabNotifier == null || widget.tabNotifier!.value == widget.tabIndex) {
+      _initializeInitialVideo();
+    }
+  }
+
+  void _onTabChanged() {
+    if (widget.tabNotifier?.value == widget.tabIndex) {
+      // 이 탭이 보일 때 비디오 초기화
+      if (_initialVideoController == null || !_initialVideoController!.value.isInitialized) {
+        _initializeInitialVideo();
+      }
+    } else {
+      // 다른 탭으로 이동 시 비디오 해제
+      _disposeInitialVideo();
+    }
+  }
+
+  void _disposeInitialVideo() {
+    if (_initialVideoController != null) {
+      _initialVideoController!.pause();
+      _initialVideoController!.dispose();
+      _initialVideoController = null;
+      if (mounted) setState(() {});
+    }
   }
   
   /// 프로필 이미지를 사용자별로 고정된 이미지로 로드
@@ -75,6 +104,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
 
   @override
   void dispose() {
+    widget.tabNotifier?.removeListener(_onTabChanged);
     _loadingController.dispose();
     _pulseController.dispose();
     _videoController?.removeListener(_videoListener);
@@ -113,6 +143,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
       }
       
       await _initialVideoController!.initialize();
+      _initialVideoController!.setVolume(0.0);
       _initialVideoController!.setLooping(true);
       _initialVideoController!.play();
       
@@ -402,8 +433,8 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
         children: [
           // 비디오 또는 아이콘
           Container(
-            width: 112,
-            height: 112,
+            width: 80,
+            height: 80,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
@@ -416,68 +447,36 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
               ],
             ),
             child: ClipOval(
-              child: Stack(
-                children: [
-                  // 흰색 배경 (원 밖 부분을 흰색으로)
-                  Container(
-                    width: 112,
-                    height: 112,
-                    color: Colors.white,
-                  ),
-                  // 비디오 또는 아이콘
-                  _initialVideoController != null && 
-                  _initialVideoController!.value.isInitialized &&
-                  !_isInitialVideoInitializing
-                      ? Stack(
-                          children: [
-                            // 흰색 배경 (비디오가 렌더링되지 않는 부분)
-                            Container(
-                              width: 112,
-                              height: 112,
-                              color: Colors.white,
+              child: Container(
+                width: 80,
+                height: 80,
+                color: Colors.white,
+                child: _initialVideoController != null &&
+                    _initialVideoController!.value.isInitialized &&
+                    !_isInitialVideoInitializing
+                    ? Transform.scale(
+                        scale: 2.0,
+                        child: Center(
+                          child: AspectRatio(
+                            aspectRatio: _initialVideoController!.value.aspectRatio > 0
+                                ? _initialVideoController!.value.aspectRatio
+                                : 1.0,
+                            child: VideoPlayer(_initialVideoController!),
+                          ),
+                        ),
+                      )
+                    : _isInitialVideoInitializing
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
+                              strokeWidth: 3,
                             ),
-                            // 비디오
-                            Center(
-                              child: SizedBox(
-                                width: 112,
-                                height: 112,
-                                child: FittedBox(
-                                  fit: BoxFit.cover,
-                                  child: SizedBox(
-                                    width: _initialVideoController!.value.size.width,
-                                    height: _initialVideoController!.value.size.height,
-                                    child: VideoPlayer(_initialVideoController!),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : _isInitialVideoInitializing
-                          ? Container(
-                              width: 112,
-                              height: 112,
-                              color: Colors.white,
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
-                                  strokeWidth: 3,
-                                ),
-                              ),
-                            )
-                          : Container(
-                              padding: const EdgeInsets.all(24),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.auto_awesome,
-                                size: 64,
-                                color: Color(0xFFE07A5F),
-                              ),
-                            ),
-                ],
+                          )
+                        : const Icon(
+                            Icons.auto_awesome,
+                            size: 48,
+                            color: Color(0xFFE07A5F),
+                          ),
               ),
             ),
           ),
@@ -637,41 +636,47 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                   ),
                   child: Column(
                     children: [
-                      Text(
-                        'AI 요리사가 냉장고를 관찰중입니다',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'NanumGothicCoding-Regular',
-                          letterSpacing: 0.5,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          'AI 요리사가 냉장고를 관찰중입니다',
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontFamily: 'NanumGothicCoding-Regular',
+                            letterSpacing: 0.5,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.5),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        '영상 에피타이저 먼저 내어드립니다 🍿',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'NanumGothicCoding-Regular',
-                          letterSpacing: 0.5,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFFE07A5F),
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          '영상 에피타이저 먼저 내어드립니다 🍿',
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontFamily: 'NanumGothicCoding-Regular',
+                            letterSpacing: 0.5,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFFE07A5F),
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.5),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
