@@ -1,16 +1,21 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../services/token_service.dart';
+import '../services/deep_link_service.dart';
 import 'main_navigation.dart';
-import '../helpers/url_helper.dart';
+import '../utils/url_helper.dart';
 
 /// OAuth2 로그인 콜백 페이지
 ///
 /// 플랫폼별 처리:
 /// - 웹(WEB): accessToken만 URL 파라미터로 받음. refreshToken은 HttpOnly 쿠키로 자동 관리
-/// - 앱(MOBILE): accessToken, refreshToken 모두 URL 파라미터로 받아서 secure storage에 저장
+/// - 앱(MOBILE): accessToken, refreshToken 모두 딥 링크 URL 파라미터로 받아서 secure storage에 저장
 class LoginCallbackPage extends StatefulWidget {
-  const LoginCallbackPage({super.key});
+  /// 앱이 딥 링크로 시작된 경우의 초기 URI
+  final Uri? initialUri;
+
+  const LoginCallbackPage({super.key, this.initialUri});
 
   @override
   State<LoginCallbackPage> createState() => _LoginCallbackPageState();
@@ -19,6 +24,7 @@ class LoginCallbackPage extends StatefulWidget {
 class _LoginCallbackPageState extends State<LoginCallbackPage> {
   bool _isProcessing = true;
   String? _errorMessage;
+  StreamSubscription<Uri>? _deepLinkSubscription;
 
   @override
   void initState() {
@@ -26,24 +32,56 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
     _processCallback();
   }
 
+  @override
+  void dispose() {
+    _deepLinkSubscription?.cancel();
+    super.dispose();
+  }
+
   Future<void> _processCallback() async {
     try {
-      String currentUrl = '';
+      Uri? uri;
 
-      if(kIsWeb) {
-        //웹 브라우저의 주소 가져오기
-        currentUrl = getFullUrl();
+      if (kIsWeb) {
+        // 웹 브라우저의 주소 가져오기
+        final currentUrl = getFullUrl();
+        if (currentUrl.isEmpty) {
+          throw Exception('URL 정보를 가져올 수 없습니다.');
+        }
+        uri = Uri.parse(currentUrl);
+        debugPrint('Web Browser URL: $currentUrl');
       } else {
-        //모바일은 DeepLink/UniLinks 통해 앱이 실행될 때 URL을 넘겨받는다.
-        debugPrint('Mobile 환경 : DeepLink 처리 필요');
+        // 모바일: 딥 링크에서 URI 가져오기
+        if (widget.initialUri != null) {
+          // 앱이 딥 링크로 시작된 경우
+          uri = widget.initialUri;
+          debugPrint('Mobile Deep Link (initial): $uri');
+        } else {
+          // 앱이 이미 실행 중일 때 딥 링크가 들어온 경우 - 스트림에서 대기
+          debugPrint('Mobile: Waiting for deep link...');
+          final completer = Completer<Uri>();
+
+          _deepLinkSubscription = DeepLinkService.instance.deepLinkStream.listen(
+            (Uri incomingUri) {
+              if (DeepLinkService.isLoginCallback(incomingUri) && !completer.isCompleted) {
+                completer.complete(incomingUri);
+              }
+            },
+          );
+
+          // 10초 타임아웃
+          uri = await completer.future.timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => throw Exception('딥 링크 대기 시간이 초과되었습니다.'),
+          );
+          debugPrint('Mobile Deep Link (stream): $uri');
+        }
       }
 
-      if(currentUrl.isEmpty && kIsWeb) {
+      if (uri == null) {
         throw Exception('URL 정보를 가져올 수 없습니다.');
       }
-      
-      final Uri uri = Uri.parse(currentUrl);
-      debugPrint('Native Browser URL: $currentUrl');
+
       final accessToken = uri.queryParameters['accessToken'];
       final refreshToken = uri.queryParameters['refreshToken'];
 

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:home_recipe_front/screens/login_callback_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'signup_page.dart';
 import 'main_navigation.dart';
@@ -8,6 +9,7 @@ import '../models/login_request.dart';
 import '../services/api_service.dart';
 import '../config/env_config.dart';
 import '../utils/url_helper.dart' as url_helper;
+
 
 //LoginPage는 상태를 가질 수 있는 화면 위젯이고,
 //실제 상태관리와 UI 갱신은 _LoginPageState가 담당한다.
@@ -397,51 +399,44 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-      // 웹에서는 window.location.href로 리다이렉션
-      if (kIsWeb) {
+      if(kIsWeb) {
         url_helper.redirectTo(url);
         return;
       }
 
-      // 모바일에서는 외부 브라우저로 열기
       final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
+      if(await canLaunchUrl(uri)) {
         await launchUrl(
           uri,
           mode: LaunchMode.externalApplication,
         );
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                '브라우저를 열 수 없습니다.',
-                style: TextStyle(
-                  fontFamily: 'NanumGothicCoding-Regular',
-                  letterSpacing: 0.5,
-                  fontSize: 14,
-                ),
-              ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
+
+        if(mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const LoginCallbackPage(),
             ),
           );
+        } else {
+          if(mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+              content: Text('브라우저를 열 수 없습니다.'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         }
       }
     } catch (e) {
+      debugPrint('OAuth2 로그인 오류: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-              '로그인 페이지를 열 수 없습니다.',
-              style: TextStyle(
-                fontFamily: 'NanumGothicCoding-Regular',
-                letterSpacing: 0.5,
-                fontSize: 14,
-              ),
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
+              content: Text('로그인 페이지를 열 수 없습니다.'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
           ),
         );
       }

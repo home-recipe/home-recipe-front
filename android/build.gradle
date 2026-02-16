@@ -1,0 +1,30 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+// Provide flutter properties to plugin subprojects that reference flutter.compileSdkVersion
+subprojects { subproject ->
+    subproject.ext.set("flutter", [
+        compileSdkVersion: 35,
+        minSdkVersion: 21,
+        targetSdkVersion: 35,
+        ndkVersion: "26.1.10909125",
+        versionCode: 1,
+        versionName: "1.0"
+    ])
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

@@ -8,6 +8,7 @@ import 'screens/main_navigation.dart';
 import 'screens/my_page.dart';
 import 'screens/recipe_page.dart';
 import 'services/api_service.dart';
+import 'services/deep_link_service.dart';
 import 'utils/url_helper.dart' as url_helper;
 import 'utils/web_utils.dart';
 
@@ -18,6 +19,11 @@ void main() async {
   //URL에서 지저분한 해시를 제거
   // URL에서 # 제거 (예: /#/login-callback → /login-callback)
   usePathUrlStrategy();
+
+  // 모바일에서 딥 링크 서비스 초기화
+  if (!kIsWeb) {
+    await DeepLinkService.instance.init();
+  }
 
   runApp(const MyApp());
 }
@@ -37,13 +43,24 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       onGenerateInitialRoutes: (String initialRoute) {
-        //웹일 경우, 서버가 리다이렉트 시킨 URL 경로를 직접 읽어옴(OAUth2 토큰 유실 방지)
-        final path = kIsWeb ? url_helper.getCurrentPath() : initialRoute;
-        //만약 경로가 로그인 콜백이면, 첫 화면을 띄우지 않고 바로 콜백페이지로 이동
-        if (path == '/login-callback' || path.startsWith('/login-callback')) {
-          return [
-            MaterialPageRoute(builder: (_) => const LoginCallbackPage()),
-          ];
+        // 웹일 경우, 서버가 리다이렉트 시킨 URL 경로를 직접 읽어옴(OAuth2 토큰 유실 방지)
+        if (kIsWeb) {
+          final path = url_helper.getCurrentPath();
+          if (path == '/login-callback' || path.startsWith('/login-callback')) {
+            return [
+              MaterialPageRoute(builder: (_) => const LoginCallbackPage()),
+            ];
+          }
+        } else {
+          // 모바일: 딥 링크로 앱이 시작된 경우 확인
+          final initialLink = DeepLinkService.instance.initialLink;
+          if (initialLink != null && DeepLinkService.isLoginCallback(initialLink)) {
+            return [
+              MaterialPageRoute(
+                builder: (_) => LoginCallbackPage(initialUri: initialLink),
+              ),
+            ];
+          }
         }
         return [
           MaterialPageRoute(builder: (_) => const FontPreloadWrapper(child: LoginPage())),
