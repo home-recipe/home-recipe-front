@@ -16,31 +16,48 @@ import 'package:flutter/material.dart';
 
 /// 인증 관련 API 서비스
 class AuthService {
-  /// 로그인
+  /// 로그인 (PKCE 적용)
+  ///
+  /// 1. code_verifier/code_challenge 생성
+  /// 2. email, password, code_challenge를 서버에 전송
+  /// 3. 서버가 응답한 authorization code로 토큰 교환
   static Future<ApiResponse<LoginResponse>> login(LoginRequest request) async {
     try {
+      // PKCE: code_verifier 생성 및 저장
+      final verifier = PkceService.generateCodeVerifier();
+      final challenge = PkceService.generateCodeChallenge(verifier);
+      await PkceService.saveCodeVerifier(verifier);
+
+      // code_challenge를 포함한 로그인 요청
+      final pkceRequest = LoginRequest(
+        email: request.email,
+        password: request.password,
+        codeChallenge: challenge,
+      );
+
       final response = await ApiClient.post<LoginResponse>(
         '/api/auth/login',
         (data) => LoginResponse.fromJson(data),
-        body: request.toJson(),
+        body: pkceRequest.toJson(),
         includeAuth: false,
       );
 
-      // accessToken, refreshToken, role 저장
+      // 로그인 성공 시 authorization code로 토큰 교환
       if (response.code == 200 && response.response.data != null) {
-        await TokenService.saveAccessToken(
-          response.response.data!.accessToken,
-        );
-        await TokenService.saveRefreshToken(
-          response.response.data!.refreshToken,
-        );
-        await TokenService.saveUserRole(
-          response.response.data!.role.toJson(),
-        );
+        final code = response.response.data!.code;
+        if (code.isEmpty) {
+          await PkceService.deleteCodeVerifier();
+          return ApiClient.networkError<LoginResponse>('인증 코드를 받지 못했습니다.');
+        }
+        await exchangeCodeForTokens(code);
+      } else {
+        // 로그인 실패 시 verifier 정리
+        await PkceService.deleteCodeVerifier();
       }
 
       return response;
     } catch (e) {
+      await PkceService.deleteCodeVerifier();
       return ApiClient.networkError<LoginResponse>('네트워크 오류가 발생했습니다.');
     }
   }
@@ -94,7 +111,7 @@ class AuthService {
     }
 
     await PkceService.deleteCodeVerifier();
-    await TokenService.saveUserRole('USER');
+    await TokenService.saveUserRole(role);
   }
 
   /// 로그아웃

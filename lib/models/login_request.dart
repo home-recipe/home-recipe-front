@@ -1,17 +1,23 @@
 class LoginRequest {
   final String email;
   final String password;
+  final String? codeChallenge;
 
   LoginRequest({
     required this.email,
     required this.password,
+    this.codeChallenge,
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    final json = <String, dynamic>{
       'email': email,
       'password': password,
     };
+    if (codeChallenge != null) {
+      json['code_challenge'] = codeChallenge;
+    }
+    return json;
   }
 }
 
