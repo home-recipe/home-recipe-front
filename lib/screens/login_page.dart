@@ -404,6 +404,11 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
+    print("---------------------------------------");
+    print("🔥 OAuth 요청 URL: $url");
+    print("🔑 생성된 Challenge: $codeChallenge");
+    print("---------------------------------------");
+    
     try {
       if(kIsWeb) {
         url_helper.redirectTo(url);
