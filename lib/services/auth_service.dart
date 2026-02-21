@@ -10,6 +10,7 @@ import '../models/join_response.dart';
 import '../models/user_response.dart';
 import 'token_service.dart';
 import 'api_client.dart';
+import 'pkce_service.dart';
 import '../screens/login_page.dart';
 import 'package:flutter/material.dart';
 
@@ -42,6 +43,58 @@ class AuthService {
     } catch (e) {
       return ApiClient.networkError<LoginResponse>('네트워크 오류가 발생했습니다.');
     }
+  }
+
+  /// OAuth2 PKCE: authorization code를 서버에 보내 토큰 교환
+  static Future<void> exchangeCodeForTokens(String code) async {
+    final verifier = await PkceService.getCodeVerifier();
+    if (verifier == null || verifier.isEmpty) {
+      throw Exception('code_verifier가 존재하지 않습니다.');
+    }
+
+    final response = await ApiClient.client.post(
+      Uri.parse('${ApiClient.baseUrl}/api/auth/token'),
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'X-Client-Type': kIsWeb ? 'WEB' : 'MOBILE',
+      },
+      body: jsonEncode({
+        'code': code,
+        'code_verifier': verifier,
+      }),
+      encoding: utf8,
+    );
+
+    final json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+
+    if (response.statusCode != 200) {
+      final message = json['message'] ?? '토큰 교환에 실패했습니다.';
+      throw Exception(message);
+    }
+
+    final data = json['response']?['data'] as Map<String, dynamic>?;
+    if (data == null) {
+      throw Exception('토큰 응답 데이터가 없습니다.');
+    }
+
+    final accessToken = data['accessToken'] as String?;
+    final refreshToken = data['refreshToken'] as String?;
+
+    if (accessToken == null || accessToken.isEmpty) {
+      throw Exception('accessToken이 응답에 포함되지 않았습니다.');
+    }
+
+    await TokenService.saveAccessToken(accessToken);
+
+    if (!kIsWeb) {
+      if (refreshToken == null || refreshToken.isEmpty) {
+        throw Exception('refreshToken이 응답에 포함되지 않았습니다.');
+      }
+      await TokenService.saveRefreshToken(refreshToken);
+    }
+
+    await PkceService.deleteCodeVerifier();
+    await TokenService.saveUserRole('USER');
   }
 
   /// 로그아웃

@@ -7,6 +7,7 @@ import 'signup_page.dart';
 import 'main_navigation.dart';
 import '../models/login_request.dart';
 import '../services/api_service.dart';
+import '../services/pkce_service.dart';
 import '../config/env_config.dart';
 import '../utils/url_helper.dart' as url_helper;
 
@@ -387,13 +388,18 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // OAuth2 로그인 처리
+  // OAuth2 로그인 처리 (PKCE 적용)
   Future<void> _handleOAuthLogin(String provider) async {
+    // PKCE: code_verifier 생성 → code_challenge 생성 → verifier 저장
+    final codeVerifier = PkceService.generateCodeVerifier();
+    final codeChallenge = PkceService.generateCodeChallenge(codeVerifier);
+    await PkceService.saveCodeVerifier(codeVerifier);
+
     final String url;
     if (provider == 'google') {
-      url = EnvConfig.googleOAuthUrl;
+      url = EnvConfig.googleOAuthUrl(codeChallenge);
     } else if (provider == 'kakao') {
-      url = EnvConfig.kakaoOAuthUrl;
+      url = EnvConfig.kakaoOAuthUrl(codeChallenge);
     } else {
       return;
     }

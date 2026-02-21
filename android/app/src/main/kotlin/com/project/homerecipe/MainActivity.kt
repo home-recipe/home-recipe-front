@@ -1,4 +1,4 @@
-package com.example.home_recipe_front
+package com.project.homerecipe
 
 import io.flutter.embedding.android.FlutterActivity
 

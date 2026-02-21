@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../services/token_service.dart';
 import '../services/deep_link_service.dart';
+import '../services/auth_service.dart';
 import 'main_navigation.dart';
 import '../utils/url_helper.dart';
 
@@ -82,46 +82,22 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
         throw Exception('URL 정보를 가져올 수 없습니다.');
       }
 
-      final accessToken = uri.queryParameters['accessToken'];
-      final refreshToken = uri.queryParameters['refreshToken'];
+      final code = uri.queryParameters['code'];
 
       debugPrint('OAuth Callback - URI: ${uri.toString()}');
       debugPrint('OAuth Callback - Platform: ${kIsWeb ? "WEB" : "MOBILE"}');
-      debugPrint('OAuth Callback - accessToken: ${accessToken != null ? "exists" : "null"}');
-      debugPrint('OAuth Callback - refreshToken: ${refreshToken != null ? "exists" : "null"}');
+      debugPrint('OAuth Callback - code: ${code != null ? "exists" : "null"}');
 
-      if (accessToken == null || accessToken.isEmpty) {
+      if (code == null || code.isEmpty) {
         setState(() {
           _isProcessing = false;
-          _errorMessage = '로그인 정보를 받지 못했습니다.';
+          _errorMessage = '인증 코드를 받지 못했습니다.';
         });
         return;
       }
 
-      // accessToken 저장 (공통)
-      await TokenService.saveAccessToken(accessToken);
-
-      // refreshToken 처리 (플랫폼별 분기)
-      if (kIsWeb) {
-        // 웹: refreshToken은 HttpOnly 쿠키로 관리됨
-        // 쿠키는 브라우저가 자동으로 API 요청에 포함시킴 (withCredentials: true)
-        debugPrint('OAuth Callback - Web: refreshToken managed by HttpOnly cookie');
-      } else {
-        // 모바일: refreshToken을 URL 파라미터에서 추출하여 secure storage에 저장
-        if (refreshToken != null && refreshToken.isNotEmpty) {
-          await TokenService.saveRefreshToken(refreshToken);
-        } else {
-          // 모바일인데 refreshToken이 없으면 에러
-          setState(() {
-            _isProcessing = false;
-            _errorMessage = '로그인 정보가 불완전합니다.';
-          });
-          return;
-        }
-      }
-
-      // 기본 사용자 역할 저장 (서버에서 role도 전달한다면 추가 가능)
-      await TokenService.saveUserRole('USER');
+      // authorization code → 토큰 교환
+      await AuthService.exchangeCodeForTokens(code);
 
       if (!mounted) return;
 

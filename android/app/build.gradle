@@ -1,12 +1,20 @@
+import java.util.Properties
+
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+// plugins 블록 "다음"에 로직을 위치시켜 에러를 방지합니다.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace = "com.example.home_recipe_front"
+    namespace = "com.project.homerecipe"
     compileSdk = 35
     ndkVersion = "26.1.10909125"
 
@@ -20,16 +28,28 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.home_recipe_front"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        applicationId = "com.project.homerecipe"
+        minSdk = 21
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0.0"
+    }
+
+    signingConfigs {
+        release {
+            keyAlias = keystoreProperties['keyAlias']
+            keyPassword = keystoreProperties['keyPassword']
+            // 경로 확인: /Users/mikyeong/upload-keystore.jks 가 맞는지 꼭 확인하세요!
+            storeFile = keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword = keystoreProperties['storePassword']
+        }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
         }
     }
 }

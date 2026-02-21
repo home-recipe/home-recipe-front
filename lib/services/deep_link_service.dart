@@ -5,8 +5,8 @@ import 'package:app_links/app_links.dart';
 /// Deep Link 서비스
 ///
 /// 앱 링크 및 딥 링크를 처리합니다.
-/// - Custom Scheme: recook://login-callback?accessToken=xxx&refreshToken=xxx
-/// - App Links: https://recook.kr/login-callback?accessToken=xxx&refreshToken=xxx
+/// - Custom Scheme: recook://login-callback?code=xxx
+/// - App Links: https://recook.kr/login-callback?code=xxx
 class DeepLinkService {
   DeepLinkService._();
 
@@ -63,12 +63,9 @@ class DeepLinkService {
            uri.toString().contains('login-callback');
   }
 
-  /// URI에서 토큰 추출
-  static Map<String, String?> extractTokens(Uri uri) {
-    return {
-      'accessToken': uri.queryParameters['accessToken'],
-      'refreshToken': uri.queryParameters['refreshToken'],
-    };
+  /// URI에서 authorization code 추출
+  static String? extractCode(Uri uri) {
+    return uri.queryParameters['code'];
   }
 
   /// 서비스 정리

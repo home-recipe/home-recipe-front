@@ -13,15 +13,12 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
-// Provide flutter properties to plugin subprojects that reference flutter.compileSdkVersion
+// 라이브러리들이 참조할 버전 정보를 여기에 정의합니다.
 subprojects { subproject ->
     subproject.ext.set("flutter", [
-        compileSdkVersion: 35,
-        minSdkVersion: 21,
-        targetSdkVersion: 35,
-        ndkVersion: "26.1.10909125",
-        versionCode: 1,
-        versionName: "1.0"
+            compileSdkVersion: 35,
+            minSdkVersion: 21,
+            targetSdkVersion: 35,
     ])
 }
 

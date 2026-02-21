@@ -28,13 +28,13 @@ class EnvConfig {
   /// 클라이언트 타입 (WEB 또는 MOBILE)
   static String get clientType => kIsWeb ? 'WEB' : 'MOBILE';
 
-  /// OAuth2 Google 로그인 URL (state 파라미터에 클라이언트 타입 포함)
-  static String get googleOAuthUrl =>
-      '$_oauthServerUrl/oauth2/authorization/google?state=$clientType';
+  /// OAuth2 Google 로그인 URL (state, challenge 파라미터 포함)
+  static String googleOAuthUrl(String codeChallenge) =>
+      '$_oauthServerUrl/oauth2/authorization/google?state=$clientType&challenge=$codeChallenge';
 
-  /// OAuth2 Kakao 로그인 URL (state 파라미터에 클라이언트 타입 포함)
-  static String get kakaoOAuthUrl =>
-      '$_oauthServerUrl/oauth2/authorization/kakao?state=$clientType';
+  /// OAuth2 Kakao 로그인 URL (state, challenge 파라미터 포함)
+  static String kakaoOAuthUrl(String codeChallenge) =>
+      '$_oauthServerUrl/oauth2/authorization/kakao?state=$clientType&challenge=$codeChallenge';
 
   // ============================================================
   // 디버그 정보
@@ -45,8 +45,8 @@ class EnvConfig {
     if (kDebugMode) {
       print('=== EnvConfig ===');
       print('Base URL: $baseUrl');
-      print('Google OAuth: $googleOAuthUrl');
-      print('Kakao OAuth: $kakaoOAuthUrl');
+      print('Google OAuth: ${googleOAuthUrl("DEBUG")}');
+      print('Kakao OAuth: ${kakaoOAuthUrl("DEBUG")}');
       print('================');
     }
   }
