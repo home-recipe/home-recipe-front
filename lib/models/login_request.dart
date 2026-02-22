@@ -15,7 +15,7 @@ class LoginRequest {
       'password': password,
     };
     if (codeChallenge != null) {
-      json['code_challenge'] = codeChallenge;
+      json['challenge'] = codeChallenge;
     }
     return json;
   }

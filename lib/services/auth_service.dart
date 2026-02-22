@@ -111,7 +111,7 @@ class AuthService {
     }
 
     await PkceService.deleteCodeVerifier();
-    await TokenService.saveUserRole(role);
+    await TokenService.saveUserRole("USER");
   }
 
   /// 로그아웃
