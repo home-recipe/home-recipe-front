@@ -1,0 +1,59 @@
+# 1. 워크플로우(자동화 작업)의 이름을 정합니다.
+name: Flutter Web Deploy 
+
+# 2. 언제 이 로봇을 깨울지 정합니다.
+on:
+  push:
+    branches: [ main ]  # main 브랜치에 코드가 push될 때마다 실행됩니다.
+
+# 3. 로봇이 해야 할 일들을 정의합니다.
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest  # 가상 환경에서 작업을 시작합니다.
+    steps:
+      # [Step 1] GitHub 저장소의 코드를 가져옵니다.
+      - name: 코드 가져오기
+        uses: actions/checkout@v3
+
+      # [Step 2] 플러터 엔진을 설치합니다.
+      - name: 플러터 설정
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # [Step 3] 웹 빌드를 진행합니다.
+      - name: 웹 빌드 시작
+        run: |
+          flutter pub get
+          flutter build web --web-renderer html --release
+
+      # [Step 4] 빌드된 결과물을 미경님의 서버로 전송합니다.
+      - name: 서버로 파일 전송 (SCP)
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "build/web/*"
+          target: "/var/www/html"
+          strip_components: 2 # build/web 폴더 구조를 깎고 알맹이만 전송!
+
+      # [Step 5] 서버 정리 및 Nginx 재시작
+      - name: 서버 정리 및 Nginx 재시작
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # assets/assets 중복 문제 해결
+            if [ -d "/var/www/html/assets/assets" ]; then
+                sudo cp -r /var/www/html/assets/assets/* /var/www/html/assets/
+                sudo rm -rf /var/www/html/assets/assets
+            fi
+
+            # 권한 조정 및 서버 재시작
+            sudo chown -R www-data:www-data /var/www/html
+            sudo chmod -R 755 /var/www/html
+            sudo systemctl restart nginx
+            echo "✨ 배포가 완료되었습니다!"
