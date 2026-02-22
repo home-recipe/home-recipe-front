@@ -25,7 +25,7 @@ jobs:
       - name: 웹 빌드 시작
         run: |
           flutter pub get
-          flutter build web --web-renderer html --release
+          flutter build web --release
 
       # [Step 4] 빌드된 결과물을 미경님의 서버로 전송합니다.
       - name: 서버로 파일 전송 (SCP)
