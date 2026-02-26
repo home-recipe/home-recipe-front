@@ -6,7 +6,6 @@ import 'package:app_links/app_links.dart';
 ///
 /// 앱 링크 및 딥 링크를 처리합니다.
 /// - Custom Scheme: recook://login-callback?code=xxx
-/// - App Links: https://recook.kr/login-callback?code=xxx
 class DeepLinkService {
   DeepLinkService._();
 
@@ -56,7 +55,6 @@ class DeepLinkService {
   /// 딥 링크가 로그인 콜백인지 확인
   static bool isLoginCallback(Uri uri) {
     // Custom scheme: recook://login-callback
-    // App Links: https://recook.kr/login-callback
     final path = uri.path.isEmpty ? uri.host : uri.path;
     return path == 'login-callback' ||
            path == '/login-callback' ||

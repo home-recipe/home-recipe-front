@@ -25,7 +25,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
-            <!-- Deep Link: Custom Scheme (recook://) -->
+            
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -33,7 +33,7 @@
                 <data android:scheme="recook"/>
             </intent-filter>
 
-            <!-- Deep Link: HTTPS App Links (recook.kr) -->
+            
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
