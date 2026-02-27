@@ -78,7 +78,6 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       // HTTP 상태 코드가 200이면 성공
-      // 토큰은 ApiService.login() 내부에서 PKCE 토큰 교환을 통해 저장됨
       if (response.code == 200) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const MainNavigation(initialIndex: 2)),
