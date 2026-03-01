@@ -897,7 +897,10 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
 
     // COOK인 경우: reason과 recipes 모두 표시
     return SingleChildScrollView(
-      child: Column(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Column(
         children: [
           // 헤더
           Padding(
@@ -1167,6 +1170,36 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                       ),
                     ),
         ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 이미지 없거나 로드 실패 시 기본 이미지
+  Widget _buildFallbackImage() {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: const Color(0xFFF2EFEB),
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.restaurant,
+            size: 48,
+            color: Color(0xFFE07A5F),
+          ),
+          SizedBox(height: 8),
+          Text(
+            '이미지를 불러올 수 없습니다',
+            style: TextStyle(
+              fontFamily: 'NanumGothicCoding-Regular',
+              fontSize: 13,
+              color: Color(0xFF999999),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1196,157 +1229,127 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 레시피 이미지 (S3에서 로드)
-          if (recipe.imageUrl != null && recipe.imageUrl!.isNotEmpty)
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-              child: Stack(
-                children: [
-                  Image.network(
-                    recipe.imageUrl!,
-                    width: double.infinity,
-                    height: 200,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        width: double.infinity,
-                        height: 200,
-                        color: const Color(0xFFF2EFEB),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color(0xFFE07A5F),
-                            ),
-                            strokeWidth: 3,
-                          ),
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: double.infinity,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF2EFEB),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
-                          ),
-                        ),
-                        child: const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.restaurant,
-                              size: 40,
-                              color: Color(0xFFE07A5F),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              '이미지를 불러올 수 없습니다',
-                              style: TextStyle(
-                                fontFamily: 'NanumGothicCoding-Regular',
-                                fontSize: 13,
-                                color: Color(0xFF999999),
+          // 레시피 이미지 + 레시피 이름 (오버레이)
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final maxWidth = constraints.maxWidth;
+                final imageWidth = maxWidth > 600 ? 600.0 : maxWidth;
+                return Center(
+                  child: SizedBox(
+                    width: imageWidth,
+                    child: AspectRatio(
+                      aspectRatio: 4 / 3,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // 이미지
+                          if (recipe.imageUrl != null && recipe.imageUrl!.isNotEmpty)
+                            Image.network(
+                              recipe.imageUrl!,
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  color: const Color(0xFFF2EFEB),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded /
+                                              loadingProgress.expectedTotalBytes!
+                                          : null,
+                                      valueColor: const AlwaysStoppedAnimation<Color>(
+                                        Color(0xFFE07A5F),
+                                      ),
+                                      strokeWidth: 3,
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                return _buildFallbackImage();
+                              },
+                            )
+                          else
+                            _buildFallbackImage(),
+                          // 하단 그라데이션 + 레시피 이름
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(16, 32, 16, 14),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.6),
+                                  ],
+                                ),
+                              ),
+                              child: Text(
+                                recipe.recipeName,
+                                style: const TextStyle(
+                                  fontFamily: 'NanumGothicCoding-Regular',
+                                  letterSpacing: 0.5,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black54,
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  // 번호 배지 (이미지 위에 오버레이)
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE07A5F),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
+                          ),
+                          // 번호 배지
+                          Positioned(
+                            top: 12,
+                            left: 12,
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE07A5F),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    fontFamily: 'NanumGothicCoding-Regular',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      child: Center(
-                        child: Text(
-                          '${index + 1}',
-                          style: const TextStyle(
-                            fontFamily: 'NanumGothicCoding-Regular',
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          // 레시피 이름 헤더
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE07A5F).withOpacity(0.15),
-              borderRadius: (recipe.imageUrl == null || recipe.imageUrl!.isEmpty)
-                  ? const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    )
-                  : null,
-            ),
-            child: Row(
-              children: [
-                if (recipe.imageUrl == null || recipe.imageUrl!.isEmpty)
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE07A5F),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${index + 1}',
-                        style: const TextStyle(
-                          fontFamily: 'NanumGothicCoding-Regular',
-                          letterSpacing: 0.5,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                if (recipe.imageUrl == null || recipe.imageUrl!.isEmpty)
-                  const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    recipe.recipeName,
-                    style: const TextStyle(
-                      fontFamily: 'NanumGothicCoding-Regular',
-                      letterSpacing: 0.5,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2C),
-                    ),
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
           // 레시피 내용
