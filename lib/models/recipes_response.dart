@@ -46,11 +46,13 @@ class RecipeDetail {
   final String recipeName;
   final List<String> ingredients;
   final List<String> steps;
+  final String? imageUrl;
 
   RecipeDetail({
     required this.recipeName,
     required this.ingredients,
     required this.steps,
+    this.imageUrl,
   });
 
   factory RecipeDetail.fromJson(Map<String, dynamic> json) {
@@ -62,6 +64,7 @@ class RecipeDetail {
       steps: (json['steps'] as List<dynamic>)
           .map((item) => item as String)
           .toList(),
+      imageUrl: json['imageUrl'] as String?,
     );
   }
 
@@ -70,6 +73,7 @@ class RecipeDetail {
       'recipeName': recipeName,
       'ingredients': ingredients,
       'steps': steps,
+      'imageUrl': imageUrl,
     };
   }
 }

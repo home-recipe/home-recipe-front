@@ -1196,39 +1196,144 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 레시피 이미지 (S3에서 로드)
+          if (recipe.imageUrl != null && recipe.imageUrl!.isNotEmpty)
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+              child: Stack(
+                children: [
+                  Image.network(
+                    recipe.imageUrl!,
+                    width: double.infinity,
+                    height: 200,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        width: double.infinity,
+                        height: 200,
+                        color: const Color(0xFFF2EFEB),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFFE07A5F),
+                            ),
+                            strokeWidth: 3,
+                          ),
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: double.infinity,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF2EFEB),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.restaurant,
+                              size: 40,
+                              color: Color(0xFFE07A5F),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              '이미지를 불러올 수 없습니다',
+                              style: TextStyle(
+                                fontFamily: 'NanumGothicCoding-Regular',
+                                fontSize: 13,
+                                color: Color(0xFF999999),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  // 번호 배지 (이미지 위에 오버레이)
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE07A5F),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${index + 1}',
+                          style: const TextStyle(
+                            fontFamily: 'NanumGothicCoding-Regular',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           // 레시피 이름 헤더
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: const Color(0xFFE07A5F).withOpacity(0.15),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
+              borderRadius: (recipe.imageUrl == null || recipe.imageUrl!.isEmpty)
+                  ? const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    )
+                  : null,
             ),
             child: Row(
               children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE07A5F),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${index + 1}',
-                      style: const TextStyle(
-                        fontFamily: 'NanumGothicCoding-Regular',
-                        letterSpacing: 0.5,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                if (recipe.imageUrl == null || recipe.imageUrl!.isEmpty)
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE07A5F),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${index + 1}',
+                        style: const TextStyle(
+                          fontFamily: 'NanumGothicCoding-Regular',
+                          letterSpacing: 0.5,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
+                if (recipe.imageUrl == null || recipe.imageUrl!.isEmpty)
+                  const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     recipe.recipeName,
@@ -1272,17 +1377,25 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   ],
                 ),
                 const SizedBox(height: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: recipe.ingredients.map((ingredient) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF81B29A).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: const Color(0xFF81B29A).withOpacity(0.3),
+                        ),
+                      ),
                       child: Text(
                         ingredient,
                         style: const TextStyle(
                           fontFamily: 'NanumGothicCoding-Regular',
                           letterSpacing: 0.5,
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF2C2C2C),
                         ),
@@ -1322,8 +1435,8 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                         Container(
                           width: 28,
                           height: 28,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF81B29A),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF81B29A),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
