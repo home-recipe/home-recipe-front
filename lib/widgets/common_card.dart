@@ -24,6 +24,7 @@ class CommonCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor ?? AppColors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.borderRadiusLarge),
+        // Vibrant 테마: Green과 Orange 그림자로 깊이감 표현
         boxShadow: showShadow
             ? [
                 BoxShadow(

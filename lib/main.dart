@@ -5,12 +5,11 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'screens/login_page.dart';
 import 'screens/login_callback_page.dart';
 import 'screens/main_navigation.dart';
-import 'screens/my_page.dart';
-import 'screens/recipe_page.dart';
 import 'services/api_service.dart';
 import 'services/deep_link_service.dart';
 import 'utils/url_helper.dart' as url_helper;
 import 'utils/web_utils.dart';
+import 'constants/app_colors.dart';
 
 void main() async {
   //Flutter가 위젯을 그릴 준비가 될 때까지 대기
@@ -37,8 +36,9 @@ class MyApp extends StatelessWidget {
       title: 'REC::OOK',
       //BuildContext 없이도 어디서든 화면 이동 가능하도록 키 설정
       navigatorKey: ApiService.navigatorKey,
+      // High-Saturation & Vibrant 테마: 새로운 오렌지 컬러를 기본 색상으로 설정
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryOrange),
         useMaterial3: true,
       ),
       initialRoute: '/',
@@ -62,13 +62,15 @@ class MyApp extends StatelessWidget {
             ];
           }
         }
+        // 기본 진입: MainNavigation (홈 탭)
         return [
-          MaterialPageRoute(builder: (_) => const FontPreloadWrapper(child: LoginPage())),
+          MaterialPageRoute(builder: (_) => const FontPreloadWrapper(child: MainNavigation(initialIndex: 0))),
         ];
       },
       routes: {
-        '/': (context) => const FontPreloadWrapper(child: LoginPage()),
+        '/': (context) => const FontPreloadWrapper(child: MainNavigation(initialIndex: 0)),
         '/login-callback': (context) => const LoginCallbackPage(),
+        '/login': (context) => const LoginPage(),
       },
       debugShowCheckedModeBanner: false,
     );

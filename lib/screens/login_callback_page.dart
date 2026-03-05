@@ -5,6 +5,7 @@ import '../services/deep_link_service.dart';
 import '../services/auth_service.dart';
 import 'main_navigation.dart';
 import '../utils/url_helper.dart';
+import '../constants/app_colors.dart';
 
 /// OAuth2 로그인 콜백 페이지
 ///
@@ -131,7 +132,7 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF81B29A)),
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -158,7 +159,7 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
                     style: const TextStyle(
                       fontFamily: 'NanumGothicCoding-Regular',
                       fontSize: 16,
-                      color: Color(0xFF2C2C2C),
+                      color: AppColors.textDark,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -166,7 +167,7 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
                   ElevatedButton(
                     onPressed: _goToLogin,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF81B29A),
+                      backgroundColor: AppColors.primaryGreen,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,

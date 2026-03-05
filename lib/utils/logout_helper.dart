@@ -3,6 +3,7 @@ import '../screens/login_page.dart';
 import '../screens/admin_page.dart';
 import '../services/api_service.dart';
 import '../services/token_service.dart';
+import '../constants/app_colors.dart';
 
 class LogoutHelper {
   // 로그아웃 메뉴 표시 (ADMIN이면 페이지 관리 메뉴도 표시)
@@ -60,13 +61,13 @@ class LogoutHelper {
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF81B29A).withOpacity(0.1),
+                          color: AppColors.primaryGreen.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
                           Icons.settings,
                           size: 16,
-                          color: Color(0xFF81B29A),
+                          color: AppColors.primaryGreen,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -77,7 +78,7 @@ class LogoutHelper {
                           letterSpacing: 0.5,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF2C2C2C),
+                          color: AppColors.textDark,
                         ),
                       ),
                     ],
@@ -100,7 +101,7 @@ class LogoutHelper {
                   : BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFE07A5F).withOpacity(0.1),
+                  color: AppColors.primaryOrange.withOpacity(0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -125,13 +126,13 @@ class LogoutHelper {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE07A5F).withOpacity(0.1),
+                        color: AppColors.primaryOrange.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
                         Icons.logout,
                         size: 16,
-                        color: Color(0xFFE07A5F),
+                        color: AppColors.primaryOrange,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -142,7 +143,7 @@ class LogoutHelper {
                         letterSpacing: 0.5,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF2C2C2C),
+                        color: AppColors.textDark,
                       ),
                     ),
                   ],
@@ -172,7 +173,7 @@ class LogoutHelper {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE07A5F).withOpacity(0.1),
+                  color: AppColors.primaryOrange.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Text(
@@ -188,7 +189,7 @@ class LogoutHelper {
                   letterSpacing: 0.5,
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF2C2C2C),
+                  color: AppColors.textDark,
                 ),
               ),
             ],
@@ -202,7 +203,7 @@ class LogoutHelper {
                 fontFamily: 'NanumGothicCoding-Regular',
                 letterSpacing: 0.5,
                 fontSize: 15,
-                color: Color(0xFF2C2C2C),
+                color: AppColors.textDark,
                 height: 1.5,
               ),
             ),
@@ -259,7 +260,7 @@ class LogoutHelper {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE07A5F),
+                      backgroundColor: AppColors.primaryOrange,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(

@@ -2,12 +2,10 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import '../utils/logout_helper.dart';
-import '../utils/profile_image_helper.dart';
 import '../utils/translation_helper.dart';
 import '../services/api_service.dart';
 import '../models/recommendations_response.dart';
-import '../widgets/recook_logo.dart';
+import '../constants/app_colors.dart';
 
 enum RecommendationPageState {
   initial, // 초기 화면
@@ -26,7 +24,7 @@ class RecommendationPage extends StatefulWidget {
 }
 
 class _RecommendationPageState extends State<RecommendationPage> with TickerProviderStateMixin {
-  final GlobalKey _accountButtonKey = GlobalKey();
+  // 페이지 상태 관리
   RecommendationPageState _pageState = RecommendationPageState.initial;
   List<RecommendationDetail> _recommendations = [];
   late AnimationController _loadingController;
@@ -44,15 +42,9 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
   // 숫자나 영어 파일명 모두 가능 (예: '1', 'cooking', 'recipe_video' 등)
   static const List<String> _availableVideos = ['1', '3', '4', '5', '6'];
   
-  // 프로필 사진 (한 번 선택 후 고정)
-  String? _selectedProfileImage;
-
   @override
   void initState() {
     super.initState();
-    // 앱 시작 시 랜덤하게 프로필 사진 선택 (비동기)
-    _loadRandomProfileImage();
-
     _loadingController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -92,16 +84,6 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
     }
   }
   
-  /// 프로필 이미지를 사용자별로 고정된 이미지로 로드
-  Future<void> _loadRandomProfileImage() async {
-    final image = await ProfileImageHelper.getUserProfileImage();
-    if (mounted) {
-      setState(() {
-        _selectedProfileImage = image;
-      });
-    }
-  }
-
   @override
   void dispose() {
     widget.tabNotifier?.removeListener(_onTabChanged);
@@ -213,13 +195,14 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
         }
         
         await _videoController!.initialize();
+        _videoController!.setVolume(0.0); // 영상 소리 제거
         _videoController!.setLooping(false); // 반복하지 않음
-        
+
         // 리스너 추가 (초기화 후에만)
         _videoController!.addListener(_videoListener);
         _videoController!.addListener(_onVideoEnd);
         _videoListenerAdded = true;
-        
+
         _videoController!.play();
         
         if (mounted) {
@@ -337,74 +320,14 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
 
   // ------------------------------
   // UI 시작
+  // MainNavigation의 AppBar를 사용하므로 별도 헤더 없음
   // ------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _pageState == RecommendationPageState.loading ? Colors.black : Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            // 상단 헤더 (로고 + 계정 아이콘)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // 왼쪽: 로고
-                  const RecookLogo(),
-                  // 오른쪽: 계정 아이콘
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      key: _accountButtonKey,
-                      onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: _selectedProfileImage != null
-                              ? Image.asset(
-                                  _selectedProfileImage!,
-                                  width: 48,
-                                  height: 48,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Icon(
-                                      Icons.account_circle,
-                                      size: 48,
-                                      color: Color(0xFF2C2C2C),
-                                    );
-                                  },
-                                )
-                              : const Icon(
-                                  Icons.account_circle,
-                                  size: 48,
-                                  color: Color(0xFF2C2C2C),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: _buildContent(context),
-            ),
-          ],
-        ),
+        child: _buildContent(context),
       ),
     );
   }
@@ -468,14 +391,14 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                     : _isInitialVideoInitializing
                         ? const Center(
                             child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
+                              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryOrange),
                               strokeWidth: 3,
                             ),
                           )
                         : const Icon(
                             Icons.auto_awesome,
                             size: 48,
-                            color: Color(0xFFE07A5F),
+                            color: AppColors.primaryOrange,
                           ),
               ),
             ),
@@ -484,7 +407,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
           ElevatedButton(
             onPressed: _getRecommendations,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE07A5F),
+              backgroundColor: AppColors.primaryOrange,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               shape: RoundedRectangleBorder(
@@ -547,7 +470,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        const Color(0xFFF2EFEB).withOpacity(0.9),
+                        AppColors.backgroundBeige.withOpacity(0.9),
                         const Color(0xFFE8E0D6).withOpacity(0.9),
                       ],
                     ),
@@ -600,7 +523,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                         child: const Icon(
                           Icons.auto_awesome,
                           size: 64,
-                          color: Color(0xFFDEAE71),
+                          color: AppColors.accentYellow,
                         ),
                       ),
                     );
@@ -668,7 +591,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                             letterSpacing: 0.5,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFFE07A5F),
+                            color: AppColors.primaryOrange,
                             shadows: [
                               Shadow(
                                 color: Colors.black.withOpacity(0.5),
@@ -691,7 +614,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
             width: 40,
             height: 40,
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryOrange),
               strokeWidth: 3,
             ),
           ),
@@ -725,7 +648,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                       letterSpacing: 0.5,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2C),
+                      color: AppColors.textDark,
                     ),
                     maxLines: 1,
                   ),
@@ -752,7 +675,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFE07A5F),
+                  backgroundColor: AppColors.primaryOrange,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   shape: RoundedRectangleBorder(
@@ -775,7 +698,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                       const Icon(
                         Icons.restaurant_menu,
                         size: 64,
-                        color: Color(0xFF2C2C2C),
+                        color: AppColors.textDark,
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -784,7 +707,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                           fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                           fontSize: 18,
-                          color: Color(0xFF2C2C2C),
+                          color: AppColors.textDark,
                         ),
                       ),
                     ],
@@ -813,12 +736,12 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF81B29A).withOpacity(0.15),
+            color: AppColors.primaryGreen.withOpacity(0.15),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: const Color(0xFFE07A5F).withOpacity(0.1),
+            color: AppColors.primaryOrange.withOpacity(0.1),
             blurRadius: 30,
             offset: const Offset(0, 4),
           ),
@@ -831,7 +754,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFF81B29A).withOpacity(0.15),
+              color: AppColors.primaryGreen.withOpacity(0.15),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
@@ -843,7 +766,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF81B29A),
+                    color: AppColors.primaryGreen,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -868,7 +791,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                       letterSpacing: 0.5,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2C),
+                      color: AppColors.textDark,
                     ),
                   ),
                 ),
@@ -887,7 +810,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                     Icon(
                       Icons.shopping_basket,
                       size: 18,
-                      color: Color(0xFF81B29A),
+                      color: AppColors.primaryGreen,
                     ),
                     SizedBox(width: 6),
                     Text(
@@ -897,7 +820,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                         letterSpacing: 0.5,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF2C2C2C),
+                        color: AppColors.textDark,
                       ),
                     ),
                   ],
@@ -910,10 +833,10 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8F9FA),
+                        color: AppColors.backgroundLight,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFF81B29A).withOpacity(0.4),
+                          color: AppColors.primaryGreen.withOpacity(0.4),
                           width: 1.5,
                         ),
                       ),
@@ -923,7 +846,7 @@ class _RecommendationPageState extends State<RecommendationPage> with TickerProv
                           fontFamily: 'NanumGothicCoding-Regular',
                           letterSpacing: 0.5,
                           fontSize: 13,
-                          color: Color(0xFF2C2C2C),
+                          color: AppColors.textDark,
                         ),
                       ),
                     );

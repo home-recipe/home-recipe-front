@@ -2,11 +2,9 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import '../utils/logout_helper.dart';
-import '../utils/profile_image_helper.dart';
 import '../services/api_service.dart';
 import '../models/recipes_response.dart';
-import '../widgets/recook_logo.dart';
+import '../constants/app_colors.dart';
 
 enum RecipePageState {
   initial, // 초기 화면
@@ -25,7 +23,6 @@ class RecipePage extends StatefulWidget {
 }
 
 class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
-  final GlobalKey _accountButtonKey = GlobalKey();
   RecipePageState _pageState = RecipePageState.initial;
   RecipeDecision? _decision;
   String _reason = '';
@@ -38,23 +35,18 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
   bool _videoListenerAdded = false;
   int _currentRecipeIndex = 0;
   final PageController _recipePageController = PageController();
-  
+
   // 초기 화면용 비디오 컨트롤러
   VideoPlayerController? _initialVideoController;
   bool _isInitialVideoInitializing = false;
-  
+
   // 사용 가능한 비디오 파일 목록 (파일명만 지정, 확장자 제외)
   // 숫자나 영어 파일명 모두 가능 (예: '1', 'cooking', 'recipe_video' 등)
   static const List<String> _availableVideos = ['1', '3', '4', '5', '6', '7', '8'];
-  
-  // 프로필 사진 (한 번 선택 후 고정)
-  String? _selectedProfileImage;
 
   @override
   void initState() {
     super.initState();
-    // 앱 시작 시 랜덤하게 프로필 사진 선택 (비동기)
-    _loadRandomProfileImage();
 
     _loadingController = AnimationController(
       vsync: this,
@@ -92,16 +84,6 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
       _initialVideoController!.dispose();
       _initialVideoController = null;
       if (mounted) setState(() {});
-    }
-  }
-  
-  /// 프로필 이미지를 사용자별로 고정된 이미지로 로드
-  Future<void> _loadRandomProfileImage() async {
-    final image = await ProfileImageHelper.getUserProfileImage();
-    if (mounted) {
-      setState(() {
-        _selectedProfileImage = image;
-      });
     }
   }
 
@@ -217,13 +199,14 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
         }
         
         await _videoController!.initialize();
+        _videoController!.setVolume(0.0); // 영상 소리 제거
         _videoController!.setLooping(false); // 반복하지 않음
-        
+
         // 리스너 추가 (초기화 후에만)
         _videoController!.addListener(_videoListener);
         _videoController!.addListener(_onVideoEnd);
         _videoListenerAdded = true;
-        
+
         _videoController!.play();
         
         if (mounted) {
@@ -349,68 +332,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: _pageState == RecipePageState.loading ? Colors.black : Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            // 상단 헤더 (로고 + 계정 아이콘)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // 왼쪽: 로고
-                  const RecookLogo(),
-                  // 오른쪽: 계정 아이콘
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      key: _accountButtonKey,
-                      onTap: () => LogoutHelper.showLogoutMenu(context, _accountButtonKey),
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: _selectedProfileImage != null
-                              ? Image.asset(
-                                  _selectedProfileImage!,
-                                  width: 48,
-                                  height: 48,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Icon(
-                                      Icons.account_circle,
-                                      size: 48,
-                                      color: Color(0xFF2C2C2C),
-                                    );
-                                  },
-                                )
-                              : const Icon(
-                                  Icons.account_circle,
-                                  size: 48,
-                                  color: Color(0xFF2C2C2C),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: _buildContent(context),
-            ),
-          ],
-        ),
+        child: _buildContent(context),
       ),
     );
   }
@@ -475,14 +397,14 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     : _isInitialVideoInitializing
                         ? const Center(
                             child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
+                              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryOrange),
                               strokeWidth: 3,
                             ),
                           )
                         : const Icon(
                             Icons.restaurant,
                             size: 48,
-                            color: Color(0xFFE07A5F),
+                            color: AppColors.primaryOrange,
                           ),
               ),
             ),
@@ -491,7 +413,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
           ElevatedButton(
             onPressed: _createRecipes,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE07A5F),
+              backgroundColor: AppColors.primaryOrange,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               shape: RoundedRectangleBorder(
@@ -560,7 +482,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        const Color(0xFFF2EFEB).withOpacity(0.9),
+                        AppColors.backgroundBeige.withOpacity(0.9),
                         const Color(0xFFE8E0D6).withOpacity(0.9),
                       ],
                     ),
@@ -613,7 +535,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                         child: const Icon(
                           Icons.restaurant,
                           size: 64,
-                          color: Color(0xFFE07A5F),
+                          color: AppColors.primaryOrange,
                         ),
                       ),
                     );
@@ -681,7 +603,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                             letterSpacing: 0.5,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFFE07A5F),
+                            color: AppColors.primaryOrange,
                             shadows: [
                               Shadow(
                                 color: Colors.black.withOpacity(0.5),
@@ -704,7 +626,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
             width: 40,
             height: 40,
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryOrange),
               strokeWidth: 3,
             ),
           ),
@@ -725,7 +647,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
             const Icon(
               Icons.info_outline,
               size: 64,
-              color: Color(0xFF2C2C2C),
+              color: AppColors.textDark,
             ),
             const SizedBox(height: 16),
             const Text(
@@ -734,7 +656,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                 fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                 fontSize: 18,
-                color: Color(0xFF2C2C2C),
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 24),
@@ -750,7 +672,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                 _initializeInitialVideo();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE07A5F),
+                backgroundColor: AppColors.primaryOrange,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -789,7 +711,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   letterSpacing: 0.5,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C2C2C),
+                    color: AppColors.textDark,
                   ),
                 ),
                 Flexible(
@@ -817,7 +739,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE07A5F),
+                      backgroundColor: AppColors.primaryOrange,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       shape: RoundedRectangleBorder(
@@ -851,7 +773,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFDEAE71).withOpacity(0.2),
+                      color: AppColors.accentYellow.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Row(
@@ -859,7 +781,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                         Icon(
                           Icons.delivery_dining,
                           size: 32,
-                          color: Color(0xFFDEAE71),
+                          color: AppColors.accentYellow,
                         ),
                         SizedBox(width: 12),
                         Text(
@@ -869,7 +791,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   letterSpacing: 0.5,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2C2C2C),
+                            color: AppColors.textDark,
                           ),
                         ),
                       ],
@@ -883,7 +805,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                       fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                       fontSize: 18,
-                      color: Color(0xFF2C2C2C),
+                      color: AppColors.textDark,
                       height: 1.6,
                     ),
                   ),
@@ -922,7 +844,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                             letterSpacing: 0.5,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2C2C2C),
+                            color: AppColors.textDark,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -947,7 +869,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: _currentRecipeIndex > 0
-                                    ? const Color(0xFFE07A5F)
+                                    ? AppColors.primaryOrange
                                     : Colors.grey.shade300,
                                 shape: BoxShape.circle,
                                 boxShadow: _currentRecipeIndex > 0
@@ -983,7 +905,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: _currentRecipeIndex == index
-                                    ? const Color(0xFFE07A5F)
+                                    ? AppColors.primaryOrange
                                     : Colors.grey.shade300,
                               ),
                             ),
@@ -1006,7 +928,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: _currentRecipeIndex < _recipes.length - 1
-                                    ? const Color(0xFFE07A5F)
+                                    ? AppColors.primaryOrange
                                     : Colors.grey.shade300,
                                 shape: BoxShape.circle,
                                 boxShadow: _currentRecipeIndex < _recipes.length - 1
@@ -1060,7 +982,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE07A5F),
+                      backgroundColor: AppColors.primaryOrange,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       shape: RoundedRectangleBorder(
@@ -1085,12 +1007,12 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF81B29A).withOpacity(0.15),
+                      color: AppColors.primaryGreen.withOpacity(0.15),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
                     BoxShadow(
-                      color: const Color(0xFFE07A5F).withOpacity(0.1),
+                      color: AppColors.primaryOrange.withOpacity(0.1),
                       blurRadius: 30,
                       offset: const Offset(0, 4),
                     ),
@@ -1102,7 +1024,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     const Icon(
                       Icons.lightbulb_outline,
                       size: 24,
-                      color: Color(0xFF81B29A),
+                      color: AppColors.primaryGreen,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1112,7 +1034,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                           fontFamily: 'NanumGothicCoding-Regular',
                     letterSpacing: 0.5,
                           fontSize: 16,
-                          color: Color(0xFF2C2C2C),
+                          color: AppColors.textDark,
                           height: 1.5,
                         ),
                       ),
@@ -1131,7 +1053,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                       const Icon(
                         Icons.restaurant_menu,
                         size: 64,
-                        color: Color(0xFF2C2C2C),
+                        color: AppColors.textDark,
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -1140,7 +1062,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                           fontFamily: 'NanumGothicCoding-Regular',
                     letterSpacing: 0.5,
                           fontSize: 18,
-                          color: Color(0xFF2C2C2C),
+                          color: AppColors.textDark,
                         ),
                       ),
                     ],
@@ -1181,14 +1103,14 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: const Color(0xFFF2EFEB),
+      color: AppColors.backgroundBeige,
       child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.restaurant,
             size: 48,
-            color: Color(0xFFE07A5F),
+            color: AppColors.primaryOrange,
           ),
           SizedBox(height: 8),
           Text(
@@ -1215,12 +1137,12 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF81B29A).withOpacity(0.15),
+            color: AppColors.primaryGreen.withOpacity(0.15),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: const Color(0xFFE07A5F).withOpacity(0.1),
+            color: AppColors.primaryOrange.withOpacity(0.1),
             blurRadius: 30,
             offset: const Offset(0, 4),
           ),
@@ -1257,7 +1179,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                               loadingBuilder: (context, child, loadingProgress) {
                                 if (loadingProgress == null) return child;
                                 return Container(
-                                  color: const Color(0xFFF2EFEB),
+                                  color: AppColors.backgroundBeige,
                                   child: Center(
                                     child: CircularProgressIndicator(
                                       value: loadingProgress.expectedTotalBytes != null
@@ -1265,7 +1187,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                                               loadingProgress.expectedTotalBytes!
                                           : null,
                                       valueColor: const AlwaysStoppedAnimation<Color>(
-                                        Color(0xFFE07A5F),
+                                        AppColors.primaryOrange,
                                       ),
                                       strokeWidth: 3,
                                     ),
@@ -1321,7 +1243,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                               width: 36,
                               height: 36,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE07A5F),
+                                color: AppColors.primaryOrange,
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
@@ -1364,7 +1286,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     Icon(
                       Icons.shopping_basket,
                       size: 20,
-                      color: Color(0xFF81B29A),
+                      color: AppColors.primaryGreen,
                     ),
                     SizedBox(width: 8),
                     Text(
@@ -1374,7 +1296,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                         letterSpacing: 0.5,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF2C2C2C),
+                        color: AppColors.textDark,
                       ),
                     ),
                   ],
@@ -1387,10 +1309,10 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF81B29A).withOpacity(0.1),
+                        color: AppColors.primaryGreen.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color(0xFF81B29A).withOpacity(0.3),
+                          color: AppColors.primaryGreen.withOpacity(0.3),
                         ),
                       ),
                       child: Text(
@@ -1400,7 +1322,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                           letterSpacing: 0.5,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF2C2C2C),
+                          color: AppColors.textDark,
                         ),
                       ),
                     );
@@ -1413,7 +1335,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                     Icon(
                       Icons.restaurant_menu,
                       size: 20,
-                      color: Color(0xFF81B29A),
+                      color: AppColors.primaryGreen,
                     ),
                     SizedBox(width: 8),
                     Text(
@@ -1423,7 +1345,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                         letterSpacing: 0.5,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF2C2C2C),
+                        color: AppColors.textDark,
                       ),
                     ),
                   ],
@@ -1439,7 +1361,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                           width: 28,
                           height: 28,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF81B29A),
+                            color: AppColors.primaryGreen,
                             shape: BoxShape.circle,
                           ),
                           child: Center(
@@ -1463,7 +1385,7 @@ class _RecipePageState extends State<RecipePage> with TickerProviderStateMixin {
                               fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                               fontSize: 16,
-                              color: Color(0xFF2C2C2C),
+                              color: AppColors.textDark,
                               height: 1.5,
                             ),
                           ),

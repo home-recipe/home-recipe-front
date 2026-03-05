@@ -10,6 +10,7 @@ import '../services/api_service.dart';
 import '../services/pkce_service.dart';
 import '../config/env_config.dart';
 import '../utils/url_helper.dart' as url_helper;
+import '../constants/app_colors.dart';
 
 
 //LoginPage는 상태를 가질 수 있는 화면 위젯이고,
@@ -79,8 +80,9 @@ class _LoginPageState extends State<LoginPage> {
 
       // HTTP 상태 코드가 200이면 성공
       if (response.code == 200) {
+        // 로그인 성공 후 MainNavigation으로 이동 (홈 탭)
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const MainNavigation(initialIndex: 2)),
+          MaterialPageRoute(builder: (_) => const MainNavigation(initialIndex: 0)),
           (_) => false,
         );
       } else {
@@ -144,7 +146,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // Vibrant 테마: 배경색을 앱 컬러로 통일
+      backgroundColor: AppColors.backgroundWhite,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -175,26 +178,28 @@ class _LoginPageState extends State<LoginPage> {
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: DefaultTextStyle(
+                        // 기본 텍스트 스타일: Vibrant 테마의 진한 텍스트 컬러 사용
                         style: const TextStyle(
                           fontFamily: 'NanumGothicCoding-Regular',
                   letterSpacing: 0.5,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF2C2C2C),
+                          color: AppColors.textDark,
                         ),
                         child: Container(
                           padding: const EdgeInsets.all(28.0),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.backgroundWhite,
                             borderRadius: BorderRadius.circular(24),
+                            // Vibrant 테마: Green과 Orange 그림자로 깊이감 표현
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF81B29A).withOpacity(0.15),
+                                color: AppColors.primaryGreen.withOpacity(0.15),
                                 blurRadius: 20,
                                 offset: const Offset(0, 8),
                               ),
                               BoxShadow(
-                                color: const Color(0xFFE07A5F).withOpacity(0.1),
+                                color: AppColors.primaryOrange.withOpacity(0.1),
                                 blurRadius: 30,
                                 offset: const Offset(0, 4),
                               ),
@@ -232,10 +237,11 @@ class _LoginPageState extends State<LoginPage> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
+                                  // 회원가입 버튼: Vibrant 테마의 그린 컬러 사용
                                   TextButton(
                                     onPressed: _handleSignUp,
                                     style: TextButton.styleFrom(
-                                      foregroundColor: const Color(0xFF81B29A),
+                                      foregroundColor: AppColors.primaryGreen,
                                       textStyle: const TextStyle(
                                         fontFamily: 'NanumGothicCoding-Regular',
                                         letterSpacing: 0.3,
@@ -249,10 +255,11 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                     child: const Text('회원가입'),
                                   ),
+                                  // 로그인 버튼: Vibrant 테마의 오렌지 컬러 사용
                                   TextButton(
                                     onPressed: _isLoading ? null : _handleLogin,
                                     style: TextButton.styleFrom(
-                                      foregroundColor: const Color(0xFFE07A5F),
+                                      foregroundColor: AppColors.primaryOrange,
                                       textStyle: const TextStyle(
                                         fontFamily: 'NanumGothicCoding-Regular',
                                         letterSpacing: 0.3,
@@ -268,9 +275,10 @@ class _LoginPageState extends State<LoginPage> {
                                         ? const SizedBox(
                                             height: 14,
                                             width: 14,
+                                            // 로딩 인디케이터: 오렌지 컬러
                                             child: CircularProgressIndicator(
                                               strokeWidth: 2,
-                                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
+                                              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryOrange),
                                             ),
                                           )
                                         : const Text('로그인'),
@@ -326,26 +334,47 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // REC::OOK 스타일 타이틀 위젯
+  // Vibrant 테마: 그라데이션 효과가 적용된 로고 사용
   Widget _buildRecookTitle() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // REC::
-        _buildStyledText('REC::', const Color(0xFFE07A5F)),
-        // OOK
-        _buildStyledText('OOK', const Color(0xFF81B29A)),
+        // REC:: - Orange → Pink 그라데이션
+        _buildStyledText(
+          'REC::',
+          useGradient: true,
+          gradientColors: const [
+            AppColors.gradientOrangeStart,
+            AppColors.gradientOrangeEnd,
+          ],
+        ),
+        // OOK - Green 그라데이션
+        _buildStyledText(
+          'OOK',
+          useGradient: true,
+          gradientColors: const [
+            AppColors.gradientGreenStart,
+            AppColors.gradientGreenEnd,
+          ],
+        ),
       ],
     );
   }
 
-  // 스타일이 적용된 텍스트 위젯 (outline 포함)
-  Widget _buildStyledText(String text, Color fillColor) {
-    const outlineColor = Color(0xFF8B4513); // Rust brown outline
+  // 스타일이 적용된 텍스트 위젯 (outline 및 그라데이션 포함)
+  Widget _buildStyledText(
+    String text, {
+    Color? fillColor,
+    bool useGradient = false,
+    List<Color>? gradientColors,
+  }) {
+    // Vibrant 테마: 로고 아웃라인을 선명한 Blue Grey 900으로 변경
+    const outlineColor = AppColors.logoOutline;
     const fontSize = 60.0;
     const outlineWidth = 3.0;
     const padding = outlineWidth + 2.0; // 테두리 여유 공간 확보
-    
+
     return Padding(
       padding: const EdgeInsets.all(padding),
       child: Stack(
@@ -361,7 +390,7 @@ class _LoginPageState extends State<LoginPage> {
               top: offsetY,
               child: Text(
                 text,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: fontSize,
                   fontWeight: FontWeight.w900,
                   color: outlineColor,
@@ -371,17 +400,36 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           }),
-          // Main text (앞에 그려짐)
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.w900,
-              color: fillColor,
-              letterSpacing: 1.0,
-              fontFamily: 'Arial',
-            ),
-          ),
+          // Main text (앞에 그려짐) - 그라데이션 또는 단색
+          useGradient && gradientColors != null && gradientColors.length >= 2
+              ? ShaderMask(
+                  // 그라데이션 효과 적용
+                  shaderCallback: (bounds) => LinearGradient(
+                    colors: gradientColors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ).createShader(bounds),
+                  child: Text(
+                    text,
+                    style: const TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white, // ShaderMask를 위한 베이스 컬러
+                      letterSpacing: 1.0,
+                      fontFamily: 'Arial',
+                    ),
+                  ),
+                )
+              : Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w900,
+                    color: fillColor ?? AppColors.primaryOrange,
+                    letterSpacing: 1.0,
+                    fontFamily: 'Arial',
+                  ),
+                ),
         ],
       ),
     );
@@ -454,6 +502,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // 구글 로그인 버튼
+  // 구글 브랜드 컬러는 변경하지 않음 (브랜드 가이드라인 준수)
   Widget _buildGoogleLoginButton() {
     return SizedBox(
       width: double.infinity,
@@ -461,7 +510,7 @@ class _LoginPageState extends State<LoginPage> {
       child: OutlinedButton(
         onPressed: () => _handleOAuthLogin('google'),
         style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.backgroundWhite,
           side: BorderSide(color: Colors.grey.shade300, width: 1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -472,7 +521,7 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 구글 로고
+            // 구글 로고 - 브랜드 컬러 유지
             Text(
               'G',
               style: TextStyle(
@@ -499,7 +548,7 @@ class _LoginPageState extends State<LoginPage> {
                 letterSpacing: 0.3,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF2C2C2C),
+                color: AppColors.textDark,
                 height: 1.0,
               ),
             ),
@@ -510,6 +559,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // 카카오 로그인 버튼
+  // 카카오 브랜드 컬러는 변경하지 않음 (브랜드 가이드라인 준수)
   Widget _buildKakaoLoginButton() {
     return SizedBox(
       width: double.infinity,
@@ -517,8 +567,8 @@ class _LoginPageState extends State<LoginPage> {
       child: ElevatedButton(
         onPressed: () => _handleOAuthLogin('kakao'),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFFEE500), // 카카오 노란색
-          foregroundColor: const Color(0xFF191919), // 카카오 검정색
+          backgroundColor: const Color(0xFFFEE500), // 카카오 노란색 (브랜드 컬러 유지)
+          foregroundColor: const Color(0xFF191919), // 카카오 검정색 (브랜드 컬러 유지)
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -558,6 +608,8 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  // 텍스트 필드 위젯
+  // Vibrant 테마: 새로운 컬러 시스템 적용
   Widget _buildTextField({
     required TextEditingController controller,
     required FocusNode focusNode,
@@ -571,12 +623,13 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // 라벨: 진한 텍스트 컬러 사용
         Text(
           label,
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF2C2C2C),
+            color: AppColors.textDark,
             letterSpacing: 0.2,
           ),
         ),
@@ -589,7 +642,7 @@ class _LoginPageState extends State<LoginPage> {
           onSubmitted: onSubmitted,
           style: const TextStyle(
             fontSize: 16,
-            color: Color(0xFF2C2C2C),
+            color: AppColors.textDark,
           ),
           decoration: InputDecoration(
             hintText: hintText,
@@ -597,9 +650,10 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.grey.shade400,
               fontSize: 15,
             ),
-            prefixIcon: Icon(icon, color: const Color(0xFF81B29A), size: 22),
+            // 아이콘: Vibrant 그린 컬러 사용
+            prefixIcon: Icon(icon, color: AppColors.primaryGreen, size: 22),
             filled: true,
-            fillColor: const Color(0xFFF8F9FA),
+            fillColor: AppColors.backgroundLight,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
@@ -614,10 +668,11 @@ class _LoginPageState extends State<LoginPage> {
                 width: 1.5,
               ),
             ),
+            // 포커스 시: Vibrant 그린 컬러로 테두리 강조
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(
-                color: Color(0xFF81B29A),
+                color: AppColors.primaryGreen,
                 width: 2.5,
               ),
             ),

@@ -39,6 +39,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/front/
     - assets/profiles/
     - assets/videos/
     - assets/logos/

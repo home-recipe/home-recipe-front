@@ -9,6 +9,7 @@ import '../models/role.dart';
 import '../utils/logout_helper.dart';
 import '../utils/profile_image_helper.dart';
 import '../widgets/recook_logo.dart';
+import '../constants/app_colors.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -320,7 +321,7 @@ class AdminPageState extends State<AdminPage> {
                     margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? const Color(0xFFE07A5F).withOpacity(0.15)
+                          ? AppColors.primaryOrange.withOpacity(0.15)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -337,8 +338,8 @@ class AdminPageState extends State<AdminPage> {
                           fontSize: 16,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                           color: isSelected
-                              ? const Color(0xFFE07A5F)
-                              : const Color(0xFF2C2C2C),
+                              ? AppColors.primaryOrange
+                              : AppColors.textDark,
                         ),
                       ),
                       onTap: () {
@@ -378,7 +379,7 @@ class AdminPageState extends State<AdminPage> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE07A5F).withOpacity(0.1),
+                      color: AppColors.primaryOrange.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
@@ -394,7 +395,7 @@ class AdminPageState extends State<AdminPage> {
                       letterSpacing: 0.5,
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF2C2C2C),
+                      color: AppColors.textDark,
                     ),
                   ),
                 ],
@@ -409,19 +410,19 @@ class AdminPageState extends State<AdminPage> {
                       fontFamily: 'NanumGothicCoding-Regular',
                       letterSpacing: 0.5,
                       fontSize: 14,
-                      color: Color(0xFF2C2C2C),
+                      color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 20),
                   RadioListTile<Role>(
-                    activeColor: const Color(0xFFE07A5F),
+                    activeColor: AppColors.primaryOrange,
                     title: const Text(
                       'ADMIN',
                       style: TextStyle(
                         fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
-                        color: Color(0xFF2C2C2C),
+                        color: AppColors.textDark,
                       ),
                     ),
                     value: Role.ADMIN,
@@ -433,14 +434,14 @@ class AdminPageState extends State<AdminPage> {
                     },
                   ),
                   RadioListTile<Role>(
-                    activeColor: const Color(0xFFE07A5F),
+                    activeColor: AppColors.primaryOrange,
                     title: const Text(
                       'USER',
                       style: TextStyle(
                         fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
-                        color: Color(0xFF2C2C2C),
+                        color: AppColors.textDark,
                       ),
                     ),
                     value: Role.USER,
@@ -490,7 +491,7 @@ class AdminPageState extends State<AdminPage> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE07A5F),
+                          backgroundColor: AppColors.primaryOrange,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -590,7 +591,7 @@ class AdminPageState extends State<AdminPage> {
         backgroundColor: Colors.white,
         body: const Center(
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryOrange),
           ),
         ),
       );
@@ -619,7 +620,7 @@ class AdminPageState extends State<AdminPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.menu, color: Color(0xFF2C2C2C)),
+                          icon: const Icon(Icons.menu, color: AppColors.textDark),
                           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
@@ -660,14 +661,14 @@ class AdminPageState extends State<AdminPage> {
                                     return const Icon(
                                       Icons.account_circle,
                                       size: 48,
-                                      color: Color(0xFF2C2C2C),
+                                      color: AppColors.textDark,
                                     );
                                   },
                                 )
                               : const Icon(
                                   Icons.account_circle,
                                   size: 48,
-                                  color: Color(0xFF2C2C2C),
+                                  color: AppColors.textDark,
                                 ),
                         ),
                       ),
@@ -710,7 +711,7 @@ class AdminPageState extends State<AdminPage> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color(0xFF81B29A).withOpacity(0.4),
+                            color: AppColors.primaryGreen.withOpacity(0.4),
                             width: 1.5,
                           ),
                           boxShadow: [
@@ -729,7 +730,7 @@ class AdminPageState extends State<AdminPage> {
                             fontFamily: 'NanumGothicCoding-Regular',
                             letterSpacing: 0.5,
                             fontSize: 15,
-                            color: Color(0xFF2C2C2C),
+                            color: AppColors.textDark,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -742,7 +743,7 @@ class AdminPageState extends State<AdminPage> {
                                 fontFamily: 'NanumGothicCoding-Regular',
                                 letterSpacing: 0.5,
                                 fontSize: 15,
-                                color: Color(0xFF2C2C2C),
+                                color: AppColors.textDark,
                               ),
                             ),
                           ),
@@ -754,7 +755,7 @@ class AdminPageState extends State<AdminPage> {
                                 fontFamily: 'NanumGothicCoding-Regular',
                                 letterSpacing: 0.5,
                                 fontSize: 15,
-                                color: Color(0xFF2C2C2C),
+                                color: AppColors.textDark,
                               ),
                             ),
                           ),
@@ -766,7 +767,7 @@ class AdminPageState extends State<AdminPage> {
                                 fontFamily: 'NanumGothicCoding-Regular',
                                 letterSpacing: 0.5,
                                 fontSize: 15,
-                                color: Color(0xFF2C2C2C),
+                                color: AppColors.textDark,
                               ),
                             ),
                           ),
@@ -777,7 +778,7 @@ class AdminPageState extends State<AdminPage> {
                         underline: Container(),
                         icon: const Icon(
                           Icons.arrow_drop_down,
-                          color: Color(0xFF81B29A),
+                          color: AppColors.primaryGreen,
                           size: 24,
                         ),
                         isExpanded: false,
@@ -785,7 +786,7 @@ class AdminPageState extends State<AdminPage> {
                           fontFamily: 'NanumGothicCoding-Regular',
                           letterSpacing: 0.5,
                           fontSize: 15,
-                          color: Color(0xFF2C2C2C),
+                          color: AppColors.textDark,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -797,7 +798,7 @@ class AdminPageState extends State<AdminPage> {
                       child: ElevatedButton(
                         onPressed: _isLoadingUsers ? null : _loadUsers,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE07A5F),
+                          backgroundColor: AppColors.primaryOrange,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           shape: RoundedRectangleBorder(
@@ -839,7 +840,7 @@ class AdminPageState extends State<AdminPage> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: const Color(0xFF81B29A).withOpacity(0.4),
+                                  color: AppColors.primaryGreen.withOpacity(0.4),
                                   width: 1.5,
                                 ),
                                 boxShadow: [
@@ -858,7 +859,7 @@ class AdminPageState extends State<AdminPage> {
                                   fontFamily: 'NanumGothicCoding-Regular',
                                   letterSpacing: 0.5,
                                   fontSize: 15,
-                                  color: Color(0xFF2C2C2C),
+                                  color: AppColors.textDark,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -871,7 +872,7 @@ class AdminPageState extends State<AdminPage> {
                                       fontFamily: 'NanumGothicCoding-Regular',
                                       letterSpacing: 0.5,
                                       fontSize: 15,
-                                      color: Color(0xFF2C2C2C),
+                                      color: AppColors.textDark,
                                     ),
                                   ),
                                 ),
@@ -883,7 +884,7 @@ class AdminPageState extends State<AdminPage> {
                                       fontFamily: 'NanumGothicCoding-Regular',
                                       letterSpacing: 0.5,
                                       fontSize: 15,
-                                      color: Color(0xFF2C2C2C),
+                                      color: AppColors.textDark,
                                     ),
                                   ),
                                 ),
@@ -895,7 +896,7 @@ class AdminPageState extends State<AdminPage> {
                                       fontFamily: 'NanumGothicCoding-Regular',
                                       letterSpacing: 0.5,
                                       fontSize: 15,
-                                      color: Color(0xFF2C2C2C),
+                                      color: AppColors.textDark,
                                     ),
                                   ),
                                 ),
@@ -906,7 +907,7 @@ class AdminPageState extends State<AdminPage> {
                               underline: Container(),
                               icon: const Icon(
                                 Icons.arrow_drop_down,
-                                color: Color(0xFF81B29A),
+                                color: AppColors.primaryGreen,
                                 size: 24,
                               ),
                               isExpanded: true,
@@ -914,7 +915,7 @@ class AdminPageState extends State<AdminPage> {
                                 fontFamily: 'NanumGothicCoding-Regular',
                                 letterSpacing: 0.5,
                                 fontSize: 15,
-                                color: Color(0xFF2C2C2C),
+                                color: AppColors.textDark,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -927,7 +928,7 @@ class AdminPageState extends State<AdminPage> {
                       child: ElevatedButton(
                         onPressed: _isLoadingUsers ? null : _loadUsers,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE07A5F),
+                          backgroundColor: AppColors.primaryOrange,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           shape: RoundedRectangleBorder(
@@ -965,7 +966,7 @@ class AdminPageState extends State<AdminPage> {
               child: Padding(
                 padding: EdgeInsets.all(16.0),
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE07A5F)),
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryOrange),
                 ),
               ),
             )
@@ -977,7 +978,7 @@ class AdminPageState extends State<AdminPage> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF81B29A).withOpacity(0.15),
+                    color: AppColors.primaryGreen.withOpacity(0.15),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -990,7 +991,7 @@ class AdminPageState extends State<AdminPage> {
                     Icon(
                       Icons.people_outline,
                       size: 48,
-                      color: Color(0xFF2C2C2C),
+                      color: AppColors.textDark,
                     ),
                     SizedBox(height: 12),
                     Text(
@@ -999,7 +1000,7 @@ class AdminPageState extends State<AdminPage> {
                         fontFamily: 'NanumGothicCoding-Regular',
                         letterSpacing: 0.5,
                         fontSize: 14,
-                        color: Color(0xFF2C2C2C),
+                        color: AppColors.textDark,
                       ),
                     ),
                   ],
@@ -1013,12 +1014,12 @@ class AdminPageState extends State<AdminPage> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF81B29A).withOpacity(0.15),
+                    color: AppColors.primaryGreen.withOpacity(0.15),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
-                    color: const Color(0xFFE07A5F).withOpacity(0.1),
+                    color: AppColors.primaryOrange.withOpacity(0.1),
                     blurRadius: 30,
                     offset: const Offset(0, 4),
                   ),
@@ -1033,7 +1034,7 @@ class AdminPageState extends State<AdminPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF81B29A).withOpacity(0.15),
+                      color: AppColors.primaryGreen.withOpacity(0.15),
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(20),
                         topRight: Radius.circular(20),
@@ -1050,7 +1051,7 @@ class AdminPageState extends State<AdminPage> {
                               letterSpacing: 0.5,
                               fontSize: kIsWeb ? 13 : 14,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2C2C2C),
+                              color: AppColors.textDark,
                             ),
                           ),
                         ),
@@ -1063,7 +1064,7 @@ class AdminPageState extends State<AdminPage> {
                               letterSpacing: 0.5,
                               fontSize: kIsWeb ? 13 : 14,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2C2C2C),
+                              color: AppColors.textDark,
                             ),
                           ),
                         ),
@@ -1076,7 +1077,7 @@ class AdminPageState extends State<AdminPage> {
                               letterSpacing: 0.5,
                               fontSize: kIsWeb ? 13 : 14,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2C2C2C),
+                              color: AppColors.textDark,
                             ),
                           ),
                         ),
@@ -1089,7 +1090,7 @@ class AdminPageState extends State<AdminPage> {
                               letterSpacing: 0.5,
                               fontSize: kIsWeb ? 13 : 14,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2C2C2C),
+                              color: AppColors.textDark,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -1124,7 +1125,7 @@ class AdminPageState extends State<AdminPage> {
                                   fontFamily: 'NanumGothicCoding-Regular',
                                   letterSpacing: 0.5,
                                   fontSize: kIsWeb ? 13 : 14,
-                                  color: const Color(0xFF2C2C2C),
+                                  color: AppColors.textDark,
                                 ),
                               ),
                             ),
@@ -1136,7 +1137,7 @@ class AdminPageState extends State<AdminPage> {
                                   fontFamily: 'NanumGothicCoding-Regular',
                                   letterSpacing: 0.5,
                                   fontSize: kIsWeb ? 13 : 14,
-                                  color: const Color(0xFF2C2C2C),
+                                  color: AppColors.textDark,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -1149,7 +1150,7 @@ class AdminPageState extends State<AdminPage> {
                                   fontFamily: 'NanumGothicCoding-Regular',
                                   letterSpacing: 0.5,
                                   fontSize: kIsWeb ? 13 : 14,
-                                  color: const Color(0xFF2C2C2C),
+                                  color: AppColors.textDark,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -1160,7 +1161,7 @@ class AdminPageState extends State<AdminPage> {
                                 icon: Icon(
                                   Icons.edit,
                                   size: kIsWeb ? 18 : 20,
-                                  color: const Color(0xFFE07A5F),
+                                  color: AppColors.primaryOrange,
                                 ),
                                 onPressed: () {
                                   _showRoleChangeDialog(user);
@@ -1187,12 +1188,12 @@ class AdminPageState extends State<AdminPage> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF81B29A).withOpacity(0.15),
+                  color: AppColors.primaryGreen.withOpacity(0.15),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
                 BoxShadow(
-                  color: const Color(0xFFE07A5F).withOpacity(0.1),
+                  color: AppColors.primaryOrange.withOpacity(0.1),
                   blurRadius: 30,
                   offset: const Offset(0, 4),
                 ),
@@ -1204,7 +1205,7 @@ class AdminPageState extends State<AdminPage> {
                 Icon(
                   Icons.video_library,
                   size: 64,
-                  color: const Color(0xFFE07A5F).withOpacity(0.7),
+                  color: AppColors.primaryOrange.withOpacity(0.7),
                 ),
                 const SizedBox(height: 16),
                 const Text(
@@ -1214,7 +1215,7 @@ class AdminPageState extends State<AdminPage> {
                     letterSpacing: 0.5,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF2C2C2C),
+                    color: AppColors.textDark,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -1224,7 +1225,7 @@ class AdminPageState extends State<AdminPage> {
                     fontFamily: 'NanumGothicCoding-Regular',
                     letterSpacing: 0.5,
                     fontSize: 14,
-                    color: Color(0xFF2C2C2C),
+                    color: AppColors.textDark,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -1235,7 +1236,7 @@ class AdminPageState extends State<AdminPage> {
                   child: ElevatedButton.icon(
                     onPressed: _pickVideo,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE07A5F),
+                      backgroundColor: AppColors.primaryOrange,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -1263,10 +1264,10 @@ class AdminPageState extends State<AdminPage> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8F9FA),
+                      color: AppColors.backgroundLight,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color(0xFF81B29A).withOpacity(0.4),
+                        color: AppColors.primaryGreen.withOpacity(0.4),
                         width: 1.5,
                       ),
                     ),
@@ -1274,7 +1275,7 @@ class AdminPageState extends State<AdminPage> {
                       children: [
                         const Icon(
                           Icons.video_file,
-                          color: Color(0xFFE07A5F),
+                          color: AppColors.primaryOrange,
                           size: 24,
                         ),
                         const SizedBox(width: 12),
@@ -1285,7 +1286,7 @@ class AdminPageState extends State<AdminPage> {
                               fontFamily: 'NanumGothicCoding-Regular',
                               letterSpacing: 0.5,
                               fontSize: 14,
-                              color: Color(0xFF2C2C2C),
+                              color: AppColors.textDark,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1300,7 +1301,7 @@ class AdminPageState extends State<AdminPage> {
                     child: ElevatedButton.icon(
                       onPressed: _isUploadingVideo ? null : _uploadVideo,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFE07A5F),
+                        backgroundColor: AppColors.primaryOrange,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),

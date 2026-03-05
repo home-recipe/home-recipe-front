@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/join_request.dart';
 import '../services/api_service.dart';
 import 'login_page.dart';
+import '../constants/app_colors.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -244,7 +245,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       letterSpacing: 0.5,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF2C2C2C),
+                      color: AppColors.textDark,
                     ),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -253,12 +254,12 @@ class _SignUpPageState extends State<SignUpPage> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF81B29A).withOpacity(0.15),
+                            color: AppColors.primaryGreen.withOpacity(0.15),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
                           BoxShadow(
-                            color: const Color(0xFFE07A5F).withOpacity(0.1),
+                            color: AppColors.primaryOrange.withOpacity(0.1),
                             blurRadius: 30,
                             offset: const Offset(0, 4),
                           ),
@@ -331,7 +332,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   child: ElevatedButton(
                                     onPressed: _isLoading ? null : _handleSignUp,
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFE07A5F),
+                                      backgroundColor: AppColors.primaryOrange,
                                       foregroundColor: Colors.white,
                                       textStyle: const TextStyle(
                                         fontFamily: 'NanumGothicCoding-Regular',
@@ -377,16 +378,16 @@ class _SignUpPageState extends State<SignUpPage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // REC::
-        _buildStyledText('REC::', const Color(0xFFE07A5F)),
+        _buildStyledText('REC::', AppColors.primaryOrange),
         // OOK
-        _buildStyledText('OOK', const Color(0xFF81B29A)),
+        _buildStyledText('OOK', AppColors.primaryGreen),
       ],
     );
   }
 
   // 스타일이 적용된 텍스트 위젯 (outline 포함)
   Widget _buildStyledText(String text, Color fillColor) {
-    const outlineColor = Color(0xFF8B4513); // Rust brown outline
+    const outlineColor = AppColors.logoOutline; // Rust brown outline
     const fontSize = 60.0;
     const outlineWidth = 3.0;
     const padding = outlineWidth + 2.0; // 테두리 여유 공간 확보
@@ -453,7 +454,7 @@ class _SignUpPageState extends State<SignUpPage> {
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF2C2C2C),
+            color: AppColors.textDark,
             letterSpacing: 0.2,
           ),
         ),
@@ -470,7 +471,7 @@ class _SignUpPageState extends State<SignUpPage> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           style: const TextStyle(
             fontSize: 14,
-            color: Color(0xFF2C2C2C),
+            color: AppColors.textDark,
           ),
           decoration: InputDecoration(
             hintText: hintText,
@@ -478,9 +479,9 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.grey.shade400,
               fontSize: 13,
             ),
-            prefixIcon: Icon(icon, color: const Color(0xFF81B29A), size: 18),
+            prefixIcon: Icon(icon, color: AppColors.primaryGreen, size: 18),
             filled: true,
-            fillColor: const Color(0xFFF8F9FA),
+            fillColor: AppColors.backgroundLight,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
@@ -498,7 +499,7 @@ class _SignUpPageState extends State<SignUpPage> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(
-                color: Color(0xFF81B29A),
+                color: AppColors.primaryGreen,
                 width: 1.5,
               ),
             ),
@@ -535,7 +536,7 @@ class _SignUpPageState extends State<SignUpPage> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF2C2C2C),
+            color: AppColors.textDark,
             letterSpacing: 0.2,
           ),
         ),
@@ -560,7 +561,7 @@ class _SignUpPageState extends State<SignUpPage> {
           },
           style: const TextStyle(
             fontSize: 14,
-            color: Color(0xFF2C2C2C),
+            color: AppColors.textDark,
           ),
           decoration: InputDecoration(
             hintText: '이메일을 입력하세요',
@@ -570,17 +571,17 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
             prefixIcon: const Icon(
               Icons.email_outlined,
-              color: Color(0xFF81B29A),
+              color: AppColors.primaryGreen,
               size: 18,
             ),
             suffixText: '@$_selectedDomain',
             suffixStyle: const TextStyle(
               fontSize: 13,
-              color: Color(0xFF2C2C2C),
+              color: AppColors.textDark,
               fontWeight: FontWeight.w500,
             ),
             filled: true,
-            fillColor: const Color(0xFFF8F9FA),
+            fillColor: AppColors.backgroundLight,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
@@ -598,7 +599,7 @@ class _SignUpPageState extends State<SignUpPage> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(
-                color: Color(0xFF81B29A),
+                color: AppColors.primaryGreen,
                 width: 1.5,
               ),
             ),
@@ -645,7 +646,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     height: 44,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8F9FA),
+                      color: AppColors.backgroundLight,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: Colors.grey.shade300,
@@ -659,13 +660,13 @@ class _SignUpPageState extends State<SignUpPage> {
                           _selectedDomain,
                           style: const TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF2C2C2C),
+                            color: AppColors.textDark,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         const Icon(
                           Icons.arrow_drop_down,
-                          color: Color(0xFF81B29A),
+                          color: AppColors.primaryGreen,
                           size: 20,
                         ),
                       ],
@@ -681,7 +682,7 @@ class _SignUpPageState extends State<SignUpPage> {
               child: ElevatedButton(
                 onPressed: _isCheckingEmail ? null : _checkEmailDuplicate,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF81B29A),
+                  backgroundColor: AppColors.primaryGreen,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -760,7 +761,7 @@ class _SignUpPageState extends State<SignUpPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: isSelected 
-                  ? const Color(0xFF81B29A).withOpacity(0.1)
+                  ? AppColors.primaryGreen.withOpacity(0.1)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
             ),
@@ -772,8 +773,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     style: TextStyle(
                       fontSize: 15,
                       color: isSelected 
-                          ? const Color(0xFF81B29A)
-                          : const Color(0xFF2C2C2C),
+                          ? AppColors.primaryGreen
+                          : AppColors.textDark,
                       fontWeight: isSelected 
                           ? FontWeight.w700
                           : FontWeight.w500,
@@ -783,7 +784,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 if (isSelected)
                   const Icon(
                     Icons.check,
-                    color: Color(0xFF81B29A),
+                    color: AppColors.primaryGreen,
                     size: 20,
                   ),
               ],

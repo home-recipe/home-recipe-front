@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
 
 /// 앱 전체에서 사용하는 텍스트 스타일
+/// High-Saturation & Vibrant 테마의 컬러 시스템 적용
 class AppTextStyles {
   // 기본 폰트 설정
   static const String fontFamily = 'NanumGothicCoding-Regular';
@@ -12,7 +14,7 @@ class AppTextStyles {
     letterSpacing: letterSpacing,
     fontSize: 24,
     fontWeight: FontWeight.bold,
-    color: Color(0xFF2C2C2C),
+    color: AppColors.textDark,
   );
   
   static const TextStyle titleMedium = TextStyle(
@@ -20,7 +22,7 @@ class AppTextStyles {
     letterSpacing: letterSpacing,
     fontSize: 20,
     fontWeight: FontWeight.w700,
-    color: Color(0xFF2C2C2C),
+    color: AppColors.textDark,
   );
   
   static const TextStyle titleSmall = TextStyle(
@@ -28,7 +30,7 @@ class AppTextStyles {
     letterSpacing: letterSpacing,
     fontSize: 18,
     fontWeight: FontWeight.w700,
-    color: Color(0xFF2C2C2C),
+    color: AppColors.textDark,
   );
   
   // 본문 스타일
@@ -37,7 +39,7 @@ class AppTextStyles {
     letterSpacing: letterSpacing,
     fontSize: 16,
     fontWeight: FontWeight.w600,
-    color: Color(0xFF2C2C2C),
+    color: AppColors.textDark,
   );
   
   static const TextStyle bodyMedium = TextStyle(
@@ -45,7 +47,7 @@ class AppTextStyles {
     letterSpacing: letterSpacing,
     fontSize: 14,
     fontWeight: FontWeight.w600,
-    color: Color(0xFF2C2C2C),
+    color: AppColors.textDark,
   );
   
   static const TextStyle bodySmall = TextStyle(
@@ -53,7 +55,7 @@ class AppTextStyles {
     letterSpacing: letterSpacing,
     fontSize: 12,
     fontWeight: FontWeight.w600,
-    color: Color(0xFF2C2C2C),
+    color: AppColors.textDark,
   );
   
   // 버튼 스타일

@@ -32,6 +32,7 @@ class CommonButton extends StatelessWidget {
           ? SizedBox(
               width: _getLoadingSize(),
               height: _getLoadingSize(),
+              // 로딩 인디케이터: primary 버튼은 흰색, secondary 버튼은 오렌지색
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
