@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 /// 랜딩 페이지 Hero 섹션 위젯
@@ -16,10 +17,10 @@ class HeroSection extends StatefulWidget {
 class _HeroSectionState extends State<HeroSection>
     with SingleTickerProviderStateMixin {
   // 배경 이미지 경로 목록
-  static const List<String> _backgroundImages = [
-    'assets/front/1.png',
-    'assets/front/2.png',
-    'assets/front/3.png',
+  static final List<String> _backgroundImages = [
+    kIsWeb ? 'front/1.png' : 'assets/front/1.png',
+    kIsWeb ? 'front/2.png' : 'assets/front/2.png',
+    kIsWeb ? 'front/3.png' : 'assets/front/3.png',
   ];
 
   late AnimationController _controller;
