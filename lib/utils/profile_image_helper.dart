@@ -56,11 +56,19 @@ class ProfileImageHelper {
           .where((String key) => (key.startsWith('assets/profiles/') || key.startsWith('profiles/')) && 
                                  (key.endsWith('.png') || key.endsWith('.jpg') || key.endsWith('.jpeg')))
           .map((String key) {
-            // 모든 플랫폼에서 'assets/' prefix 통일
-            if (!key.startsWith('assets/')) {
-              return 'assets/$key';
+            // 웹에서는 Image.asset()이 자동으로 'assets/'를 추가하므로 제거
+            // 모바일에서는 'assets/' prefix 필요
+            if (kIsWeb) {
+              if (key.startsWith('assets/')) {
+                return key.substring(7); // 'assets/' 제거
+              }
+              return key;
+            } else {
+              if (!key.startsWith('assets/')) {
+                return 'assets/$key';
+              }
+              return key;
             }
-            return key;
           })
           .toList()
         ..sort(); // 정렬하여 일관성 유지
@@ -86,7 +94,7 @@ class ProfileImageHelper {
         // 개발 모드 fallback: assets/profiles 폴더의 알려진 파일들
         // 프로덕션에서는 AssetManifest에서 동적으로 로드되므로 하드코딩이 아님
         // 새로운 이미지를 추가하면 여기에도 추가해야 하지만, 프로덕션에서는 자동으로 인식됨
-        _cachedProfileImages = ['assets/profiles/fruit1.png', 'assets/profiles/onion.png', 'assets/profiles/tomato.png'];
+        _cachedProfileImages = ['profiles/fruit1.png', 'profiles/onion.png', 'profiles/tomato.png'];
         return _cachedProfileImages!;
       } else {
         debugPrint('프로필 이미지 로드 중 오류: $e');
