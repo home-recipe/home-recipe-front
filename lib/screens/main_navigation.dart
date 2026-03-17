@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'landing_page.dart';
 import 'recipe_page.dart';
@@ -286,7 +285,7 @@ class _MainNavigationState extends State<MainNavigation> {
         ),
         clipBehavior: Clip.antiAlias,
         child: Image.asset(
-          kIsWeb ? 'profiles/tomato.png' : 'assets/profiles/tomato.png',
+          'assets/profiles/tomato.png',
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => Container(
             decoration: BoxDecoration(
@@ -403,7 +402,7 @@ class _MainNavigationState extends State<MainNavigation> {
             ),
             clipBehavior: Clip.antiAlias,
             child: Image.asset(
-              kIsWeb ? 'profiles/tomato.png' : 'assets/profiles/tomato.png',
+              'assets/profiles/tomato.png',
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
                 decoration: BoxDecoration(

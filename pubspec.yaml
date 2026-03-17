@@ -43,7 +43,6 @@ flutter:
     - assets/profiles/
     - assets/videos/
     - assets/logos/
-    - assets/fonts/
 
   fonts:
     - family: NanumGothicCoding-Regular
