@@ -145,13 +145,17 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final horizontalPadding = isMobile ? 16.0 : 24.0;
+
     return Scaffold(
       // Vibrant 테마: 배경색을 앱 컬러로 통일
       backgroundColor: AppColors.backgroundWhite,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -335,30 +339,34 @@ class _LoginPageState extends State<LoginPage> {
 
   // REC::OOK 스타일 타이틀 위젯
   // Vibrant 테마: 그라데이션 효과가 적용된 로고 사용
+  // FittedBox로 감싸서 모바일에서 overflow 방지
   Widget _buildRecookTitle() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // REC:: - Orange → Pink 그라데이션
-        _buildStyledText(
-          'REC::',
-          useGradient: true,
-          gradientColors: const [
-            AppColors.gradientOrangeStart,
-            AppColors.gradientOrangeEnd,
-          ],
-        ),
-        // OOK - Green 그라데이션
-        _buildStyledText(
-          'OOK',
-          useGradient: true,
-          gradientColors: const [
-            AppColors.gradientGreenStart,
-            AppColors.gradientGreenEnd,
-          ],
-        ),
-      ],
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // REC:: - Orange → Pink 그라데이션
+          _buildStyledText(
+            'REC::',
+            useGradient: true,
+            gradientColors: const [
+              AppColors.gradientOrangeStart,
+              AppColors.gradientOrangeEnd,
+            ],
+          ),
+          // OOK - Green 그라데이션
+          _buildStyledText(
+            'OOK',
+            useGradient: true,
+            gradientColors: const [
+              AppColors.gradientGreenStart,
+              AppColors.gradientGreenEnd,
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -451,10 +459,14 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    print("---------------------------------------");
-    print("🔥 OAuth 요청 URL: $url");
-    print("🔑 생성된 Challenge: $codeChallenge");
-    print("---------------------------------------");
+    // 웹에서는 redirectTo() 후 콘솔이 초기화되므로 debugPrint 사용
+    debugPrint("=======================================");
+    debugPrint("🔥 OAuth 요청 URL: $url");
+    debugPrint("🔑 생성된 Challenge: $codeChallenge");
+    debugPrint("🔒 code_verifier 저장 완료");
+    debugPrint("📌 서버는 redirect 시 ?code=xxx 형태로 authorization code만 반환해야 함");
+    debugPrint("📌 서버가 ?accessToken=ey... 형태로 반환하면 구버전 로직이므로 서버 수정 필요");
+    debugPrint("=======================================");
     
     try {
       if(kIsWeb) {

@@ -7,11 +7,12 @@ import 'main_navigation.dart';
 import '../utils/url_helper.dart';
 import '../constants/app_colors.dart';
 
-/// OAuth2 로그인 콜백 페이지
+/// OAuth2 로그인 콜백 페이지 (PKCE 방식)
 ///
-/// 플랫폼별 처리:
-/// - 웹(WEB): accessToken만 URL 파라미터로 받음. refreshToken은 HttpOnly 쿠키로 자동 관리
-/// - 앱(MOBILE): accessToken, refreshToken 모두 딥 링크 URL 파라미터로 받아서 secure storage에 저장
+/// 서버로부터 authorization code만 URL 파라미터로 수신하고,
+/// code + code_verifier를 서버에 전송하여 토큰을 JSON으로 교환한다.
+/// - 웹(WEB): refreshToken은 서버가 HttpOnly 쿠키로 세팅
+/// - 앱(MOBILE): accessToken + refreshToken 모두 Secure Storage에 저장
 class LoginCallbackPage extends StatefulWidget {
   /// 앱이 딥 링크로 시작된 경우의 초기 URI
   final Uri? initialUri;
@@ -84,15 +85,32 @@ class _LoginCallbackPageState extends State<LoginCallbackPage> {
       }
 
       final code = uri.queryParameters['code'];
+      // 구버전 서버가 accessToken을 URL에 직접 노출하는 경우 감지 (보안 위험)
+      final legacyAccessToken = uri.queryParameters['accessToken'];
 
       debugPrint('OAuth Callback - URI: ${uri.toString()}');
       debugPrint('OAuth Callback - Platform: ${kIsWeb ? "WEB" : "MOBILE"}');
       debugPrint('OAuth Callback - code: ${code != null ? "exists" : "null"}');
 
+      // 구버전 로직 감지: accessToken이 URL에 직접 노출된 경우
+      if (legacyAccessToken != null && legacyAccessToken.isNotEmpty) {
+        debugPrint('⚠️ 보안 경고: 서버가 구버전 로직(URL에 accessToken 노출)으로 동작 중입니다.');
+        debugPrint('⚠️ 서버의 OAuth 핸들러를 PKCE 방식으로 업데이트해야 합니다.');
+        debugPrint('⚠️ 서버가 redirect 시 ?code=xxx 형태로 authorization code만 전달해야 합니다.');
+        setState(() {
+          _isProcessing = false;
+          _errorMessage = '서버가 구버전 인증 방식으로 응답했습니다.\n'
+              '서버의 OAuth 핸들러를 PKCE 방식으로 업데이트해주세요.\n'
+              '(accessToken이 URL에 직접 노출되어 보안 위험이 있습니다)';
+        });
+        return;
+      }
+
       if (code == null || code.isEmpty) {
         setState(() {
           _isProcessing = false;
-          _errorMessage = '인증 코드를 받지 못했습니다.';
+          _errorMessage = '인증 코드를 받지 못했습니다.\n'
+              '서버가 authorization code를 반환하는지 확인해주세요.';
         });
         return;
       }
