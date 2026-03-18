@@ -38,7 +38,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/
     - assets/front/
     - assets/profiles/
     - assets/videos/
@@ -47,4 +46,4 @@ flutter:
   fonts:
     - family: NanumGothicCoding-Regular
       fonts:
-        - asset: assets/fonts/NanumGothicCoding-Regular.ttf
+        - asset: /fonts/NanumGothicCoding-Regular.ttf

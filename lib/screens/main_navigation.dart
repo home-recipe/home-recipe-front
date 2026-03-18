@@ -37,13 +37,13 @@ class _MainNavigationState extends State<MainNavigation> {
   bool _isLoggedIn = false;
   bool _isCheckingAuth = true;
 
-  // 탭 목록 (5개: 홈, My, 레시피, 추천, 보관)
+  // 탭 목록 (5개: 홈, My, 레시피, 추천, 보관함)
   static const List<Map<String, dynamic>> _tabs = [
     {'label': '홈', 'icon': Icons.home_outlined, 'activeIcon': Icons.home, 'index': 0},
     {'label': 'My', 'icon': Icons.person_outline, 'activeIcon': Icons.person, 'index': 1},
     {'label': '레시피', 'icon': Icons.restaurant_menu_outlined, 'activeIcon': Icons.restaurant_menu, 'index': 2},
     {'label': '추천', 'icon': Icons.auto_awesome_outlined, 'activeIcon': Icons.auto_awesome, 'index': 3},
-    {'label': '보관', 'icon': Icons.bookmark_outline, 'activeIcon': Icons.bookmark, 'index': 4},
+    {'label': '보관함', 'icon': Icons.bookmark_outline, 'activeIcon': Icons.bookmark, 'index': 4},
   ];
 
   @override
@@ -171,7 +171,7 @@ class _MainNavigationState extends State<MainNavigation> {
             RecipePage(tabNotifier: _tabNotifier, tabIndex: 2),
             // index 3: 추천 (추천 레시피)
             RecommendationPage(tabNotifier: _tabNotifier, tabIndex: 3),
-            // index 4: 보관
+            // index 4: 보관함
             const BookmarkPage(),
           ],
         ),
