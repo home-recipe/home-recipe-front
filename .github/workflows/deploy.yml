@@ -1,33 +1,35 @@
-# 1. 워크플로우(자동화 작업)의 이름을 정합니다.
 name: Flutter Web Deploy 
 
-# 2. 언제 이 로봇을 깨울지 정합니다.
 on:
   push:
-    branches: [ main ]  # main 브랜치에 코드가 push될 때마다 실행됩니다.
+    branches: [ main ]
 
-# 3. 로봇이 해야 할 일들을 정의합니다.
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest  # 가상 환경에서 작업을 시작합니다.
+    runs-on: ubuntu-latest
+    
+    # [핵심 수정] Node.js 24 환경을 강제로 사용하도록 설정 (경고 제거용)
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
-      # [Step 1] GitHub 저장소의 코드를 가져옵니다.
+      # 1. 코드 가져오기 (v4 사용)
       - name: 코드 가져오기
         uses: actions/checkout@v4
 
-      # [Step 2] 플러터 엔진을 설치합니다.
+      # 2. 플러터 엔진 설치
       - name: 플러터 설정
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      # [Step 3] 웹 빌드를 진행합니다.
+      # 3. 웹 빌드 (Wasm 최적화 + 경로 오류 방지)
       - name: 웹 빌드 시작
         run: |
           flutter pub get
           flutter build web --wasm --release --base-href /
 
-      # [Step 4] 빌드된 결과물을 미경님의 서버로 전송합니다.
+      # 4. 서버로 파일 전송 (안정적인 버전 번호 명시)
       - name: 서버로 파일 전송 (SCP)
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -36,9 +38,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "build/web/*"
           target: "/var/www/html"
-          strip_components: 2 # build/web 폴더 구조를 깎고 알맹이만 전송!
+          strip_components: 2 
 
-      # [Step 5] 서버 정리 및 Nginx 재시작
+      # 5. 서버 정리 및 Nginx 재시작
       - name: 서버 정리 및 Nginx 재시작
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -46,7 +48,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # assets/assets 중복 문제 해결
+            # assets/assets 중복 문제 방어 코드
             if [ -d "/var/www/html/assets/assets" ]; then
                 sudo cp -r /var/www/html/assets/assets/* /var/www/html/assets/
                 sudo rm -rf /var/www/html/assets/assets
@@ -56,4 +58,4 @@ jobs:
             sudo chown -R www-data:www-data /var/www/html
             sudo chmod -R 755 /var/www/html
             sudo systemctl restart nginx
-            echo "✨ 배포가 완료되었습니다!"
+            echo "Node.js 24 환경에서 Wasm 배포가 완료되었습니다!"
