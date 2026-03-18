@@ -6,31 +6,30 @@ on:
 
 jobs:
   build-and-deploy:
+    # 1. 최신 우분투 이미지인지 확인 (22.04 또는 24.04 권장)
     runs-on: ubuntu-latest
     
-    # [핵심 수정] Node.js 24 환경을 강제로 사용하도록 설정 (경고 제거용)
+    # 2. [가장 중요] 환경 변수 위치를 Job 레벨로 격상
+    # 이렇게 해야 'Cleaning up' 단계까지 Node.js 24가 강제 적용됩니다.
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      # 1. 코드 가져오기 (v4 사용)
       - name: 코드 가져오기
         uses: actions/checkout@v4
 
-      # 2. 플러터 엔진 설치
       - name: 플러터 설정
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      # 3. 웹 빌드 (Wasm 최적화 + 경로 오류 방지)
       - name: 웹 빌드 시작
         run: |
           flutter pub get
           flutter build web --wasm --release --base-href /
 
-      # 4. 서버로 파일 전송 (안정적인 버전 번호 명시)
       - name: 서버로 파일 전송 (SCP)
+        # v0.1.7 등 최신 태그를 사용 중인지 확인하세요.
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -40,7 +39,6 @@ jobs:
           target: "/var/www/html"
           strip_components: 2 
 
-      # 5. 서버 정리 및 Nginx 재시작
       - name: 서버 정리 및 Nginx 재시작
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -48,14 +46,11 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # assets/assets 중복 문제 방어 코드
             if [ -d "/var/www/html/assets/assets" ]; then
                 sudo cp -r /var/www/html/assets/assets/* /var/www/html/assets/
                 sudo rm -rf /var/www/html/assets/assets
             fi
-
-            # 권한 조정 및 서버 재시작
             sudo chown -R www-data:www-data /var/www/html
             sudo chmod -R 755 /var/www/html
             sudo systemctl restart nginx
-            echo "Node.js 24 환경에서 Wasm 배포가 완료되었습니다!"
+            echo "🚀 Node.js 24 강제 적용 및 배포 완료!"
