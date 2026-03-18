@@ -64,3 +64,9 @@ Thumbs.db
 .env
 .env.*deploy.tar.gz
 deploy.tar.gz
+
+# Next.js
+.next/
+out/
+node_modules/
+.env.local

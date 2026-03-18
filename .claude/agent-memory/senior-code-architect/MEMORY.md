@@ -1,9 +1,10 @@
 # Senior Code Architect Memory for home-recipe-front
 
 ## Project Overview
-- Flutter web/mobile application (REC::OOK)
+- **Dual Stack**: Flutter web/mobile (legacy) + Next.js App Router (new frontend)
 - Korean language UI with English code
-- Uses Material 3 design system
+- Flutter uses Material 3 design system
+- Next.js uses Tailwind CSS with same color palette
 
 ## Color System Architecture (Updated 2026-03-03)
 **Red Theme Implementation (#f21d1d)**
@@ -125,3 +126,68 @@
 - AnimatedContainer for hover effects (transform: Matrix4.translationValues)
 - Always check `mounted` before setState in async callbacks
 - Dispose all controllers and timers in dispose method
+
+## Next.js Frontend Architecture (Added 2026-03-19)
+
+### Project Structure
+- Location: `/src/app/` (App Router)
+- Shared layout: `src/app/layout.tsx` with fixed Header
+- Global styles: `src/app/globals.css` (CSS variables match Flutter colors)
+- Components: `src/components/` (auth, layout, etc.)
+
+### Layout System
+- **Fixed Header + Full Height Body** pattern
+- `layout.tsx`: Header (fixed) + main (flex-1)
+- Body element: `h-screen flex flex-col overflow-hidden`
+- Main element: `flex-1 overflow-hidden` (takes remaining height)
+
+### Header Component
+- Location: `/src/components/layout/Header.tsx`
+- White background (`bg-white shadow-sm`)
+- Left: "Re:Cook" text logo (black)
+- Right: 회원가입 button (ghost style) when logged out
+- Uses `useAuth` hook for authentication state
+
+### Home Page (Fullscreen Image Slider)
+- Location: `/src/app/page.tsx`
+- **Fullscreen carousel** with 3 images from `/assets/front/`
+- Image sources: `/assets/front/1.png`, `2.png`, `3.png`
+  - **Important**: Images must be in `public/assets/front/` (Next.js static serving)
+  - Copy from Flutter `assets/front/` if needed: `cp assets/front/*.png public/assets/front/`
+- Slide interval: 6 seconds
+- Fade duration: 1500ms (very slow and smooth)
+- Text overlay: centered, white text with dark shadow
+- Each slide has different title + description
+- CTA buttons: "시작하기" (red), "로그인" (white/blur)
+- Slide indicators: bottom center, clickable dots
+
+### Animation Implementation
+- Uses React hooks: `useState`, `useEffect`
+- No external slider libraries (bundle size optimization)
+- Transition timing:
+  - `setIsTransitioning(true)` → fade out
+  - After 800ms → change slide index
+  - `setIsTransitioning(false)` → fade in
+- CSS transitions: `duration-[1500ms]` for smooth fade
+- Staggered text animations: `delay-100`, `delay-200` for title/description/buttons
+
+### CSS Variables (globals.css)
+- Matches Flutter `app_colors.dart` palette
+- Primary: `--color-primary-orange` (#f21d1d), `--color-primary-green` (#19e619)
+- Gradient: REC:: (orange→#ff4444), OOK (green→#00bfa5)
+- Font: 'NanumGothicCoding' with `letter-spacing: 0.5px`
+- Overflow hidden on html/body for fullscreen effect
+
+### Image Asset Workflow
+1. Flutter images: `assets/front/*.png` (committed to repo)
+2. Next.js images: `public/assets/front/*.png` (copied from Flutter)
+3. Access in code: `/assets/front/1.png` (public/ is root in Next.js)
+4. **Do not modify Flutter assets** - only copy to public/
+
+### Code Conventions (Next.js)
+- All code comments in Korean (project rule)
+- TypeScript with strict typing
+- Tailwind CSS for styling (no CSS modules)
+- Client components: `'use client'` directive
+- Auth hook: `useAuth()` from `@/hooks/useAuth`
+- Router: `useRouter()` from `next/navigation`

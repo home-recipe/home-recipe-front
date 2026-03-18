@@ -1,0 +1,138 @@
+/**
+ * 전역 스타일시트
+ * Tailwind CSS 및 커스텀 CSS 변수 정의
+ */
+
+@import "tailwindcss";
+
+/* CSS 변수 정의 (Flutter app_colors.dart 대응) */
+:root {
+  /* Primary Colors */
+  --color-primary-orange: #f21d1d;
+  --color-primary-green: #19e619;
+
+  /* Accent Colors */
+  --color-accent-yellow: #ffea00;
+  --color-accent-pink: #ff1744;
+
+  /* Text Colors */
+  --color-text-dark: #212121;
+  --color-text-grey: #616161;
+
+  /* Background Colors */
+  --color-background-white: #ffffff;
+  --color-background-light: #f5f5f5;
+  --color-background-beige: #f2efeb;
+
+  /* Logo & Outline */
+  --color-logo-outline: #263238;
+
+  /* Gradient Colors */
+  --color-gradient-green-end: #00bfa5;
+  --color-gradient-orange-end: #ff4444;
+}
+
+/* 기본 폰트 설정 */
+body {
+  font-family: 'NanumGothicCoding', 'Nanum Gothic Coding', monospace, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  letter-spacing: 0.5px;
+  color: var(--color-text-dark);
+  background-color: var(--color-background-white);
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* 전체 페이지 스크롤 방지 */
+}
+
+/* HTML 요소도 오버플로우 숨김 */
+html {
+  overflow: hidden;
+  height: 100%;
+}
+
+/* 링크 기본 스타일 */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 버튼 기본 스타일 초기화 */
+button {
+  font-family: inherit;
+  letter-spacing: inherit;
+}
+
+/* 입력 필드 기본 스타일 */
+input,
+textarea {
+  font-family: inherit;
+  letter-spacing: inherit;
+}
+
+/* 로딩 스피너 */
+.spinner {
+  border: 3px solid var(--color-background-light);
+  border-top: 3px solid var(--color-primary-orange);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 그라디언트 텍스트 */
+.gradient-text-rec {
+  background: linear-gradient(to right, var(--color-primary-orange), var(--color-gradient-orange-end));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-ook {
+  background: linear-gradient(to right, var(--color-primary-green), var(--color-gradient-green-end));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 슬라이드 페이드 애니메이션 최적화 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* 부드러운 스케일 호버 효과 */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* 백드롭 블러 지원 */
+@supports (backdrop-filter: blur(10px)) {
+  .backdrop-blur-custom {
+    backdrop-filter: blur(10px);
+  }
+}
